@@ -26,7 +26,9 @@ export default {
           photoUrl: userNow.photoURL
         }
         commit('setUser', newUser)
+        console.log(userNow.providerData[0].providerId)
         console.log(userNow)
+        // userNow.reauthenticateAndRetrieveDataWithCredential(firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()))
       })
       .catch((error) => {
         commit('setLoading', false)

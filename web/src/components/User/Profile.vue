@@ -6,10 +6,10 @@
           <v-card>
             <v-card-text>
               <div class="text-xl-center text-lg-center text-sm-center text-md-center text-xs-center">
-                <v-avatar v-if="$store.getters.user.photoUrl != null" :tile="false" :size="100" color="grey lighten-4">
-                  <img :src="$store.getters.user.photoUrl" alt="avatar">
+                <v-avatar v-if="user.photoUrl != null" :tile="false" :size="100" color="grey lighten-4">
+                  <img :src="user.photoUrl" alt="avatar">
                 </v-avatar>
-                <v-icon left size="100" v-if="$store.getters.user.photoUrl == null">account_circle</v-icon>
+                <v-icon left size="100" v-if="user.photoUrl == null">account_circle</v-icon>
               </div>
               <v-list two-line subheader>
                 <v-list-tile avatar>
