@@ -74,7 +74,7 @@ export const selfDestructAccount = functions.https.onRequest((request, response)
     // admin.database().ref('/users/'+decodedToken.uid).set({'deleted': true})
     admin.database().ref('/users').child(decodedToken.uid).remove()
     .then(() => {
-      console.log('DELETED::/users/'+decodedToken.uid)
+      console.log('DELETED::'+decodedToken.uid)
     })
     .catch((error) => {
       console.log(error);

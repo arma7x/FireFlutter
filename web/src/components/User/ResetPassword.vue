@@ -1,45 +1,47 @@
 <template>
-  <v-container>
-    <v-layout row v-if="error">
-      <v-flex xs12 sm6 offset-sm3>
-        <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
-      </v-flex>
-    </v-layout>
-    <v-layout row>
-      <v-flex xs12 sm6 offset-sm3>
-        <v-card>
-          <v-card-text>
-            <v-container>
-              <form @submit.prevent="onResetPassword">
-                <v-layout row>
-                  <v-flex xs12>
-                    <v-text-field
-                      name="email"
-                      label="Email"
-                      id="email"
-                      v-model="email"
-                      type="email"
-                      required></v-text-field>
-                  </v-flex>
-                </v-layout>
-                <v-layout row>
-                  <v-flex xs12>
-                    <div class="text-xs-center">
-                    <v-btn block type="submit" :disabled="loading" :loading="loading">
-                      Reset Password
-                      <v-icon right>send</v-icon>
-                      <span slot="loader" class="custom-loader">
-                        <v-icon light>cached</v-icon>
-                       </span>
-                    </v-btn>
-                    </div>
-                  </v-flex>
-                </v-layout>
-              </form>
-            </v-container>
-          </v-card-text>
-        </v-card>
-      </v-flex>
+  <v-container class="center-vertical">
+    <v-layout column>
+      <v-layout row v-if="error">
+        <v-flex xs12 sm4 offset-sm4>
+          <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+        </v-flex>
+      </v-layout>
+      <v-layout row>
+        <v-flex xs12 sm4 offset-sm4>
+          <v-card>
+            <v-card-text>
+              <v-container>
+                <form @submit.prevent="onResetPassword">
+                  <v-layout row>
+                    <v-flex xs12>
+                      <v-text-field
+                        name="email"
+                        label="Email"
+                        id="email"
+                        v-model="email"
+                        type="email"
+                        required></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                  <v-layout row>
+                    <v-flex xs12>
+                      <div class="text-xs-center">
+                      <v-btn block type="submit" :disabled="loading" :loading="loading">
+                        Reset Password
+                        <v-icon right>send</v-icon>
+                        <span slot="loader" class="custom-loader">
+                          <v-icon light>cached</v-icon>
+                         </span>
+                      </v-btn>
+                      </div>
+                    </v-flex>
+                  </v-layout>
+                </form>
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-flex>
+      </v-layout>
     </v-layout>
   </v-container>
 </template>

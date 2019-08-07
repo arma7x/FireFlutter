@@ -45,7 +45,7 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
-        <v-toolbar class="primary" flat>
+        <v-toolbar class="primary font-weight-bold text-uppercase" flat>
           <v-avatar v-if="userIsAuthenticated && $store.getters.user.photoUrl != null" :tile="false" :size="49" color="grey lighten-4">
             <img :src="$store.getters.user.photoUrl" alt="avatar">
           </v-avatar>
@@ -125,4 +125,10 @@
 
 <style lang="stylus">
   @import './stylus/main'
+  .center-vertical {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
