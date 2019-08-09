@@ -46,11 +46,11 @@
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
         <v-toolbar class="primary font-weight-bold text-uppercase" flat>
-          <v-avatar v-if="userIsAuthenticated && $store.getters.user.photoUrl != null" :tile="false" :size="49" color="grey lighten-4">
-            <img :src="$store.getters.user.photoUrl" alt="avatar">
+          <v-avatar :tile="false" :size="49" color="grey lighten-4">
+            <img v-if="userIsAuthenticated && $store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl" alt="avatar">
+            <v-icon v-if="userIsAuthenticated && $store.getters.user.photoUrl == null" left size="49">account_circle</v-icon>
+            <v-icon v-if="!userIsAuthenticated" left size="49">account_circle</v-icon>
           </v-avatar>
-          <v-icon left size="49" v-if="userIsAuthenticated && $store.getters.user.photoUrl == null">account_circle</v-icon>
-          <v-icon left size="49" v-if="!userIsAuthenticated">account_circle</v-icon>
           {{ userIsAuthenticated ? $store.getters.user.name : 'Hi, Guest' }}
         </v-toolbar>
         <v-btn
