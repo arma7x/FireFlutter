@@ -9,6 +9,8 @@ var chalk = require('chalk')
 var webpack = require('webpack')
 var config = require('../config')
 var webpackConfig = require('./webpack.prod.conf')
+const replacer = require('./replacer')
+const Config = require('../src/config')
 
 var spinner = ora('building for production...')
 spinner.start()
@@ -31,5 +33,21 @@ rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
       '  Tip: built files are meant to be served over an HTTP server.\n' +
       '  Opening index.html over file:// won\'t work.\n'
     ))
+
+    const content =
+`// Give the service worker access to Firebase Messaging.
+// Note that you can only use Firebase Messaging here, other Firebase libraries
+// are not available in the service worker.
+importScripts('/service-worker.js?version=${new Date().getTime()}');
+importScripts('/firebase-app.js');
+importScripts('/firebase-messaging.js');
+
+// Initialize the Firebase app in the service worker by passing in the
+// messagingSenderId.
+firebase.initializeApp({
+  'messagingSenderId': '${Config.firebase.messagingSenderId}'
+});
+`
+    replacer(path.resolve(__dirname, '../../functions/public/firebase-messaging-sw.js'), content)
   })
 })
