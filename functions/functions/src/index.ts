@@ -93,6 +93,41 @@ export const selfDestructAccount = functions.https.onRequest((request, response)
   });
 });
 
+export const joinQueue = functions.https.onRequest((request, response) => {
+  const corsFn = cors();
+  const token = request.query.token || 'string';
+  admin.auth().verifyIdToken(token)
+  .then((decodedToken) => {
+    if (request.query.topic === undefined || request.query.topic === null) {
+      return Promise.reject({ 'message': 'Please enter topic of discussion' });
+    }
+    const chatRef = admin.database().ref('/chats/'+decodedToken.uid);
+    return chatRef.once("value")
+    .then((snapshot) => {
+      if (snapshot.exists()){
+        return Promise.reject({ 'message': 'Already in queue' });
+      } else {
+        return chatRef.set({
+          "topic": request.query.topic,
+          "timestamp": new Date().getTime(),
+          "status": 0,
+          "assigned_user": false
+        });
+      }
+    });
+  })
+  .then(() => {
+    corsFn(request, response, () => {
+      response.status(200).json({ 'message': 'Your have joined queued' });
+    });
+  })
+  .catch((error) => {
+    corsFn(request, response, () => {
+      response.status(400).json(error);
+    });
+  });
+});
+
 exports.onUserCreated = functions.auth.user().onCreate((user) => {
   admin.database().ref('/users/'+user.uid).set({'role': LEVEL.MEMBER})
   .then(() => {

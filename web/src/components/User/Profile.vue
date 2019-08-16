@@ -29,7 +29,7 @@
                     <v-list-tile-sub-title>{{ user !== undefined && user !== null ? user.uid : ''  }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile avatar>
+                <v-list-tile>
                   <v-list-tile-content>
                     <v-list-tile-title>Name</v-list-tile-title>
                     <v-list-tile-sub-title>{{ user !== undefined && user !== null ? user.name : '' }}</v-list-tile-sub-title>
@@ -48,13 +48,13 @@
                     </form>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile avatar>
+                <v-list-tile>
                   <v-list-tile-content>
                     <v-list-tile-title>Email</v-list-tile-title>
                     <v-list-tile-sub-title>{{ user !== undefined && user !== null ? user.email : '' }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile avatar>
+                <v-list-tile>
                   <v-list-tile-content>
                     <v-list-tile-title>Admin</v-list-tile-title>
                     <v-list-tile-sub-title>{{ user !== undefined && user !== null ? (user.admin ? 'TRUE' : 'FALSE') : '' }}</v-list-tile-sub-title>

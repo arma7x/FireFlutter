@@ -1,16 +1,45 @@
 {
   /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
   "rules": {
+    "chats": {
+      "$uid": {
+        ".read": "$uid === auth.uid || auth.token.admin == true",
+        "$any": {
+          ".write": false
+        },
+        "topic": {
+          ".write": false
+        },
+        "timestamp": {
+          ".write": false
+        },
+        "status": {
+          ".write": false
+        },
+        "assigned_user": {
+          ".write": false
+        },
+        "logs": {
+          "$log_id": {
+            ".validate": "root.child('chats').child(auth.uid).exists() && (newData.child('user').val() == auth.uid || auth.token.admin == true) && (newData.child('timestamp').val() == now) && (newData.child('message').child('mime').exists() && newData.child('message').child('data').exists() && newData.child('message').child('caption').exists())",
+            ".write": "(root.child('chats').child(auth.uid).exists() && !data.exists() && auth.uid == $uid) || auth.token.admin == true"
+          }
+        }
+      }
+    },
     "users": {
       "$uid": {
         ".read": "$uid === auth.uid",
-        "devices":  {
+        "$any": {
+          ".write": false
+        },
+        "devices": {
           ".write": "$uid === auth.uid"
         },
-        "online":  {
+        "online": {
           ".write": "$uid === auth.uid"
         },
-        "role":  {
+        "role": {
           ".write": false
         }
       }

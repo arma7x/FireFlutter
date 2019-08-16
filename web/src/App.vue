@@ -102,7 +102,8 @@
         ]
         if (this.userIsAuthenticated) {
           menuItems = [
-            {icon: 'person', title: 'Profile', link: '/profile'}
+            {icon: 'person', title: 'Profile', link: '/profile'},
+            {icon: 'forum', title: 'Chat', link: '/chat'}
           ]
         }
         return menuItems
