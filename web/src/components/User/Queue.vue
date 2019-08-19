@@ -6,30 +6,7 @@
           <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
         </v-flex>
       </v-layout>
-      <v-layout row v-if="chat == null">
-        <v-flex>
-          <v-card class="mb-2">
-            <v-card-text>
-              <form style="width:100%" @submit.prevent="joinQueue">
-                <v-layout row wrap>
-                  <v-flex xs12>
-                    <v-text-field
-                      name="topic"
-                      label="Topic of discussion or issue ?"
-                      id="topic"
-                      v-model="topic"
-                      type="text"
-                      required>
-                    </v-text-field>
-                    <v-btn block class="primary" @click="joinQueue">Join Queue</v-btn>
-                  </v-flex>
-                </v-layout>
-              </form>
-            </v-card-text>
-         </v-card>
-        </v-flex>
-      </v-layout>
-      <v-layout row v-if="chat != null">
+      <v-layout row>
         <v-flex class="pl-2 pr-2 hidden-xs-only">
           <v-card class="mb-2">
             <v-card-text>
@@ -124,6 +101,21 @@
                   </form>
                 </v-list>
               </div>
+              <form v-if="chat == null" style="width:100%" @submit.prevent="joinQueue">
+                <v-layout row wrap>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="topic"
+                      label="Topic of discussion or issue ?"
+                      id="topic"
+                      v-model="topic"
+                      type="text"
+                      required>
+                    </v-text-field>
+                    <v-btn block class="primary" @click="joinQueue">Join Queue</v-btn>
+                  </v-flex>
+                </v-layout>
+              </form>
             </v-card-text>
          </v-card>
         </v-flex>
@@ -177,6 +169,10 @@
       const ref = db.ref('chats/' + this.$store.getters.user.uid)
       ref.on('value', (dataSnapshot) => {
         this.chat = dataSnapshot.val()
+      })
+      const ref2 = db.ref('queues')
+      ref2.on('value', (dataSnapshot) => {
+        console.log(dataSnapshot.val())
       })
     },
     updated () {

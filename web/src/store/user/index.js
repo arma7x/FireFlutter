@@ -25,6 +25,10 @@ export default {
           email: userNow.email,
           photoUrl: userNow.photoURL
         }
+        firebase.database().ref('/users_public/' + userNow.uid).set({
+          'name': userNow.displayName || 'Unknown',
+          'photoUrl': userNow.photoURL
+        })
         commit('setUser', newUser)
         console.log(userNow.providerData[0].providerId)
         console.log(userNow)

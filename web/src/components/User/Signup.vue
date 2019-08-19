@@ -118,7 +118,7 @@
         if (this.password.length < 8 || this.confirmPassword.length < 8) {
           return 'Minimum length is 8 characters'
         }
-        return this.password !== this.confirmPassword ? 'Passwords do not match' : null
+        return this.password !== this.confirmPassword ? 'Passwords do not match' : false
       },
       user () {
         return this.$store.getters.user

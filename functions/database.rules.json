@@ -8,13 +8,13 @@
           ".write": false
         },
         "topic": {
-          ".write": false
+          ".write": "auth.token.admin == true"
         },
         "timestamp": {
           ".write": false
         },
         "status": {
-          ".write": false
+          ".write": "auth.token.admin == true"
         },
         "assigned_user": {
           ".write": false
@@ -25,6 +25,12 @@
             ".write": "(root.child('chats').child(auth.uid).exists() && !data.exists() && auth.uid == $uid) || auth.token.admin == true"
           }
         }
+      }
+    },
+    "queues": {
+      "$uid": {
+        ".read": "auth.token.admin == true",
+        ".write": "auth.token.admin == true"
       }
     },
     "users": {
@@ -42,6 +48,12 @@
         "role": {
           ".write": false
         }
+      }
+    },
+    "users_public": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth.uid == $uid"
       }
     }
   }

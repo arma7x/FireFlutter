@@ -53,9 +53,9 @@ export const updateUserProfile = functions.https.onRequest((request, response) =
   .then((decodedToken) => {
     return admin.auth().updateUser(decodedToken.uid, userProperty);
   })
-  .then((userRecord) => {
+  .then((user) => {
     corsFn(request, response, () => {
-      response.status(200).json({ user: userRecord.toJSON() });
+      response.status(200).json({ user: user.toJSON() });
     });
   })
   .catch((error) => {
@@ -107,11 +107,22 @@ export const joinQueue = functions.https.onRequest((request, response) => {
       if (snapshot.exists()){
         return Promise.reject({ 'message': 'Already in queue' });
       } else {
-        return chatRef.set({
+        return admin.database().ref('/queues/'+decodedToken.uid).set({
           "topic": request.query.topic,
           "timestamp": new Date().getTime(),
           "status": 0,
           "assigned_user": false
+        })
+        .then(() => {
+          return chatRef.set({
+            "topic": request.query.topic,
+            "timestamp": new Date().getTime(),
+            "status": 0,
+            "assigned_user": false
+          });
+        })
+        .catch((error) => {
+          return error;
         });
       }
     });
@@ -132,6 +143,10 @@ exports.onUserCreated = functions.auth.user().onCreate((user) => {
   admin.database().ref('/users/'+user.uid).set({'role': LEVEL.MEMBER})
   .then(() => {
     console.log(user)
+    return admin.database().ref('/users_public/' + user.uid).set({
+      'name': user.displayName || 'Unknown',
+      'photoUrl': user.photoURL
+    });
   })
   .catch((error) => {
     console.log(error);

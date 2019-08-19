@@ -3,6 +3,7 @@ import Router from 'vue-router'
 const Home = () => import('@/components/Home')
 const Profile = () => import('@/components/User/Profile')
 const Chat = () => import('@/components/User/Chat')
+const Queue = () => import('@/components/User/Queue')
 const Signup = () => import('@/components/User/Signup')
 const Signin = () => import('@/components/User/Signin')
 const ResetPassword = () => import('@/components/User/ResetPassword')
@@ -27,6 +28,12 @@ export default new Router({
       path: '/chat',
       name: 'Chat',
       component: Chat,
+      beforeEnter: requireAuth
+    },
+    {
+      path: '/queue',
+      name: 'Queue',
+      component: Queue,
       beforeEnter: requireAuth
     },
     {
