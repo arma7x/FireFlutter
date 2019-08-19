@@ -174,12 +174,8 @@
     },
     mounted () {
       const db = firebase.database()
-      const ref = db.ref('chats/' + this.$store.getters.user.uid)
+      const ref = db.ref('queues')
       ref.on('value', (dataSnapshot) => {
-        this.chat = dataSnapshot.val()
-      })
-      const ref2 = db.ref('queues')
-      ref2.on('value', (dataSnapshot) => {
         console.log(dataSnapshot.val())
       })
     },

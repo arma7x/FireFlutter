@@ -28,10 +28,8 @@
       }
     },
     "queues": {
-      "$uid": {
-        ".read": "auth.token.admin == true",
-        ".write": "auth.token.admin == true"
-      }
+      ".read": "auth.token.admin == true",
+      ".write": "auth.token.admin == true"
     },
     "users": {
       "$uid": {
