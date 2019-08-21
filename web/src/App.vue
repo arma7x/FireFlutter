@@ -1,5 +1,10 @@
 <template>
   <v-app>
+    <v-layout row v-if="error">
+      <v-flex xs12>
+        <app-alert class="my-0 mx-0" @dismissed="onDismissed" :text="error.message"></app-alert>
+      </v-flex>
+    </v-layout>
     <v-navigation-drawer fixed temporary touchless v-model="sideNav">
       <v-toolbar flat class="primary">
         <v-list class="pa-0">
@@ -117,12 +122,18 @@
       },
       loading () {
         return this.$store.getters.loading
+      },
+      error () {
+        return this.$store.getters.error
       }
     },
     methods: {
       onLogout () {
         this.$store.dispatch('logout')
         this.$router.push('/')
+      },
+      onDismissed () {
+        this.$store.dispatch('clearError')
       }
     }
   }

@@ -1,11 +1,11 @@
 <template>
   <v-container class="center-vertical">
     <v-layout column>
-      <v-layout row v-if="error">
+      <!-- <v-layout row v-if="error">
         <v-flex xs12 sm4 offset-sm4>
           <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
         </v-flex>
-      </v-layout>
+      </v-layout> -->
       <v-layout row>
         <v-flex xs12 sm4 offset-sm4>
           <v-card>
@@ -148,10 +148,10 @@
           return this.$store.dispatch('setError', {message: 'Email can not be blank'})
         }
         this.$store.dispatch('resetPasswordWithEmail', {email: this.email})
-      },
-      onDismissed () {
-        this.$store.dispatch('clearError')
-      }
+      } // ,
+      // onDismissed () {
+        // this.$store.dispatch('clearError')
+      // }
     }
   }
 </script>

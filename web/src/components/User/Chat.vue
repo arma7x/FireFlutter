@@ -1,11 +1,11 @@
 <template>
   <v-container class="center-vertical">
     <v-layout column>
-      <v-layout row v-if="error">
-        <v-flex>
+      <!-- <v-layout row v-if="error">
+        <v-flex xs12 sm4 offset-sm4>
           <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
         </v-flex>
-      </v-layout>
+      </v-layout> -->
       <v-layout row v-if="chat == null">
         <v-flex>
           <v-card class="mb-2">
@@ -161,7 +161,8 @@
         item: 'chat',
         topic: null,
         message: null,
-        chat: null
+        chat: null,
+        uid: null
       }
     },
     computed: {
@@ -173,8 +174,12 @@
       }
     },
     mounted () {
+      // const uid = 'aWlU0OxD0bfSzK0YtRkpAJsTLjw2'
+      const uid = this.$route.query.id ? this.$route.query.id : this.$store.getters.user.uid
+      this.uid = uid
+      console.log('chats/' + this.uid)
       const db = firebase.database()
-      const ref = db.ref('chats/' + this.$store.getters.user.uid)
+      const ref = db.ref('chats/' + this.uid)
       ref.on('value', (dataSnapshot) => {
         this.chat = dataSnapshot.val()
       })
@@ -212,7 +217,7 @@
             'caption': ''
           }
         }
-        firebase.database().ref('/chats/' + this.$store.getters.user.uid + '/logs').push(data)
+        firebase.database().ref('/chats/' + this.uid + '/logs').push(data)
         .then(() => {
           this.message = null
           this.$store.commit('clearError')
@@ -220,10 +225,10 @@
         .catch((error) => {
           this.$store.commit('setError', error)
         })
-      },
-      onDismissed () {
-        this.$store.dispatch('clearError')
-      }
+      } // ,
+      // onDismissed () {
+        // this.$store.dispatch('clearError')
+      // }
     }
   }
 </script>
