@@ -36,17 +36,11 @@
               <div class="text-xl-center text-lg-center text-sm-center text-md-center text-xs-center">
                 <div v-if="chat != null">
                   <v-list subheader>
-                    <v-list-tile>
-                      <v-list-tile-content>
-                        <v-list-tile-title class="body-2">Topic</v-list-tile-title>
-                        <v-list-tile-sub-title class="caption">{{ chat.topic }}</v-list-tile-sub-title>
-                      </v-list-tile-content>
-                    </v-list-tile>
                     <v-layout row>
                       <v-list-tile>
                         <v-list-tile-content>
-                          <v-list-tile-title class="body-2">Status</v-list-tile-title>
-                          <v-list-tile-sub-title class="caption">{{ chat.status }}</v-list-tile-sub-title>
+                          <v-list-tile-title class="body-2">Topic</v-list-tile-title>
+                          <v-list-tile-sub-title class="caption">{{ chat.topic }}</v-list-tile-sub-title>
                         </v-list-tile-content>
                       </v-list-tile>
                       <v-spacer></v-spacer>
@@ -57,12 +51,45 @@
                         </v-list-tile-content>
                       </v-list-tile>
                     </v-layout>
-                    <v-list-tile>
-                      <v-list-tile-content>
-                        <v-list-tile-title class="body-2">Assigned User</v-list-tile-title>
-                        <v-list-tile-sub-title class="caption">{{ chat.assigned_user }}</v-list-tile-sub-title>
-                      </v-list-tile-content>
-                    </v-list-tile>
+                    <v-layout row>
+                      <v-list-tile>
+                        <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && assigned_user != null">
+                          <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
+                          <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                        </v-list-tile-avatar>
+                        <v-list-tile-content>
+                          <v-list-tile-title class="body-2">Supervisor</v-list-tile-title>
+                          <v-list-tile-sub-title class="caption">{{ assigned_user != null ? assigned_user.name : 'TBA' }}</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                      </v-list-tile>
+                      <v-spacer></v-spacer>
+                      <v-list-tile>
+                        <v-list-tile-avatar size="40" color="grey" v-if="queue_user != null">
+                          <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
+                          <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                        </v-list-tile-avatar>
+                        <v-list-tile-content>
+                          <v-list-tile-title class="body-2">Client</v-list-tile-title>
+                          <v-list-tile-sub-title class="caption">{{ queue_user != null ? queue_user.name : '-' }}</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                      </v-list-tile>
+                    </v-layout>
+                    <v-layout row if="user.admin">
+                      <v-list-tile>
+                        <v-list-tile-content>
+                          <v-list-tile-title class="body-2">Toggle Status</v-list-tile-title>
+                          <v-list-tile-sub-title class="caption">
+                            <v-btn :class="chat.status === 0 ? 'error' : 'success'" @click="adminToggleStatus">{{ chat.status === 0 ? 'INACTIVE' : 'ACTIVE' }}</v-btn>
+                          </v-list-tile-sub-title>
+                        </v-list-tile-content>
+                      </v-list-tile>
+                      <v-spacer></v-spacer>
+                        <v-list-tile-content>
+                          <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
+                          <v-list-tile-sub-title class="caption">{{ chat.status }}</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                      </v-list-tile>
+                    </v-layout>
                   </v-list>
                 </div>
               </div>
@@ -78,6 +105,14 @@
                     <v-layout v-if="chat.logs != undefined" column>
                       <v-list two-line disabled class="blue-grey lighten-5">
                         <v-list-tile :key="i" class="mb-2" v-for="(msg, i) in chat.logs">
+                          <v-list-tile-avatar class="ml-1" color="grey" size="40" v-if="msg.user != user.uid && msg.user == chat.assigned_user">
+                            <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
+                            <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                          </v-list-tile-avatar>
+                          <v-list-tile-avatar class="ml-1" color="grey" size="40" v-if="msg.user != user.uid && msg.user == uid">
+                            <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
+                            <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                          </v-list-tile-avatar>
                           <v-flex xs12 sm5 :class="{ 'col-auto ml-auto': msg.user == user.uid }">
                             <v-card>
                               <v-card-text class="mx-0">
@@ -88,6 +123,10 @@
                               </v-card-text>
                             </v-card>
                           </v-flex>
+                          <v-list-tile-avatar class="ml-1" color="grey" size="40" v-if="msg.user == user.uid">
+                            <img v-if="user.photoUrl != null" :src="user.photoUrl">
+                            <v-icon v-if="user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                          </v-list-tile-avatar>
                         </v-list-tile>
                       </v-list>
                     </v-layout>
@@ -162,7 +201,9 @@
         topic: null,
         message: null,
         chat: null,
-        uid: null
+        uid: null,
+        assigned_user: null,
+        queue_user: null
       }
     },
     computed: {
@@ -174,14 +215,27 @@
       }
     },
     mounted () {
+      const db = firebase.database()
       // const uid = 'aWlU0OxD0bfSzK0YtRkpAJsTLjw2'
       const uid = this.$route.query.id ? this.$route.query.id : this.$store.getters.user.uid
       this.uid = uid
-      console.log('chats/' + this.uid)
-      const db = firebase.database()
+      if (this.queue_user == null) {
+        db.ref('users_public/' + this.uid)
+        .once('value', (userSnapshot) => {
+          this.queue_user = userSnapshot.val()
+        })
+      }
       const ref = db.ref('chats/' + this.uid)
       ref.on('value', (dataSnapshot) => {
-        this.chat = dataSnapshot.val()
+        if (dataSnapshot.val()) {
+          this.chat = dataSnapshot.val()
+          if (dataSnapshot.val().assigned_user && this.assigned_user == null) {
+            db.ref('users_public/' + dataSnapshot.val().assigned_user)
+            .once('value', (userSnapshot) => {
+              this.assigned_user = userSnapshot.val()
+            })
+          }
+        }
       })
     },
     updated () {
@@ -199,7 +253,6 @@
         })
         .then((response) => {
           this.$store.commit('setLoading', false)
-          console.log(response)
         })
         .catch((error) => {
           this.$store.commit('setLoading', false)
@@ -225,6 +278,11 @@
         .catch((error) => {
           this.$store.commit('setError', error)
         })
+      },
+      adminToggleStatus () {
+        const status = { status: (this.chat.status === 0 ? 1 : 0) }
+        firebase.database().ref('chats/' + this.uid).update(status)
+        firebase.database().ref('queues/' + this.uid).update(status)
       } // ,
       // onDismissed () {
         // this.$store.dispatch('clearError')

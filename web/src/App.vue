@@ -53,8 +53,8 @@
         <v-toolbar class="primary font-weight-bold text-uppercase" flat>
           <v-avatar :tile="false" :size="49" color="transparent" style="margin-right:5px;">
             <img v-if="userIsAuthenticated && $store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl" alt="avatar">
-            <v-icon v-if="userIsAuthenticated && $store.getters.user.photoUrl == null" size="59">account_circle</v-icon>
-            <v-icon v-if="!userIsAuthenticated" size="59">account_circle</v-icon>
+            <v-icon v-if="userIsAuthenticated && $store.getters.user.photoUrl == null" size="60">account_circle</v-icon>
+            <v-icon v-if="!userIsAuthenticated" size="60">account_circle</v-icon>
           </v-avatar>
           {{ userIsAuthenticated ? $store.getters.user.name : 'Hi, Guest' }}
         </v-toolbar>

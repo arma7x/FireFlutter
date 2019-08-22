@@ -17,7 +17,7 @@
           ".write": "auth.token.admin == true"
         },
         "assigned_user": {
-          ".write": false
+          ".write": "auth.token.admin == true"
         },
         "logs": {
           "$log_id": {

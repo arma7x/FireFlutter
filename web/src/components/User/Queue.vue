@@ -1,5 +1,5 @@
 <template>
-  <v-container class="center-vertical">
+  <v-container class="remove-center-vertical">
     <v-layout column>
       <!-- <v-layout row v-if="error">
         <v-flex xs12 sm4 offset-sm4>
@@ -7,15 +7,39 @@
         </v-flex>
       </v-layout> -->
       <v-layout row>
-        <v-flex xs12 sm4 offset-sm4>
-          <v-card class="mb-2" :key="i" v-for="(chat, i) in queues">
-            <v-card-text>
-              {{ JSON.stringify(chat, null, 2) }}
-              <v-btn flat @click.prevent="$router.push({ path: 'chat', query: { id: i } })">
-                {{ i }}
-              </v-btn>
-            </v-card-text>
-         </v-card>
+        <v-flex xs12 sm6 offset-sm3>
+          <v-list subheader v-if="queues != null">
+            <v-list-tile :key="i" v-for="(chat, i) in queues" avatar @click="">
+              <v-list-tile-avatar size="40" color="grey">
+                <img v-if="users[i].photoUrl != null" :src="users[i].photoUrl">
+                <v-icon v-if="users[i].photoUrl == null" size="50" color="white">account_circle</v-icon>
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title v-text="chat.topic"></v-list-tile-title>
+                <v-list-tile-sub-title>
+                  <v-layout row>
+                  {{ users[i].name }}
+                  <v-spacer></v-spacer>
+                  {{ new Date(chat.timestamp).toLocaleString() }}
+                  <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
+                  <span v-if="chat.assigned_user != false && chat.assigned_user != user.uid">{{ users[chat.assigned_user].name }}</span>
+                  </v-layout>
+                </v-list-tile-sub-title>
+              </v-list-tile-content>
+              <v-list-tile-action v-if="chat.assigned_user == user.uid || chat.assigned_user == false">
+                <v-btn v-if="chat.assigned_user == user.uid" fab small color="primary" @click="joinChat(i)">
+                  <v-icon>chat_bubble</v-icon>
+                </v-btn>
+                <v-btn v-if="chat.assigned_user == false" fab small color="error" @click="handleChat(i)">
+                  <v-icon>how_to_reg</v-icon>
+                </v-btn>
+              </v-list-tile-action>
+              <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && chat.assigned_user != user.uid">
+                <img v-if="users[chat.assigned_user].photoUrl != null" :src="users[chat.assigned_user].photoUrl">
+                <v-icon v-if="users[chat.assigned_user].photoUrl == null" size="50" color="white">account_circle</v-icon>
+              </v-list-tile-avatar>
+            </v-list-tile>
+          </v-list>
         </v-flex>
       </v-layout>
     </v-layout>
@@ -28,6 +52,7 @@
   export default {
     data () {
       return {
+        users: {},
         queues: null
       }
     },
@@ -44,10 +69,23 @@
       const ref = db.ref('queues')
       ref.on('value', (dataSnapshot) => {
         this.queues = dataSnapshot.val()
-        console.log(dataSnapshot.val())
+      })
+      db.ref('users_public')
+      .on('value', (usersSnapshot) => {
+        this.users = usersSnapshot.val()
       })
     },
     methods: {
+      joinChat (id) {
+        this.$router.push({ path: 'chat', query: { id } })
+      },
+      handleChat (id) {
+        if (confirm('Are sure to put this queue under your supervision ?')) {
+          const user = { assigned_user: this.user.uid, status: 1 }
+          firebase.database().ref('chats/' + id).update(user)
+          firebase.database().ref('queues/' + id).update(user)
+        }
+      } // ,
       // onDismissed () {
         // this.$store.dispatch('clearError')
       // }
