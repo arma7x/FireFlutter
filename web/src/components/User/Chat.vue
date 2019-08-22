@@ -77,9 +77,9 @@
                     <v-layout row if="user.admin">
                       <v-list-tile>
                         <v-list-tile-content>
-                          <v-list-tile-title class="body-2">Toggle Status</v-list-tile-title>
+                          <v-list-tile-title class="body-2 pb-2">Status</v-list-tile-title>
                           <v-list-tile-sub-title class="caption">
-                            <v-btn :class="chat.status === 0 ? 'error' : 'success'" @click="adminToggleStatus">{{ chat.status === 0 ? 'INACTIVE' : 'ACTIVE' }}</v-btn>
+                            <v-switch class="my-0 mx-2" v-model="chat.status == 0 ? false : true" @change="adminToggleStatus"></v-switch>
                           </v-list-tile-sub-title>
                         </v-list-tile-content>
                       </v-list-tile>
