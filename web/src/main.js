@@ -54,6 +54,9 @@ new Vue({
           const onlineRef = firebase.database().ref('/users/' + this.$store.getters.user.uid + '/online')
           onlineRef.onDisconnect().set(false)
           onlineRef.set(true)
+          const lastOnlineRef = firebase.database().ref('/users/' + this.$store.getters.user.uid + '/last_online')
+          lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
+          lastOnlineRef.set(firebase.database.ServerValue.TIMESTAMP)
         }
       }
     })

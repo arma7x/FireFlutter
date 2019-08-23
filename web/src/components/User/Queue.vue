@@ -84,6 +84,7 @@
           const user = { assigned_user: this.user.uid, status: 1 }
           firebase.database().ref('chats/' + id).update(user)
           firebase.database().ref('queues/' + id).update(user)
+          this.joinChat(id)
         }
       } // ,
       // onDismissed () {

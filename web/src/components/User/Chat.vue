@@ -74,8 +74,8 @@
                         </v-list-tile-content>
                       </v-list-tile>
                     </v-layout>
-                    <v-layout row if="user.admin">
-                      <v-list-tile>
+                    <v-layout row>
+                      <v-list-tile v-if="user.admin">
                         <v-list-tile-content>
                           <v-list-tile-title class="body-2 pb-2">Status</v-list-tile-title>
                           <v-list-tile-sub-title class="caption">
@@ -83,10 +83,24 @@
                           </v-list-tile-sub-title>
                         </v-list-tile-content>
                       </v-list-tile>
-                      <v-spacer></v-spacer>
+                      <v-spacer v-if="user.admin && chat.status == 0"></v-spacer>
+                      <v-list-tile v-if="user.admin && chat.status == 0">
                         <v-list-tile-content>
                           <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
-                          <v-list-tile-sub-title class="caption">{{ chat.status }}</v-list-tile-sub-title>
+                            <v-btn color="error" @click="adminDeleteQueue">
+                              Delete
+                              <v-icon right>delete</v-icon>
+                            </v-btn>
+                        </v-list-tile-content>
+                      </v-list-tile>
+                      <v-spacer v-if="user.uid == uid && chat.status == 0"></v-spacer>
+                      <v-list-tile v-if="user.uid == uid && chat.status == 0">
+                        <v-list-tile-content>
+                          <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
+                            <v-btn color="error" @click="deleteQueue">
+                              Delete
+                              <v-icon right>delete</v-icon>
+                            </v-btn>
                         </v-list-tile-content>
                       </v-list-tile>
                     </v-layout>
@@ -97,8 +111,8 @@
          </v-card>
         </v-flex>
         <v-flex class="pl-2 pr-2">
-          <v-card>
-            <v-card-text class="blue-grey lighten-5">
+           <!-- <v-card>
+            <v-card-text class="blue-grey lighten-5"> -->
               <div v-if="chat != null">
                 <v-list class="blue-grey lighten-5">
                   <v-container class="mx-0 my-0 px-0 py-0 scroll-y" style="height:60vh;" ref="chat_scroller">
@@ -154,17 +168,18 @@
                           :shaped="shaped"
                           :single-line="singleLine"
                           :solo="solo"
+                          class="pl-4"
                         ></v-textarea>
                       </v-flex>
-                      <v-flex xs2>
+                      <v-flex xs2 style="display:flex;align-items:center;justify-content:center;">
                       <v-btn fab small color="info" @click="sendMessage"><v-icon dark>send</v-icon></v-btn>
                       </v-flex>
                     </v-layout>
                   </form>
                 </v-list>
               </div>
-            </v-card-text>
-         </v-card>
+            <!-- </v-card-text>
+         </v-card> -->
         </v-flex>
       </v-layout>
     </v-layout>
@@ -216,7 +231,6 @@
     },
     mounted () {
       const db = firebase.database()
-      // const uid = 'aWlU0OxD0bfSzK0YtRkpAJsTLjw2'
       const uid = this.$route.query.id ? this.$route.query.id : this.$store.getters.user.uid
       this.uid = uid
       if (this.queue_user == null) {
@@ -235,6 +249,8 @@
               this.assigned_user = userSnapshot.val()
             })
           }
+        } else {
+          this.chat = null
         }
       })
     },
@@ -283,6 +299,37 @@
         const status = { status: (this.chat.status === 0 ? 1 : 0) }
         firebase.database().ref('chats/' + this.uid).update(status)
         firebase.database().ref('queues/' + this.uid).update(status)
+      },
+      deleteQueue () {
+        this.$store.commit('setLoading', true)
+        firebase.auth().currentUser.getIdToken(true)
+        .then((idToken) => {
+          return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/deleteQueue`, { params: { 'token': idToken } })
+        })
+        .then((response) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('clearError')
+        })
+        .catch((error) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('setError', error.response.data)
+        })
+      },
+      adminDeleteQueue () {
+        this.$store.commit('setLoading', true)
+        firebase.auth().currentUser.getIdToken(true)
+        .then((idToken) => {
+          return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/adminDeleteQueue`, { params: { 'token': idToken, 'queue': this.uid } })
+        })
+        .then((response) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('clearError')
+          this.$router.go(-1)
+        })
+        .catch((error) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('setError', error.response.data)
+        })
       } // ,
       // onDismissed () {
         // this.$store.dispatch('clearError')

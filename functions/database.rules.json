@@ -8,16 +8,16 @@
           ".write": false
         },
         "topic": {
-          ".write": "auth.token.admin == true"
+          ".write": "auth.token.admin == true && root.child('chats').child($uid).exists()"
         },
         "timestamp": {
           ".write": false
         },
         "status": {
-          ".write": "auth.token.admin == true"
+          ".write": "auth.token.admin == true && root.child('chats').child($uid).exists()"
         },
         "assigned_user": {
-          ".write": "auth.token.admin == true"
+          ".write": "auth.token.admin == true && root.child('chats').child($uid).exists()"
         },
         "logs": {
           "$log_id": {
@@ -33,7 +33,7 @@
     },
     "users": {
       "$uid": {
-        ".read": "$uid === auth.uid",
+        ".read": "$uid === auth.uid || auth.token.admin == true",
         "$any": {
           ".write": false
         },
@@ -42,6 +42,9 @@
         },
         "online": {
           ".write": "$uid === auth.uid"
+        },
+        "last_online": {
+          ".write": "$uid === auth.uid && newData.val() == now"
         },
         "role": {
           ".write": false

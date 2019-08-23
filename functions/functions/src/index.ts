@@ -70,11 +70,10 @@ export const selfDestructAccount = functions.https.onRequest((request, response)
   const token = request.query.token || 'string';
   admin.auth().verifyIdToken(token)
   .then((decodedToken) => {
-    console.log('/users/'+decodedToken.uid)
-    // admin.database().ref('/users/'+decodedToken.uid).set({'deleted': true})
+    console.log('/users/' + decodedToken.uid)
     admin.database().ref('/users').child(decodedToken.uid).remove()
     .then(() => {
-      console.log('DELETED::'+decodedToken.uid)
+      console.log('DELETED::' + decodedToken.uid)
     })
     .catch((error) => {
       console.log(error);
@@ -101,13 +100,13 @@ export const joinQueue = functions.https.onRequest((request, response) => {
     if (request.query.topic === undefined || request.query.topic === null) {
       return Promise.reject({ 'message': 'Please enter topic of discussion' });
     }
-    const chatRef = admin.database().ref('/chats/'+decodedToken.uid);
+    const chatRef = admin.database().ref('/chats/' + decodedToken.uid);
     return chatRef.once("value")
     .then((snapshot) => {
-      if (snapshot.exists()){
+      if (snapshot.exists()) {
         return Promise.reject({ 'message': 'Already in queue' });
       } else {
-        return admin.database().ref('/queues/'+decodedToken.uid).set({
+        return admin.database().ref('/queues/' + decodedToken.uid).set({
           "topic": request.query.topic,
           "timestamp": new Date().getTime(),
           "status": 0,
@@ -144,28 +143,18 @@ export const deleteQueue = functions.https.onRequest((request, response) => {
   const token = request.query.token || 'string';
   admin.auth().verifyIdToken(token)
   .then((decodedToken) => {
-    if (request.query.topic === undefined || request.query.topic === null) {
-      return Promise.reject({ 'message': 'Please enter topic of discussion' });
-    }
-    const chatRef = admin.database().ref('/chats/'+decodedToken.uid);
+    const chatRef = admin.database().ref('/chats/' + decodedToken.uid);
     return chatRef.once("value")
     .then((snapshot) => {
-      if (snapshot.exists()){
-        return Promise.reject({ 'message': 'Already in queue' });
+      if (!snapshot.exists()) {
+        return Promise.reject({ 'message': 'Queue does not exist' });
+      } else if(snapshot.val().status === 1) {
+        return Promise.reject({ 'message': 'Your queues is active' });
       } else {
-        return admin.database().ref('/queues/'+decodedToken.uid).set({
-          "topic": request.query.topic,
-          "timestamp": new Date().getTime(),
-          "status": 0,
-          "assigned_user": false
-        })
+        return admin.database().ref('/queues/' + decodedToken.uid)
+        .remove()
         .then(() => {
-          return chatRef.set({
-            "topic": request.query.topic,
-            "timestamp": new Date().getTime(),
-            "status": 0,
-            "assigned_user": false
-          });
+          return chatRef.remove();
         })
         .catch((error) => {
           return error;
@@ -175,7 +164,7 @@ export const deleteQueue = functions.https.onRequest((request, response) => {
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Your have joined queued' });
+      response.status(200).json({ 'message': 'Succesfully remove your chat from queue list' });
     });
   })
   .catch((error) => {
@@ -187,31 +176,30 @@ export const deleteQueue = functions.https.onRequest((request, response) => {
 
 export const adminDeleteQueue = functions.https.onRequest((request, response) => {
   const corsFn = cors();
+  const queue = request.query.queue;
+  if (queue === null || queue ===  undefined) {
+    corsFn(request, response, () => {
+      response.status(400).json({ 'message': 'Queue id is required' });
+    });
+  }
   const token = request.query.token || 'string';
   admin.auth().verifyIdToken(token)
   .then((decodedToken) => {
-    if (request.query.topic === undefined || request.query.topic === null) {
-      return Promise.reject({ 'message': 'Please enter topic of discussion' });
+    if (decodedToken.uid !== ADMIN) {
+      return Promise.reject({ 'message': 'Permission denied' });
     }
-    const chatRef = admin.database().ref('/chats/'+decodedToken.uid);
+    const chatRef = admin.database().ref('/chats/' + queue);
     return chatRef.once("value")
     .then((snapshot) => {
-      if (snapshot.exists()){
-        return Promise.reject({ 'message': 'Already in queue' });
+      if (!snapshot.exists()) {
+        return Promise.reject({ 'message': 'Queue does not exist' });
+      } else if(snapshot.val().status === 1) {
+        return Promise.reject({ 'message': 'Current queues is active' });
       } else {
-        return admin.database().ref('/queues/'+decodedToken.uid).set({
-          "topic": request.query.topic,
-          "timestamp": new Date().getTime(),
-          "status": 0,
-          "assigned_user": false
-        })
+        return admin.database().ref('/queues/' + queue)
+        .remove()
         .then(() => {
-          return chatRef.set({
-            "topic": request.query.topic,
-            "timestamp": new Date().getTime(),
-            "status": 0,
-            "assigned_user": false
-          });
+          return chatRef.remove();
         })
         .catch((error) => {
           return error;
@@ -221,7 +209,7 @@ export const adminDeleteQueue = functions.https.onRequest((request, response) =>
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Your have joined queued' });
+      response.status(200).json({ 'message': 'Succesfully remove your from chat queue list' });
     });
   })
   .catch((error) => {
@@ -232,7 +220,7 @@ export const adminDeleteQueue = functions.https.onRequest((request, response) =>
 });
 
 exports.onUserCreated = functions.auth.user().onCreate((user) => {
-  admin.database().ref('/users/'+user.uid).set({'role': LEVEL.MEMBER})
+  admin.database().ref('/users/' + user.uid).set({'role': LEVEL.MEMBER})
   .then(() => {
     console.log(user)
     return admin.database().ref('/users_public/' + user.uid).set({
