@@ -108,78 +108,154 @@
                 </div>
               </div>
             </v-card-text>
-         </v-card>
+          </v-card>
         </v-flex>
         <v-flex class="pl-2 pr-2">
-           <!-- <v-card>
-            <v-card-text class="blue-grey lighten-5"> -->
-              <div v-if="chat != null">
-                <v-list class="blue-grey lighten-5">
-                  <v-container class="mx-0 my-0 px-0 py-0 scroll-y" style="height:60vh;" ref="chat_scroller">
-                    <v-layout v-if="chat.logs != undefined" column>
-                      <v-list two-line disabled class="blue-grey lighten-5">
-                        <v-list-tile :key="i" class="mb-2" v-for="(msg, i) in chat.logs">
-                          <v-list-tile-avatar class="ml-1" color="grey" size="40" v-if="msg.user != user.uid && msg.user == chat.assigned_user">
-                            <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
-                            <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
-                          </v-list-tile-avatar>
-                          <v-list-tile-avatar class="ml-1" color="grey" size="40" v-if="msg.user != user.uid && msg.user == uid">
-                            <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
-                            <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
-                          </v-list-tile-avatar>
-                          <v-flex xs12 sm5 :class="{ 'col-auto ml-auto': msg.user == user.uid }">
-                            <v-card>
-                              <v-card-text class="mx-0">
-                                <v-list-tile-content>
-                                  <v-list-tile-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" v-text="msg.message.data"></v-list-tile-title>
-                                  <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" class="caption">{{ new Date(msg.timestamp).toLocaleString() }}</v-list-tile-sub-title>
-                                </v-list-tile-content>
-                              </v-card-text>
-                            </v-card>
-                          </v-flex>
-                          <v-list-tile-avatar class="ml-1" color="grey" size="40" v-if="msg.user == user.uid">
-                            <img v-if="user.photoUrl != null" :src="user.photoUrl">
-                            <v-icon v-if="user.photoUrl == null" size="50" color="white">account_circle</v-icon>
-                          </v-list-tile-avatar>
-                        </v-list-tile>
-                      </v-list>
-                    </v-layout>
-                  </v-container>
-                  <form style="width:100%;" @submit.prevent="sendMessage" class="blue-grey lighten-5">
-                    <v-layout row wrap align-center class="blue-grey lighten-5">
-                      <v-flex xs10 class="blue-grey lighten-5">
-                        <v-textarea
-                          v-model="message"
-                          :auto-grow="autoGrow"
-                          :clearable="clearable"
-                          :counter="counter ? counter : false"
-                          :filled="filled"
-                          :flat="flat"
-                          :hint="hint"
-                          :label="label"
-                          :loading="loading"
-                          :no-resize="noResize"
-                          :outlined="outlined"
-                          :persistent-hint="persistentHint"
-                          :placeholder="placeholder"
-                          :rounded="rounded"
-                          :row-height="rowHeight"
-                          :rows="rows"
-                          :shaped="shaped"
-                          :single-line="singleLine"
-                          :solo="solo"
-                          class="pl-4"
-                        ></v-textarea>
-                      </v-flex>
-                      <v-flex xs2 style="display:flex;align-items:center;justify-content:center;">
-                      <v-btn fab small color="info" @click="sendMessage"><v-icon dark>send</v-icon></v-btn>
-                      </v-flex>
-                    </v-layout>
-                  </form>
+          <v-flex v-if="hidden == false" class="transparent hidden-sm-and-up">
+            <div class="transparent text-xl-center text-lg-center text-sm-center text-md-center text-xs-center">
+              <div class="transparent" v-if="chat != null">
+                <v-list class="transparent" subheader>
+                  <v-layout row>
+                    <v-list-tile>
+                      <v-list-tile-content>
+                        <v-list-tile-title class="body-2">Topic</v-list-tile-title>
+                        <v-list-tile-sub-title class="caption">{{ chat.topic }}</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                    <v-spacer></v-spacer>
+                    <v-list-tile>
+                      <v-list-tile-content>
+                        <v-list-tile-title class="body-2">Timestamp</v-list-tile-title>
+                        <v-list-tile-sub-title class="caption">{{ new Date(chat.timestamp).toLocaleString() }}</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                  </v-layout>
+                  <v-layout row>
+                    <v-list-tile>
+                      <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && assigned_user != null">
+                        <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
+                        <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                      </v-list-tile-avatar>
+                      <v-list-tile-content>
+                        <v-list-tile-title class="body-2">Supervisor</v-list-tile-title>
+                        <v-list-tile-sub-title class="caption">{{ assigned_user != null ? assigned_user.name : 'TBA' }}</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                    <v-spacer></v-spacer>
+                    <v-list-tile>
+                      <v-list-tile-avatar size="40" color="grey" v-if="queue_user != null">
+                        <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
+                        <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                      </v-list-tile-avatar>
+                      <v-list-tile-content>
+                        <v-list-tile-title class="body-2">Client</v-list-tile-title>
+                        <v-list-tile-sub-title class="caption">{{ queue_user != null ? queue_user.name : '-' }}</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                  </v-layout>
+                  <v-layout row>
+                    <v-list-tile v-if="user.admin">
+                      <v-list-tile-content>
+                        <v-list-tile-title class="body-2 pb-2">Status</v-list-tile-title>
+                        <v-list-tile-sub-title class="caption">
+                          <v-switch class="my-0 mx-2" v-model="chat.status == 0 ? false : true" @change="adminToggleStatus"></v-switch>
+                        </v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                    <v-spacer v-if="user.admin && chat.status == 0"></v-spacer>
+                    <v-list-tile v-if="user.admin && chat.status == 0">
+                      <v-list-tile-content>
+                        <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
+                          <v-btn color="error" @click="adminDeleteQueue">
+                            Delete
+                            <v-icon right>delete</v-icon>
+                          </v-btn>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                    <v-spacer v-if="user.uid == uid && chat.status == 0"></v-spacer>
+                    <v-list-tile v-if="user.uid == uid && chat.status == 0">
+                      <v-list-tile-content>
+                        <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
+                          <v-btn color="error" @click="deleteQueue">
+                            Delete
+                            <v-icon right>delete</v-icon>
+                          </v-btn>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                  </v-layout>
                 </v-list>
               </div>
-            <!-- </v-card-text>
-         </v-card> -->
+            </div>
+          </v-flex>
+          <v-btn class="mb-4 hidden-sm-and-up" block small color="info" @click="toggleHidden">
+            Info
+            <v-icon right>info</v-icon>
+          </v-btn>
+          <v-divider v-if="hidden == false" class="mb-4 hidden-sm-and-up"></v-divider>
+          <div v-if="chat != null">
+            <v-container class="mx-0 my-0 px-0 py-0 scroll-y" style="height:58vh;" ref="chat_scroller">
+              <v-layout class="mx-0 px-0" column v-if="chat.logs != undefined">
+                <ul style="list-style: none;">
+                  <li :key="i" v-for="(msg, i) in chat.logs">
+                    <v-layout class="mb-2 px-0" row>
+                      <v-list-tile-avatar color="grey" size="40" v-if="msg.user != user.uid && msg.user == chat.assigned_user">
+                        <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
+                        <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                      </v-list-tile-avatar>
+                      <v-list-tile-avatar color="grey" size="40" v-if="msg.user != user.uid && msg.user == uid">
+                        <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
+                        <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                      </v-list-tile-avatar>
+                      <v-flex xs12 sm6 :class="{ 'col-auto ml-auto': msg.user == user.uid }">
+                        <v-card>
+                          <v-card-text class="mx-0 my-0">
+                            <v-list-tile-content>
+                              <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" style="white-space: normal;" class="black--text">{{ msg.message.data }}</v-list-tile-sub-title>
+                              <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" class="caption">{{ new Date(msg.timestamp).toLocaleString() }}</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                          </v-card-text>
+                        </v-card>
+                      </v-flex>
+                      <v-list-tile-avatar class="ml-3" color="grey" size="40" v-if="msg.user == user.uid">
+                        <img v-if="user.photoUrl != null" :src="user.photoUrl">
+                        <v-icon v-if="user.photoUrl == null" size="50" color="white">account_circle</v-icon>
+                      </v-list-tile-avatar>
+                    </v-layout>
+                  </li>
+                </ul>
+              </v-layout>
+            </v-container>
+            <form style="width:100%;" @submit.prevent="sendMessage" class="transparent">
+              <v-layout row wrap align-center class="transparent">
+                <v-flex xs10 class="transparent">
+                  <v-textarea
+                    v-model="message"
+                    :auto-grow="autoGrow"
+                    :clearable="clearable"
+                    :counter="counter ? counter : false"
+                    :filled="filled"
+                    :flat="flat"
+                    :hint="hint"
+                    :label="label"
+                    :loading="loading"
+                    :no-resize="noResize"
+                    :outlined="outlined"
+                    :persistent-hint="persistentHint"
+                    :placeholder="placeholder"
+                    :rounded="rounded"
+                    :row-height="rowHeight"
+                    :rows="rows"
+                    :shaped="shaped"
+                    :single-line="singleLine"
+                    :solo="solo"
+                  ></v-textarea>
+                </v-flex>
+                <v-flex xs2 style="display:flex;align-items:center;justify-content:center;">
+                <v-btn fab small color="info" @click="sendMessage"><v-icon dark>send</v-icon></v-btn>
+                </v-flex>
+              </v-layout>
+            </form>
+          </div>
         </v-flex>
       </v-layout>
     </v-layout>
@@ -218,7 +294,8 @@
         chat: null,
         uid: null,
         assigned_user: null,
-        queue_user: null
+        queue_user: null,
+        hidden: false
       }
     },
     computed: {
@@ -260,6 +337,9 @@
       }
     },
     methods: {
+      toggleHidden () {
+        this.hidden = !this.hidden
+      },
       joinQueue () {
         this.$store.commit('setLoading', true)
         this.$store.commit('clearError')
