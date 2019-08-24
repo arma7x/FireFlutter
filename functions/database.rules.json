@@ -21,7 +21,7 @@
         },
         "logs": {
           "$log_id": {
-            ".validate": "(root.child('chats').child($uid).exists() && (newData.child('user').val() == auth.uid || auth.token.admin == true) && (newData.child('timestamp').val() == now) && (newData.child('message').child('mime').exists() && newData.child('message').child('data').exists() && newData.child('message').child('caption').exists())) || auth.token.admin == true",
+            ".validate": "(root.child('chats').child($uid).exists() && (newData.child('user').val() == auth.uid || auth.token.admin == true) && (newData.child('timestamp').val() == now) && (newData.child('message').child('mime').exists() && newData.child('message').child('data').exists() && newData.child('message').child('data').val().length > 0 && newData.child('message').child('caption').exists())) || auth.token.admin == true",
             ".write": "(root.child('chats').child(auth.uid).exists() && !data.exists() && auth.uid == $uid) || auth.token.admin == true"
           }
         }
@@ -29,7 +29,23 @@
     },
     "queues": {
       ".read": "auth.token.admin == true",
-      ".write": "auth.token.admin == true"
+      "$uid": {
+        "$any": {
+          ".write": false
+        },
+        "topic": {
+          ".write": "auth.token.admin == true && root.child('chats').child($uid).exists()"
+        },
+        "timestamp": {
+          ".write": false
+        },
+        "status": {
+          ".write": "auth.token.admin == true && root.child('chats').child($uid).exists()"
+        },
+        "assigned_user": {
+          ".write": "auth.token.admin == true && root.child('chats').child($uid).exists() && root.child('chats').child($uid).child('assigned_user').val() == false"
+        }
+      }
     },
     "users": {
       "$uid": {

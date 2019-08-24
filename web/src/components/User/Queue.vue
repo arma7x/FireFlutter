@@ -1,5 +1,5 @@
 <template>
-  <v-container class="remove-center-vertical">
+  <v-container class="center-vertical">
     <v-layout column>
       <!-- <v-layout row v-if="error">
         <v-flex xs12 sm4 offset-sm4>
@@ -35,7 +35,7 @@
                   <v-icon>chat_bubble</v-icon>
                 </v-btn>
                 <v-btn v-if="chat.assigned_user == false" fab small color="error" @click="handleChat(i)">
-                  <v-icon>how_to_reg</v-icon>
+                  <v-icon>add_comment</v-icon>
                 </v-btn>
               </v-list-tile-action>
               <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && chat.assigned_user != user.uid">
@@ -86,9 +86,16 @@
       handleChat (id) {
         if (confirm('Are sure to put this queue under your supervision ?')) {
           const user = { assigned_user: this.user.uid, status: 1 }
-          firebase.database().ref('chats/' + id).update(user)
           firebase.database().ref('queues/' + id).update(user)
-          this.joinChat(id)
+          .then(() => {
+            return firebase.database().ref('chats/' + id).update(user)
+          })
+          .then(() => {
+            this.joinChat(id)
+          })
+          .catch((error) => {
+            this.$store.commit('setError', error)
+          })
         }
       } // ,
       // onDismissed () {

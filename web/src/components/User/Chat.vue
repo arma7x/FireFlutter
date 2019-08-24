@@ -50,7 +50,7 @@
                           <v-card-text class="mx-0 my-0">
                             <v-list-tile-content>
                               <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" style="white-space: normal;" class="black--text">{{ msg.message.data }}</v-list-tile-sub-title>
-                              <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" class="caption">{{ new Date(msg.timestamp).toLocaleString() }}</v-list-tile-sub-title>
+                              <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" class="caption grey--text">{{ new Date(msg.timestamp).toLocaleString() }}</v-list-tile-sub-title>
                             </v-list-tile-content>
                           </v-card-text>
                         </v-card>
@@ -109,43 +109,47 @@
               <v-list subheader>
                 <v-list-tile>
                   <v-list-tile-content>
-                    <v-list-tile-title class="body-2">Topic</v-list-tile-title>
-                    <v-list-tile-sub-title class="caption">{{ chat.topic }}</v-list-tile-sub-title>
+                    <v-list-tile-title class="title">Topic</v-list-tile-title>
+                    <v-list-tile-sub-title class="body-1">{{ chat.topic }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-spacer></v-spacer>
-                <v-list-tile>
+                <v-list-tile class="mt-1">
                   <v-list-tile-content>
                     <v-list-tile-title class="body-2">Timestamp</v-list-tile-title>
-                    <v-list-tile-sub-title class="caption">{{ new Date(chat.timestamp).toLocaleString() }}</v-list-tile-sub-title>
+                    <v-list-tile-sub-title class="body-1">{{ new Date(chat.timestamp).toLocaleString() }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile>
+                <v-list-tile class="mt-1">
                   <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && assigned_user != null">
                     <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
                     <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                   </v-list-tile-avatar>
                   <v-list-tile-content>
                     <v-list-tile-title class="body-2">Supervisor</v-list-tile-title>
-                    <v-list-tile-sub-title class="caption">{{ assigned_user != null ? assigned_user.name : 'TBA' }}</v-list-tile-sub-title>
+                    <v-list-tile-sub-title class="body-1">{{ assigned_user != null ? assigned_user.name : 'TBA' }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-spacer></v-spacer>
-                <v-list-tile>
+                <v-list-tile class="mt-1">
                   <v-list-tile-avatar size="40" color="grey" v-if="queue_user != null">
                     <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
                     <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                   </v-list-tile-avatar>
                   <v-list-tile-content>
                     <v-list-tile-title class="body-2">Client</v-list-tile-title>
-                    <v-list-tile-sub-title class="caption">{{ queue_user != null ? queue_user.name : '-' }}</v-list-tile-sub-title>
+                    <v-list-tile-sub-title class="body-1">{{ queue_user != null ? queue_user.name : '-' }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-layout row class="mt-2">
+                <v-list-tile v-if="queue_user_private != null && user.admin" class="mt-1">
+                  <v-list-tile-content>
+                    <v-list-tile-title class="body-2">Client Status</v-list-tile-title>
+                    <v-list-tile-sub-title class="body-1">{{ queue_user_private.online != true ? `Last Seen ${new Date(queue_user_private.last_online).toLocaleString()}` : 'Online' }}</v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+                <v-layout row class="mt-1">
                   <v-list-tile v-if="user.admin">
                     <v-list-tile-content>
                       <v-list-tile-title class="body-2 pb-2">{{ chat.status == 0 ? 'Unlocked' : 'Locked' }}</v-list-tile-title>
-                      <v-list-tile-sub-title class="caption">
+                      <v-list-tile-sub-title class="body-1">
                         <v-switch class="my-0 mx-2" v-model="chat.status == 0 ? false : true" @change="adminToggleStatus"></v-switch>
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
@@ -213,6 +217,7 @@
         uid: null,
         assigned_user: null,
         queue_user: null,
+        queue_user_private: null,
         hidden: false
       }
     },
@@ -234,8 +239,12 @@
           this.queue_user = userSnapshot.val()
         })
       }
-      const ref = db.ref('chats/' + this.uid)
-      ref.on('value', (dataSnapshot) => {
+      db.ref('users/' + this.uid)
+      .once('value', (userSnapshot) => {
+        this.queue_user_private = userSnapshot.val()
+        console.log(this.queue_user_private)
+      })
+      db.ref('chats/' + this.uid).on('value', (dataSnapshot) => {
         if (dataSnapshot.val()) {
           this.chat = dataSnapshot.val()
           if (dataSnapshot.val().assigned_user && this.assigned_user == null) {
