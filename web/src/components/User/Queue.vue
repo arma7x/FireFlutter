@@ -15,7 +15,11 @@
                 <v-icon v-if="users[i].photoUrl == null" size="50" color="white">account_circle</v-icon>
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-title v-text="chat.topic"></v-list-tile-title>
+                <v-list-tile-title>
+                  <v-icon v-if="chat.status != 0" size="16" color="info">lock</v-icon>
+                  <v-icon v-if="chat.status == 0" size="16" color="warning">lock_open</v-icon>
+                  {{ chat.topic }}
+                </v-list-tile-title>
                 <v-list-tile-sub-title>
                   <v-layout row>
                   {{ users[i].name }}
