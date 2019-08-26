@@ -5,7 +5,7 @@ import * as cors from 'cors';
 const serviceAccount = require('../service_account.json');
 const ADMIN = 'Uc22I5nWJbh10eqIsxEDDLUHI0k2';
 const LEVEL = {
-  ADMIN: 0,
+  ADMIN: 1,
   MEMBER: 999
 };
 

@@ -242,7 +242,6 @@
       db.ref('users/' + this.uid)
       .once('value', (userSnapshot) => {
         this.queue_user_private = userSnapshot.val()
-        console.log(this.queue_user_private)
       })
       db.ref('chats/' + this.uid).on('value', (dataSnapshot) => {
         if (dataSnapshot.val()) {

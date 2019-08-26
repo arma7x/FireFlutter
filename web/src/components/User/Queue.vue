@@ -11,8 +11,8 @@
           <v-list subheader v-if="queues != null" class="py-0">
             <v-list-tile :key="i" v-for="(chat, i) in queues" avatar @click="">
               <v-list-tile-avatar size="40" color="grey">
-                <img v-if="users[i].photoUrl != null" :src="users[i].photoUrl">
-                <v-icon v-if="users[i].photoUrl == null" size="50" color="white">account_circle</v-icon>
+                <img v-if="users[chat.key].photoUrl != null" :src="users[chat.key].photoUrl">
+                <v-icon v-if="users[chat.key].photoUrl == null" size="50" color="white">account_circle</v-icon>
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>
@@ -22,7 +22,7 @@
                 </v-list-tile-title>
                 <v-list-tile-sub-title>
                   <v-layout row>
-                  {{ users[i].name }}
+                  {{ users[chat.key].name }}
                   <v-spacer></v-spacer>
                   {{ new Date(chat.timestamp).toLocaleString() }}
                   <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
@@ -31,10 +31,10 @@
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action v-if="chat.assigned_user == user.uid || chat.assigned_user == false">
-                <v-btn v-if="chat.assigned_user == user.uid" fab small color="primary" @click="joinChat(i)">
+                <v-btn v-if="chat.assigned_user == user.uid" fab small color="primary" @click="joinChat(chat.key)">
                   <v-icon>chat_bubble</v-icon>
                 </v-btn>
-                <v-btn v-if="chat.assigned_user == false" fab small color="error" @click="handleChat(i)">
+                <v-btn v-if="chat.assigned_user == false" fab small color="error" @click="handleChat(chat.key)">
                   <v-icon>add_comment</v-icon>
                 </v-btn>
               </v-list-tile-action>
@@ -71,8 +71,15 @@
     mounted () {
       const db = firebase.database()
       const ref = db.ref('queues')
-      ref.on('value', (dataSnapshot) => {
-        this.queues = dataSnapshot.val()
+      ref.orderByChild('timestamp').on('value', (dataSnapshot) => {
+        let q = []
+        for (let k in dataSnapshot.val()) {
+          const obj = dataSnapshot.val()[k]
+          obj['key'] = k
+          q.push(obj)
+        }
+        q.sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1)
+        this.queues = q
       })
       db.ref('users_public')
       .on('value', (usersSnapshot) => {
