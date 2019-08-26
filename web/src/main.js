@@ -45,6 +45,10 @@ new Vue({
             admin: _user.claims.admin || false
           }
           this.$store.dispatch('autoSignIn', userObj)
+          firebase.database().ref('users/' + _user.claims.user_id)
+          .on('value', (dataSnapshot) => {
+            this.$store.dispatch('updateMetadata', dataSnapshot.val())
+          })
         })
       }
     })

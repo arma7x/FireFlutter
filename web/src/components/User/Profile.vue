@@ -90,12 +90,6 @@
       }
     },
     mounted () {
-      const db = firebase.database()
-      const ref = db.ref('users/' + this.$store.getters.user.uid)
-      ref.once('value')
-      .then((dataSnapshot) => {
-        console.log(dataSnapshot.val())
-      })
       document.querySelector('#avatar').addEventListener('change', this.updateUserAvatar)
     },
     methods: {

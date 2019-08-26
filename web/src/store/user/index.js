@@ -3,14 +3,21 @@ import axios from 'axios'
 
 export default {
   state: {
-    user: null
+    user: null,
+    metadata: null
   },
   mutations: {
     setUser (state, payload) {
       state.user = payload
+    },
+    setMetadata (state, payload) {
+      state.metadata = payload
     }
   },
   actions: {
+    updateMetadata ({commit}, payload) {
+      commit('setMetadata', payload)
+    },
     updateUserProfile ({commit, state}, payload) {
       commit('setLoading', true)
       commit('clearError')
@@ -258,8 +265,9 @@ export default {
     },
     logout ({commit, dispatch, state}) {
       dispatch('removeActiveDevice', {uid: state.user.uid})
-      firebase.auth().signOut()
       commit('setUser', null)
+      commit('setMetadata', null)
+      firebase.auth().signOut()
     }
   },
   getters: {
