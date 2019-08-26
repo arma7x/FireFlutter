@@ -3,7 +3,6 @@ import * as functions from 'firebase-functions';
 import * as cors from 'cors';
 
 const serviceAccount = require('../service_account.json');
-const ADMIN = 'Uc22I5nWJbh10eqIsxEDDLUHI0k2';
 const LEVEL = {
   ADMIN: 1,
   MEMBER: 999
@@ -12,31 +11,6 @@ const LEVEL = {
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://fireflutter-f1304.firebaseio.com'
-});
-
-export const verifyAdmin = functions.https.onRequest((request, response) => {
-  const corsFn = cors();
-  const token = request.query.token || 'string';
-  admin.auth().verifyIdToken(token)
-  .then((decodedToken) => {
-    if (decodedToken.uid !== ADMIN) {
-      return Promise.reject({ 'message': 'Permission denied' });
-    }
-    const additionalClaims = {
-      admin: true
-    };
-    return admin.auth().createCustomToken(decodedToken.uid, additionalClaims);
-  })
-  .then((customToken) => {
-    corsFn(request, response, () => {
-      response.status(200).json({ token: customToken });
-    });
-  })
-  .catch((error) => {
-    corsFn(request, response, () => {
-      response.status(400).json(error);
-    });
-  });
 });
 
 export const updateUserProfile = functions.https.onRequest((request, response) => {
@@ -113,6 +87,40 @@ export const joinQueue = functions.https.onRequest((request, response) => {
           "assigned_user": false
         })
         .then(() => {
+          console.log("SEND NOTIFICATION TO ADMIN");
+          const adminsRef = admin.database().ref('/users').orderByChild('role').equalTo(1)
+          adminsRef.once('value')
+          .then((snapshots) => {
+            const regFCMTokens = []
+            for (const k in snapshots.val()) {
+              if (snapshots.val()[k]['devices']) {
+                for (const i in snapshots.val()[k]['devices']) {
+                  regFCMTokens.push(snapshots.val()[k]['devices'][i]['fcm'])
+                }
+              }
+            }
+            const payload = {
+              notification: {
+                title: 'Chat Queue',
+                body : 'New user in queue list'
+              }
+            };
+            if (regFCMTokens.length > 0) {
+              console.log(regFCMTokens);
+              admin.messaging().sendToDevice(regFCMTokens, payload)
+              .then((success) => {
+                console.log(success);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+            } else {
+              console.log("NO ADMIN LOGGED IN");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
           return chatRef.set({
             "topic": request.query.topic,
             "timestamp": new Date().getTime(),
@@ -174,7 +182,7 @@ export const deleteQueue = functions.https.onRequest((request, response) => {
   });
 });
 
-export const adminDeleteQueue = functions.https.onRequest((request, response) => {
+export const adminDeleteQueue = functions.https.onRequest(async (request, response) => {
   const corsFn = cors();
   const queue = request.query.queue;
   if (queue === null || queue ===  undefined) {
@@ -184,9 +192,15 @@ export const adminDeleteQueue = functions.https.onRequest((request, response) =>
   }
   const token = request.query.token || 'string';
   admin.auth().verifyIdToken(token)
-  .then((decodedToken) => {
-    if (decodedToken.uid !== ADMIN) {
-      return Promise.reject({ 'message': 'Permission denied' });
+  .then(async (decodedToken) => {
+    try {
+      const roleRef = admin.database().ref('/users/' + decodedToken.uid).child('role');
+      const snapshot = await roleRef.once('value');
+      if (snapshot.val() !== LEVEL.ADMIN) {
+        return Promise.reject({ 'message': 'Permission denied' });
+      }
+    } catch (err) {
+      return err;
     }
     const chatRef = admin.database().ref('/chats/' + queue);
     return chatRef.once("value")

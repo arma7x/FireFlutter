@@ -139,14 +139,14 @@
                     <v-list-tile-sub-title class="body-1">{{ queue_user != null ? queue_user.name : '-' }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile v-if="queue_user_private != null && user.admin" class="mt-1">
+                <v-list-tile v-if="queue_user_private != null && metadata.role == 1" class="mt-1">
                   <v-list-tile-content>
                     <v-list-tile-title class="body-2">Client Status</v-list-tile-title>
                     <v-list-tile-sub-title class="body-1">{{ queue_user_private.online != true ? `Last Seen ${new Date(queue_user_private.last_online).toLocaleString()}` : 'Online' }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
                 <v-layout row class="mt-1">
-                  <v-list-tile v-if="user.admin">
+                  <v-list-tile v-if="metadata.role == 1">
                     <v-list-tile-content>
                       <v-list-tile-title class="body-2 pb-2">{{ chat.status == 0 ? 'Unlocked' : 'Locked' }}</v-list-tile-title>
                       <v-list-tile-sub-title class="body-1">
@@ -154,8 +154,8 @@
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
-                  <v-spacer v-if="user.admin && chat.status == 0"></v-spacer>
-                  <v-list-tile v-if="user.admin && chat.status == 0">
+                  <v-spacer v-if="metadata.role == 1 && chat.status == 0"></v-spacer>
+                  <v-list-tile v-if="metadata.role == 1 && chat.status == 0">
                     <v-list-tile-content>
                       <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
                         <v-btn color="error" @click="adminDeleteQueue">
@@ -224,6 +224,9 @@
     computed: {
       user () {
         return this.$store.getters.user
+      },
+      metadata () {
+        return this.$store.getters.metadata
       },
       error () {
         return this.$store.getters.error

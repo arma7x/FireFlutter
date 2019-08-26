@@ -57,7 +57,7 @@
                 <v-list-tile>
                   <v-list-tile-content>
                     <v-list-tile-title>Admin</v-list-tile-title>
-                    <v-list-tile-sub-title>{{ user !== undefined && user !== null ? (user.admin ? 'TRUE' : 'FALSE') : '' }}</v-list-tile-sub-title>
+                    <v-list-tile-sub-title>{{ metadata !== undefined && metadata !== null ? (metadata.role === 1 ? 'TRUE' : 'FALSE') : '' }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
               </v-list>
@@ -84,6 +84,9 @@
       user () {
         this.name = this.$store.getters.user.name
         return this.$store.getters.user
+      },
+      metadata () {
+        return this.$store.getters.metadata
       },
       error () {
         return this.$store.getters.error

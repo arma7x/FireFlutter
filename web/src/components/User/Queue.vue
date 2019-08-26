@@ -34,8 +34,8 @@
                 <v-btn v-if="chat.assigned_user == user.uid" fab small color="primary" @click="joinChat(chat.key)">
                   <v-icon>chat_bubble</v-icon>
                 </v-btn>
-                <v-btn v-if="chat.assigned_user == false" fab small color="error" @click="handleChat(chat.key)">
-                  <v-icon>add_comment</v-icon>
+                <v-btn v-if="chat.assigned_user == false" fab small color="warning" @click="handleChat(chat.key)">
+                  <v-icon>supervisor_account</v-icon>
                 </v-btn>
               </v-list-tile-action>
               <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && chat.assigned_user != user.uid">

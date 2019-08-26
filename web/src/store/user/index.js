@@ -104,7 +104,6 @@ export default {
               photoUrl: user.user.photoURL
             }
             commit('setUser', newUser)
-            // dispatch('signUserInCustomToken')
             dispatch('addActiveDevice', {uid: state.user.uid})
           }
         )
@@ -130,7 +129,6 @@ export default {
               photoUrl: user.user.photoURL
             }
             commit('setUser', newUser)
-            // dispatch('signUserInCustomToken')
             dispatch('addActiveDevice', {uid: state.user.uid})
           }
         )
@@ -213,28 +211,6 @@ export default {
             console.log(error)
           }
         )
-    },
-    signUserInCustomToken ({commit}) {
-      commit('setLoading', true)
-      commit('clearError')
-      firebase.auth().currentUser.getIdToken(true)
-      .then((idToken) => {
-        return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/verifyAdmin`, { params: { 'token': idToken } })
-      })
-      .then((response) => {
-        return firebase.auth().signInWithCustomToken(response.data.token)
-      })
-      .then(
-        data => {
-          commit('setLoading', false)
-          location.reload()
-        }
-      )
-      .catch(
-        () => {
-          commit('setLoading', false)
-        }
-      )
     },
     autoSignIn ({commit}, payload) {
       commit('setUser', {
