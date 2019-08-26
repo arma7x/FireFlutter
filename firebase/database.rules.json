@@ -1,0 +1,77 @@
+{
+  /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
+  "rules": {
+    "chats": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() == 1",
+        "$any": {
+          ".write": false
+        },
+        "topic": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
+        },
+        "timestamp": {
+          ".write": false
+        },
+        "status": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
+        },
+        "assigned_user": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
+        },
+        "logs": {
+          "$log_id": {
+            ".validate": "(root.child('chats').child($uid).exists() && (newData.child('user').val() == auth.uid || root.child('users').child(auth.uid).child('role').val() == 1) && (newData.child('timestamp').val() == now) && (newData.child('message').child('mime').exists() && newData.child('message').child('data').exists() && newData.child('message').child('data').val().length > 0 && newData.child('message').child('caption').exists())) || root.child('users').child(auth.uid).child('role').val() == 1",
+            ".write": "(root.child('chats').child(auth.uid).exists() && !data.exists() && auth.uid == $uid) || root.child('users').child(auth.uid).child('role').val() == 1"
+          }
+        }
+      }
+    },
+    "queues": {
+      ".read": "root.child('users').child(auth.uid).child('role').val() == 1",
+      "$uid": {
+        "$any": {
+          ".write": false
+        },
+        "topic": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
+        },
+        "timestamp": {
+          ".write": false
+        },
+        "status": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
+        },
+        "assigned_user": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists() && root.child('chats').child($uid).child('assigned_user').val() == false"
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() == 1",
+        "$any": {
+          ".write": false
+        },
+        "devices": {
+          ".write": "$uid === auth.uid"
+        },
+        "online": {
+          ".write": "$uid === auth.uid"
+        },
+        "last_online": {
+          ".write": "$uid === auth.uid && newData.val() == now"
+        },
+        "role": {
+          ".write": false
+        }
+      }
+    },
+    "users_public": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth.uid == $uid"
+      }
+    }
+  }
+}

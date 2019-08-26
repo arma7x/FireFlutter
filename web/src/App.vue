@@ -108,10 +108,10 @@
           menuItems = [
             {icon: 'person', title: 'Profile', link: '/profile'}
           ]
-          if (this.$store.getters.user.admin !== true) {
+          if (this.$store.getters.metadata.role !== 1) {
             menuItems = [...menuItems, {icon: 'forum', title: 'Chat', link: '/chat'}]
           }
-          if (this.$store.getters.user.admin === true) {
+          if (this.$store.getters.metadata.role === 1) {
             menuItems = [...menuItems, {icon: 'forum', title: 'Queue', link: '/queue'}]
           }
         }

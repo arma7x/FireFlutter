@@ -104,7 +104,7 @@ export default {
               photoUrl: user.user.photoURL
             }
             commit('setUser', newUser)
-            dispatch('signUserInCustomToken')
+            // dispatch('signUserInCustomToken')
             dispatch('addActiveDevice', {uid: state.user.uid})
           }
         )
@@ -130,7 +130,7 @@ export default {
               photoUrl: user.user.photoURL
             }
             commit('setUser', newUser)
-            dispatch('signUserInCustomToken')
+            // dispatch('signUserInCustomToken')
             dispatch('addActiveDevice', {uid: state.user.uid})
           }
         )
@@ -273,6 +273,9 @@ export default {
   getters: {
     user (state) {
       return state.user
+    },
+    metadata (state) {
+      return state.metadata
     }
   }
 }
