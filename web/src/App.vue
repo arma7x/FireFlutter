@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-layout row v-if="error">
+    <v-layout class="primary" style="flex:none!important" row v-if="error">
       <v-flex xs12>
         <app-alert class="my-0 mx-0" @dismissed="onDismissed" :text="error.message"></app-alert>
       </v-flex>

@@ -1,5 +1,5 @@
 <template>
-  <v-container class="center-vertical">
+  <v-container class="no-center-vertical">
     <v-layout column>
       <!-- <v-layout row v-if="error">
         <v-flex xs12 sm4 offset-sm4>
@@ -8,7 +8,7 @@
       </v-layout> -->
       <v-layout row>
         <v-flex xs12 sm6 offset-sm3>
-          <v-list subheader v-if="queues != null">
+          <v-list subheader v-if="queues != null" class="py-0">
             <v-list-tile :key="i" v-for="(chat, i) in queues" avatar @click="">
               <v-list-tile-avatar size="40" color="grey">
                 <img v-if="users[i].photoUrl != null" :src="users[i].photoUrl">
