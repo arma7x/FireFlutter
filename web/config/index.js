@@ -4,8 +4,8 @@ var path = require('path')
 module.exports = {
   build: {
     env: require('./prod.env'),
-    index: path.resolve(__dirname, '../../functions/public/index.html'),
-    assetsRoot: path.resolve(__dirname, '../../functions/public'),
+    index: path.resolve(__dirname, '../../firebase/public/index.html'),
+    assetsRoot: path.resolve(__dirname, '../../firebase/public'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     productionSourceMap: true,

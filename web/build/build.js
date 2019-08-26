@@ -48,6 +48,6 @@ firebase.initializeApp({
   'messagingSenderId': '${Config.firebase.messagingSenderId}'
 });
 `
-    replacer(path.resolve(__dirname, '../../functions/public/firebase-messaging-sw.js'), content)
+    replacer(path.resolve(__dirname, '../../firebase/public/firebase-messaging-sw.js'), content)
   })
 })
