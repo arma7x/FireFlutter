@@ -9,10 +9,12 @@
       <v-toolbar flat class="primary">
         <v-list class="pa-0">
           <v-list-tile avatar>
-            <v-list-tile-avatar size="40" color="primary">
-              <img v-if="userIsAuthenticated && $store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl">
-              <v-icon size="49" color="white" v-if="userIsAuthenticated && $store.getters.user.photoUrl == null">account_circle</v-icon>
-              <v-icon size="49" color="white" v-if="!userIsAuthenticated">account_circle</v-icon>
+            <v-list-tile-avatar size="40" color="primary" v-if="userIsAuthenticated && $store.getters.user">
+              <img v-if="$store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl">
+              <v-icon size="49" color="white" v-if="$store.getters.user.photoUrl == null">account_circle</v-icon>
+            </v-list-tile-avatar>
+            <v-list-tile-avatar size="40" color="primary" v-if="!userIsAuthenticated">
+              <v-icon size="49" color="white">account_circle</v-icon>
             </v-list-tile-avatar>
             <v-list-tile-content>
               <v-list-tile-title class="white--text">{{ userIsAuthenticated ? $store.getters.user.name : 'Hi, Guest' }}</v-list-tile-title>
@@ -51,10 +53,12 @@
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
         <v-toolbar class="primary font-weight-bold text-uppercase" flat>
-          <v-avatar :tile="false" :size="49" color="transparent" style="margin-right:5px;">
-            <img v-if="userIsAuthenticated && $store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl" alt="avatar">
-            <v-icon v-if="userIsAuthenticated && $store.getters.user.photoUrl == null" size="60">account_circle</v-icon>
-            <v-icon v-if="!userIsAuthenticated" size="60">account_circle</v-icon>
+          <v-avatar v-if="userIsAuthenticated && $store.getters.user" :tile="false" :size="49" color="transparent" style="margin-right:5px;">
+            <img v-if="$store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl" alt="avatar">
+            <v-icon v-if="$store.getters.user.photoUrl == null" size="60">account_circle</v-icon>
+          </v-avatar>
+          <v-avatar v-if="!userIsAuthenticated" :tile="false" :size="49" color="transparent" style="margin-right:5px;">
+            <v-icon size="60">account_circle</v-icon>
           </v-avatar>
           {{ userIsAuthenticated ? $store.getters.user.name : 'Hi, Guest' }}
         </v-toolbar>
@@ -108,11 +112,13 @@
           menuItems = [
             {icon: 'person', title: 'Profile', link: '/profile'}
           ]
-          if (this.$store.getters.metadata.role !== 1) {
-            menuItems = [...menuItems, {icon: 'forum', title: 'Chat', link: '/chat'}]
-          }
-          if (this.$store.getters.metadata.role === 1) {
-            menuItems = [...menuItems, {icon: 'forum', title: 'Queue', link: '/queue'}]
+          if (this.$store.getters.metadata !== null && this.$store.getters.metadata !== undefined) {
+            if (this.$store.getters.metadata.role !== 1) {
+              menuItems = [...menuItems, {icon: 'forum', title: 'Chat', link: '/chat'}]
+            }
+            if (this.$store.getters.metadata.role === 1) {
+              menuItems = [...menuItems, {icon: 'forum', title: 'Queue', link: '/queue'}]
+            }
           }
         }
         return menuItems

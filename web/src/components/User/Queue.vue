@@ -10,17 +10,17 @@
         <v-flex xs12 sm6 offset-sm3>
           <v-list subheader v-if="queues != null" class="py-0">
             <v-list-tile :key="i" v-for="(chat, i) in queues" avatar @click="">
-              <v-list-tile-avatar size="40" color="grey">
+              <v-list-tile-avatar v-if="users[chat.key]" size="40" color="grey">
                 <img v-if="users[chat.key].photoUrl != null" :src="users[chat.key].photoUrl">
                 <v-icon v-if="users[chat.key].photoUrl == null" size="50" color="white">account_circle</v-icon>
               </v-list-tile-avatar>
-              <v-list-tile-content>
+              <v-list-tile-content v-if="users[chat.key]">
                 <v-list-tile-title>
                   <v-icon v-if="chat.status != 0" size="16" color="info">lock</v-icon>
                   <v-icon v-if="chat.status == 0" size="16" color="warning">lock_open</v-icon>
                   {{ chat.topic }}
                 </v-list-tile-title>
-                <v-list-tile-sub-title>
+                <v-list-tile-sub-title v-if="users[chat.key]">
                   <v-layout row>
                   {{ users[chat.key].name }}
                   <v-spacer></v-spacer>
@@ -38,7 +38,7 @@
                   <v-icon>supervisor_account</v-icon>
                 </v-btn>
               </v-list-tile-action>
-              <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && chat.assigned_user != user.uid">
+              <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && chat.assigned_user != user.uid && (users[chat.assigned_user] !== null && users[chat.assigned_user] !== undefined)">
                 <img v-if="users[chat.assigned_user].photoUrl != null" :src="users[chat.assigned_user].photoUrl">
                 <v-icon v-if="users[chat.assigned_user].photoUrl == null" size="50" color="white">account_circle</v-icon>
               </v-list-tile-avatar>

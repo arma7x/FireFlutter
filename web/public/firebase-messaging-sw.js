@@ -10,3 +10,14 @@ importScripts('/firebase-messaging.js');
 firebase.initializeApp({
   'messagingSenderId': '436808076830'
 });
+
+firebase.messaging().setBackgroundMessageHandler(function(payload) {
+  console.log('Message received::', payload.notification);
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: '/static/img/icons/android-chrome-192x192.png'
+  };
+
+  return self.registration.showNotification(notificationTitle, notificationOptions);
+});

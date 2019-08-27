@@ -37,11 +37,11 @@
                 <ul style="list-style: none;">
                   <li :key="i" v-for="(msg, i) in chat.logs">
                     <v-layout class="mb-2 px-0" row>
-                      <v-list-tile-avatar color="grey" size="40" v-if="msg.user != user.uid && msg.user == chat.assigned_user">
+                      <v-list-tile-avatar color="grey" size="40" v-if="msg.user != user.uid && msg.user == chat.assigned_user && assigned_user !== null && assigned_user !== undefined">
                         <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
                         <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                       </v-list-tile-avatar>
-                      <v-list-tile-avatar color="grey" size="40" v-if="msg.user != user.uid && msg.user == uid">
+                      <v-list-tile-avatar color="grey" size="40" v-if="msg.user != user.uid && msg.user == uid && queue_user !== null && queue_user !== undefined">
                         <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
                         <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                       </v-list-tile-avatar>
@@ -55,7 +55,7 @@
                           </v-card-text>
                         </v-card>
                       </v-flex>
-                      <v-list-tile-avatar class="ml-3" color="grey" size="40" v-if="msg.user == user.uid">
+                      <v-list-tile-avatar class="ml-3" color="grey" size="40" v-if="user && msg.user == user.uid">
                         <img v-if="user.photoUrl != null" :src="user.photoUrl">
                         <v-icon v-if="user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                       </v-list-tile-avatar>
@@ -120,7 +120,7 @@
                   </v-list-tile-content>
                 </v-list-tile>
                 <v-list-tile class="mt-1">
-                  <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && assigned_user != null">
+                  <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && assigned_user != null && assigned_user != undefined">
                     <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
                     <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                   </v-list-tile-avatar>
@@ -130,7 +130,7 @@
                   </v-list-tile-content>
                 </v-list-tile>
                 <v-list-tile class="mt-1">
-                  <v-list-tile-avatar size="40" color="grey" v-if="queue_user != null">
+                  <v-list-tile-avatar size="40" color="grey" v-if="queue_user != null && queue_user != undefined">
                     <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
                     <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                   </v-list-tile-avatar>
