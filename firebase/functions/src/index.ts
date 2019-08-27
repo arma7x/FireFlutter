@@ -102,7 +102,7 @@ export const joinQueue = functions.https.onRequest((request, response) => {
             const payload = {
               notification: {
                 title: 'Chat Queue',
-                body : 'New user in queue list'
+                body : 'New user waiting in queue list'
               }
             };
             if (regFCMTokens.length > 0) {
