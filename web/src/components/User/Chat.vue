@@ -266,6 +266,9 @@
           }
         } else {
           this.chat = null
+          if (this.metadata.role === 1) {
+            this.$router.push({ path: 'queue' })
+          }
         }
       })
     },

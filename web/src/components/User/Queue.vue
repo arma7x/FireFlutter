@@ -52,6 +52,7 @@
 
 <script>
   import * as firebase from 'firebase'
+  import axios from 'axios'
 
   export default {
     data () {
@@ -98,6 +99,10 @@
             return firebase.database().ref('chats/' + id).update(user)
           })
           .then(() => {
+            firebase.auth().currentUser.getIdToken(true)
+            .then((idToken) => {
+              axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': id } })
+            })
             this.joinChat(id)
           })
           .catch((error) => {

@@ -13,46 +13,21 @@ admin.initializeApp({
   databaseURL: 'https://fireflutter-f1304.firebaseio.com'
 });
 
-export const updateUserProfile = functions.https.onRequest((request, response) => {
-  const corsFn = cors();
-  const token = request.query.token || 'string';
-  const userProperty = {};
-  if (request.query.displayName) {
-    Object.assign(userProperty, { 'displayName': request.query.displayName });
-  }
-  if (request.query.photoURL) {
-    Object.assign(userProperty, { 'photoURL': request.query.photoURL });
-  }
-  admin.auth().verifyIdToken(token)
-  .then((decodedToken) => {
-    return admin.auth().updateUser(decodedToken.uid, userProperty);
-  })
-  .then((user) => {
-    corsFn(request, response, () => {
-      response.status(200).json({ user: user.toJSON() });
-    });
-  })
-  .catch((error) => {
-    corsFn(request, response, () => {
-      response.status(400).json(error);
-    });
-  });
-});
-
 export const selfDestructAccount = functions.https.onRequest((request, response) => {
   const corsFn = cors();
   const token = request.query.token || 'string';
+  let uid:string;
   admin.auth().verifyIdToken(token)
   .then((decodedToken) => {
-    console.log('/users/' + decodedToken.uid)
-    admin.database().ref('/users').child(decodedToken.uid).remove()
-    .then(() => {
-      console.log('DELETED::' + decodedToken.uid)
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-    return admin.auth().deleteUser(decodedToken.uid);
+    uid = decodedToken.uid
+    console.log('/users/' + uid)
+    return admin.auth().deleteUser(uid);
+  })
+  .then(() => {
+    return admin.database().ref('/users').child(uid).remove()
+  })
+  .then(() => {
+    return admin.database().ref('/users_public').child(uid).remove()
   })
   .then(() => {
     corsFn(request, response, () => {
@@ -69,69 +44,69 @@ export const selfDestructAccount = functions.https.onRequest((request, response)
 export const joinQueue = functions.https.onRequest((request, response) => {
   const corsFn = cors();
   const token = request.query.token || 'string';
+  let uid:string;
+  let chatRef:admin.database.Reference;
   admin.auth().verifyIdToken(token)
   .then((decodedToken) => {
+    uid = decodedToken.uid;
     if (request.query.topic === undefined || request.query.topic === null) {
       return Promise.reject({ 'message': 'Please enter topic of discussion' });
     }
-    const chatRef = admin.database().ref('/chats/' + decodedToken.uid);
-    return chatRef.once('value')
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        return Promise.reject({ 'message': 'Already in queue' });
-      } else {
-        return admin.database().ref('/queues/' + decodedToken.uid).set({
-          "topic": request.query.topic,
-          "timestamp": new Date().getTime(),
-          "status": 0,
-          "assigned_user": false
-        })
-        .then(() => {
-          console.log("SEND NOTIFICATION TO ADMIN");
-          const adminsRef = admin.database().ref('/users').orderByChild('role').equalTo(1)
-          adminsRef.once('value')
-          .then((snapshots) => {
-            const regFCMTokens = []
-            for (const k in snapshots.val()) {
-              if (snapshots.val()[k]['devices']) {
-                for (const i in snapshots.val()[k]['devices']) {
-                  regFCMTokens.push(snapshots.val()[k]['devices'][i]['fcm'])
-                }
-              }
-            }
-            if (regFCMTokens.length > 0) {
-              const payload = {
-                notification: {
-                  title: 'Chat Queue',
-                  body : 'New user waiting in queue list'
-                }
-              };
-              console.log(regFCMTokens);
-              admin.messaging().sendToDevice(regFCMTokens, payload)
-              .then((success) => {
-                console.log(success);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-            } else {
-              console.log("NO ADMIN LOGGED IN");
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-          return chatRef.set({
-            "topic": request.query.topic,
-            "timestamp": new Date().getTime(),
-            "status": 0,
-            "assigned_user": false
-          });
+    chatRef = admin.database().ref('/chats/' + uid);
+    return chatRef.once('value');
+  })
+  .then((snapshot) => {
+    if (snapshot.exists()) {
+      return Promise.reject({ 'message': 'Already in queue' });
+    } else {
+      return admin.database().ref('/queues/' + uid).set({
+        "topic": request.query.topic,
+        "timestamp": new Date().getTime(),
+        "status": 0,
+        "assigned_user": false
+      });
+    }
+  })
+  .then(() => {
+    console.log("SEND NOTIFICATION TO ADMIN");
+    const adminsRef = admin.database().ref('/users').orderByChild('role').equalTo(1)
+    adminsRef.once('value')
+    .then((snapshots) => {
+      const regFCMTokens = []
+      for (const k in snapshots.val()) {
+        if (snapshots.val()[k]['devices']) {
+          for (const i in snapshots.val()[k]['devices']) {
+            regFCMTokens.push(snapshots.val()[k]['devices'][i]['fcm'])
+          }
+        }
+      }
+      if (regFCMTokens.length > 0) {
+        const payload = {
+          notification: {
+            title: 'Chat Queue',
+            body : 'New user waiting in queue list'
+          }
+        };
+        console.log(regFCMTokens);
+        admin.messaging().sendToDevice(regFCMTokens, payload)
+        .then((success) => {
+          console.log(success);
         })
         .catch((error) => {
-          return error;
+          console.log(error);
         });
+      } else {
+        console.log("NO ADMIN LOGGED IN");
       }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    return chatRef.set({
+      "topic": request.query.topic,
+      "timestamp": new Date().getTime(),
+      "status": 0,
+      "assigned_user": false
     });
   })
   .then(() => {
@@ -149,26 +124,25 @@ export const joinQueue = functions.https.onRequest((request, response) => {
 export const deleteQueue = functions.https.onRequest((request, response) => {
   const corsFn = cors();
   const token = request.query.token || 'string';
+  let uid:string;
+  let chatRef:admin.database.Reference;
   admin.auth().verifyIdToken(token)
   .then((decodedToken) => {
-    const chatRef = admin.database().ref('/chats/' + decodedToken.uid);
-    return chatRef.once('value')
-    .then((snapshot) => {
-      if (!snapshot.exists()) {
-        return Promise.reject({ 'message': 'Queue does not exist' });
-      } else if(snapshot.val().status === 1) {
-        return Promise.reject({ 'message': 'Your queues is active' });
-      } else {
-        return admin.database().ref('/queues/' + decodedToken.uid)
-        .remove()
-        .then(() => {
-          return chatRef.remove();
-        })
-        .catch((error) => {
-          return error;
-        });
-      }
-    });
+    uid = decodedToken.uid;
+    chatRef = admin.database().ref('/chats/' + uid);
+    return chatRef.once('value');
+  })
+  .then((snapshot) => {
+    if (!snapshot.exists()) {
+      return Promise.reject({ 'message': 'Queue does not exist' });
+    } else if(snapshot.val().status === 1) {
+      return Promise.reject({ 'message': 'Your queues is active' });
+    } else {
+      return admin.database().ref('/queues/' + uid).remove();
+    }
+  })
+  .then(() => {
+    return chatRef.remove();
   })
   .then(() => {
     corsFn(request, response, () => {
@@ -182,67 +156,61 @@ export const deleteQueue = functions.https.onRequest((request, response) => {
   });
 });
 
-export const adminNotifyClient = functions.https.onRequest(async (request, response) => {
+export const adminNotifyClient = functions.https.onRequest((request, response) => {
   const corsFn = cors();
   const queue = request.query.queue;
+  const token = request.query.token || 'string';
+  let uid:string;
   if (queue === null || queue ===  undefined) {
     corsFn(request, response, () => {
       response.status(400).json({ 'message': 'Queue id is required' });
     });
   }
-  const token = request.query.token || 'string';
   admin.auth().verifyIdToken(token)
-  .then(async (decodedToken) => {
-    try {
-      const roleRef = admin.database().ref('/users/' + decodedToken.uid).child('role');
-      const snapshot = await roleRef.once('value');
-      if (snapshot.val() !== LEVEL.ADMIN) {
-        return Promise.reject({ 'message': 'Permission denied' });
-      }
-    } catch (err) {
-      return err;
+  .then((decodedToken) => {
+    uid = decodedToken.uid;
+    const adminRef = admin.database().ref('/users/' + uid).child('role');
+    return adminRef.once('value');
+  })
+  .then((snapshot) => {
+    if (snapshot.val() !== LEVEL.ADMIN) {
+      return Promise.reject({ 'message': 'Permission denied' });
     }
     const chatRef = admin.database().ref('/chats/' + queue);
     return chatRef.once('value')
-    .then((snapshotChat) => {
-      if (!snapshotChat.exists()) {
-        return Promise.reject({ 'message': 'Queue does not exist' });
-      } else {
-        console.log("SEND NOTIFICATION TO CLIENT");
-        const clientRef = admin.database().ref('/users/' + queue)
-        return clientRef.once('value')
-        .then((snapshotClient) => {
-          const regFCMTokens = []
-          if (snapshotClient.val()['devices']) {
-            for (const i in snapshotClient.val()['devices']) {
-              regFCMTokens.push(snapshotClient.val()['devices'][i]['fcm'])
-            }
-          }
-          if (regFCMTokens.length > 0) {
-            const payload = {
-              notification: {
-                title: 'Chat',
-                body : 'Admin is ready to chat with you'
-              }
-            };
-            console.log(regFCMTokens);
-            return admin.messaging().sendToDevice(regFCMTokens, payload)
-            .then((success) => {
-              return success;
-            })
-            .catch((error) => {
-              return error;
-            });
-          } else {
-            console.log("NO ACTIVE CLIENT");
-            return Promise.reject({ 'message': 'Client does not logged-in in any device' });
-          }
-        });
-      }
-    });
   })
-  .then((ok) => {
-    console.log(ok);
+  .then((snapshotChat) => {
+    if (!snapshotChat.exists()) {
+      return Promise.reject({ 'message': 'Queue does not exist' });
+    } else {
+      const clientRef = admin.database().ref('/users/' + queue)
+      return clientRef.once('value')
+    }
+  })
+  .then((snapshotClient) => {
+    console.log("SEND NOTIFICATION TO CLIENT");
+    const regFCMTokens = []
+    if (snapshotClient.val()['devices']) {
+      for (const i in snapshotClient.val()['devices']) {
+        regFCMTokens.push(snapshotClient.val()['devices'][i]['fcm'])
+      }
+    }
+    if (regFCMTokens.length > 0) {
+      const payload = {
+        notification: {
+          title: 'Chat',
+          body : 'Admin is ready to chat with you'
+        }
+      };
+      console.log(regFCMTokens);
+      return admin.messaging().sendToDevice(regFCMTokens, payload)
+    } else {
+      console.log("NO ACTIVE CLIENT");
+      return Promise.reject({ 'message': 'Client does not logged-in in any device' });
+    }
+  })
+  .then((success) => {
+    console.log(success);
     corsFn(request, response, () => {
       response.status(200).json({ 'message': 'Succesfully send notification to client' });
     });
@@ -254,9 +222,11 @@ export const adminNotifyClient = functions.https.onRequest(async (request, respo
   });
 });
 
-export const adminDeleteQueue = functions.https.onRequest(async (request, response) => {
+export const adminDeleteQueue = functions.https.onRequest((request, response) => {
   const corsFn = cors();
   const queue = request.query.queue;
+  let uid:string;
+  let chatRef:admin.database.Reference;
   if (queue === null || queue ===  undefined) {
     corsFn(request, response, () => {
       response.status(400).json({ 'message': 'Queue id is required' });
@@ -264,38 +234,33 @@ export const adminDeleteQueue = functions.https.onRequest(async (request, respon
   }
   const token = request.query.token || 'string';
   admin.auth().verifyIdToken(token)
-  .then(async (decodedToken) => {
-    try {
-      const roleRef = admin.database().ref('/users/' + decodedToken.uid).child('role');
-      const snapshot = await roleRef.once('value');
-      if (snapshot.val() !== LEVEL.ADMIN) {
-        return Promise.reject({ 'message': 'Permission denied' });
-      }
-    } catch (err) {
-      return err;
+  .then((decodedToken) => {
+    uid = decodedToken.uid;
+    const adminRef = admin.database().ref('/users/' + uid).child('role');
+    return adminRef.once('value');
+  })
+  .then((snapshot) => {
+    if (snapshot.val() !== LEVEL.ADMIN) {
+      return Promise.reject({ 'message': 'Permission denied' });
     }
-    const chatRef = admin.database().ref('/chats/' + queue);
-    return chatRef.once('value')
-    .then((snapshot) => {
-      if (!snapshot.exists()) {
-        return Promise.reject({ 'message': 'Queue does not exist' });
-      } else if(snapshot.val().status === 1) {
-        return Promise.reject({ 'message': 'Current queues is active' });
-      } else {
-        return admin.database().ref('/queues/' + queue)
-        .remove()
-        .then(() => {
-          return chatRef.remove();
-        })
-        .catch((error) => {
-          return error;
-        });
-      }
-    });
+    chatRef = admin.database().ref('/chats/' + queue);
+    return chatRef.once('value');
+  })
+  .then((snapshot) => {
+    if (!snapshot.exists()) {
+      return Promise.reject({ 'message': 'Queue does not exist' });
+    } else if(snapshot.val().status === 1) {
+      return Promise.reject({ 'message': 'Current queues is active' });
+    } else {
+      return admin.database().ref('/queues/' + queue).remove();
+    }
+  })
+  .then(() => {
+    return chatRef.remove();
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Succesfully remove your from chat queue list' });
+      response.status(200).json({ 'message': 'Succesfully remove you from chat queue list' });
     });
   })
   .catch((error) => {
@@ -305,8 +270,8 @@ export const adminDeleteQueue = functions.https.onRequest(async (request, respon
   });
 });
 
-exports.onUserCreated = functions.auth.user().onCreate((user) => {
-  admin.database().ref('/users/' + user.uid).set({'role': LEVEL.MEMBER})
+export const onUserCreated = functions.auth.user().onCreate((user) => {
+  admin.database().ref('/users/' + user.uid).set({ 'role': LEVEL.MEMBER, 'online': false })
   .then(() => {
     console.log(user)
     return admin.database().ref('/users_public/' + user.uid).set({
