@@ -252,7 +252,7 @@
         })
       }
       db.ref('users/' + this.uid)
-      .once('value', (userSnapshot) => {
+      .on('value', (userSnapshot) => {
         this.queue_user_private = userSnapshot.val()
       })
       db.ref('chats/' + this.uid).on('value', (dataSnapshot) => {
