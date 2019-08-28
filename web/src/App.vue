@@ -5,23 +5,29 @@
         <app-alert class="my-0 mx-0" @dismissed="onDismissed" :text="error.message"></app-alert>
       </v-flex>
     </v-layout>
-    <v-navigation-drawer fixed temporary touchless v-model="sideNav">
-      <v-toolbar flat class="primary">
-        <v-list class="pa-0">
-          <v-list-tile avatar>
-            <v-list-tile-avatar size="40" color="primary" v-if="userIsAuthenticated && $store.getters.user">
-              <img v-if="$store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl">
-              <v-icon size="49" color="white" v-if="$store.getters.user.photoUrl == null">account_circle</v-icon>
-            </v-list-tile-avatar>
-            <v-list-tile-avatar size="40" color="primary" v-if="!userIsAuthenticated">
-              <v-icon size="49" color="white">account_circle</v-icon>
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title class="white--text">{{ userIsAuthenticated ? $store.getters.user.name : 'Hi, Guest' }}</v-list-tile-title>
-              <v-list-tile-sub-title class="white--text">{{ userIsAuthenticated ? $store.getters.user.email : 'Please sign in' }}</v-list-tile-sub-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list>
+    <v-navigation-drawer fixed temporary :touchless="touchless" v-model="sideNav" width="280">
+      <v-toolbar flat class="primary" height="150">
+        <v-layout class="mx-0 px-0" style="margin-left:-12px!important;" column>
+          <v-list class="pa-0">
+            <v-list-tile avatar>
+              <v-list-tile-avatar size="60" color="primary" v-if="userIsAuthenticated && $store.getters.user">
+                <img v-if="$store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl">
+                <v-icon size="69" color="white" v-if="$store.getters.user.photoUrl == null">account_circle</v-icon>
+              </v-list-tile-avatar>
+              <v-list-tile-avatar size="60" color="primary" v-if="!userIsAuthenticated">
+                <v-icon size="69" color="white">account_circle</v-icon>
+              </v-list-tile-avatar>
+            </v-list-tile>
+          </v-list>
+          <v-list class="pa-0 mt-2">
+            <v-list-tile>
+              <v-list-tile-content>
+                <v-list-tile-title class="body-2 white--text">{{ userIsAuthenticated ? $store.getters.user.name : 'Hi, Guest' }}</v-list-tile-title>
+                <v-list-tile-sub-title class="white--text">{{ userIsAuthenticated ? $store.getters.user.email : 'Please sign in' }}</v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list>
+        </v-layout>
       </v-toolbar>
       <v-list>
         <v-list-tile
@@ -98,6 +104,7 @@
   export default {
     data () {
       return {
+        touchless: false,
         sideNav: false
       }
     },
@@ -117,7 +124,7 @@
               menuItems = [...menuItems, {icon: 'forum', title: 'Chat', link: '/chat'}]
             }
             if (this.$store.getters.metadata.role === 1) {
-              menuItems = [...menuItems, {icon: 'forum', title: 'Queue', link: '/queue'}]
+              menuItems = [...menuItems, {icon: 'traffic', title: 'Queue', link: '/queue'}]
             }
           }
         }

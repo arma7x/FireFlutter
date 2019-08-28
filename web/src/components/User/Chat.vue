@@ -175,6 +175,15 @@
                     </v-list-tile-content>
                   </v-list-tile>
                   </v-layout>
+                <v-list-tile v-if="metadata.role == 1">
+                  <v-list-tile-content>
+                    <v-list-tile-title class="body-2"></v-list-tile-title>
+                      <v-btn block class="py-2" color="success" @click="adminNotifyClient">
+                        Notify Client
+                        <v-icon right>notification_important</v-icon>
+                      </v-btn>
+                  </v-list-tile-content>
+                </v-list-tile>
               </v-list>
             </div>
           </div>
@@ -306,11 +315,6 @@
           this.$store.commit('setError', error)
         })
       },
-      adminToggleStatus () {
-        const status = { status: (this.chat.status === 0 ? 1 : 0) }
-        firebase.database().ref('chats/' + this.uid).update(status)
-        firebase.database().ref('queues/' + this.uid).update(status)
-      },
       deleteQueue () {
         if (confirm('Are sure to exit from chat queue list ?')) {
           this.$store.commit('setLoading', true)
@@ -328,6 +332,32 @@
             this.$store.commit('setError', error.response.data)
           })
         }
+      },
+      adminToggleStatus () {
+        const status = { status: (this.chat.status === 0 ? 1 : 0) }
+        firebase.database().ref('chats/' + this.uid).update(status)
+        .then(() => {
+          firebase.database().ref('queues/' + this.uid).update(status)
+        })
+        .catch((error) => {
+          this.$store.commit('setError', error)
+        })
+      },
+      adminNotifyClient () {
+        this.$store.commit('setLoading', true)
+        firebase.auth().currentUser.getIdToken(true)
+        .then((idToken) => {
+          return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': this.uid } })
+        })
+        .then((response) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('clearError')
+          this.hidden = false
+        })
+        .catch((error) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('setError', error.response.data)
+        })
       },
       adminDeleteQueue () {
         if (confirm('Are sure to delete this chat from queue list ?')) {
