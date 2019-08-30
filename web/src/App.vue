@@ -5,6 +5,11 @@
         <app-alert class="my-0 mx-0" @dismissed="onDismissed" :text="error.message"></app-alert>
       </v-flex>
     </v-layout>
+    <v-layout class="primary" style="flex:none!important" row v-if="warning">
+      <v-flex xs12>
+        <app-warning class="my-0 mx-0" @dismissed="onDismissed" :text="warning.message"></app-warning>
+      </v-flex>
+    </v-layout>
     <v-navigation-drawer fixed temporary :touchless="touchless" v-model="sideNav" width="280">
       <v-toolbar flat class="primary" height="150">
         <v-layout class="mx-0 px-0" style="margin-left:-12px!important;" column>
@@ -54,7 +59,7 @@
         @click.stop="sideNav = !sideNav"
         class="hidden-sm-and-up "></v-toolbar-side-icon>
       <v-toolbar-title>
-        <router-link to="/" tag="span" style="cursor: pointer">FireFlutter</router-link>
+        <router-link to="/" tag="span" style="cursor: pointer">FireFlutter<v-icon right v-if="offline">wifi_off</v-icon></router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
@@ -101,11 +106,14 @@
 </template>
 
 <script>
+  import * as firebase from 'firebase'
+
   export default {
     data () {
       return {
         touchless: false,
-        sideNav: false
+        sideNav: false,
+        offline: false
       }
     },
     computed: {
@@ -138,7 +146,20 @@
       },
       error () {
         return this.$store.getters.error
+      },
+      warning () {
+        return this.$store.getters.warning
       }
+    },
+    mounted () {
+      const connectedRef = firebase.database().ref('.info/connected')
+      connectedRef.on('value', (snap) => {
+        if (snap.val() === true) {
+          this.offline = false
+        } else {
+          this.offline = true
+        }
+      })
     },
     methods: {
       onLogout () {
