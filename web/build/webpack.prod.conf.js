@@ -122,7 +122,8 @@ var webpackConfig = merge(baseWebpackConfig, {
       filename: 'service-worker.js',
       staticFileGlobs: [config.build.assetsRoot + '/' + config.build.assetsSubDirectory + '/**/*.{js,html,css,eot,svg,ttf,woff,woff2,png,html}', config.build.assetsRoot + '/*.{js,html,css,eot,svg,ttf,woff,woff2,png,html}'],
       minify: true,
-      stripPrefix: 'public/'
+      stripPrefix: 'public/',
+      templateFilePath: path.resolve(__dirname, './service-worker.tmpl')
     })
   ]
 })

@@ -1,7 +1,7 @@
 // Give the service worker access to Firebase Messaging.
 // Note that you can only use Firebase Messaging here, other Firebase libraries
 // are not available in the service worker.
-importScripts('/service-worker.js?version=1567181355099');
+importScripts('/service-worker.js?version=1567228541605');
 importScripts('/firebase-app.js');
 importScripts('/firebase-messaging.js');
 
