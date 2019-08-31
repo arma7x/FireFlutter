@@ -45,8 +45,8 @@
                         <img v-if="queue_user.photoUrl != null" :src="queue_user.photoUrl">
                         <v-icon v-if="queue_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
                       </v-list-tile-avatar>
-                      <v-flex xs12 sm6 :class="{ 'col-auto ml-auto': msg.user == user.uid }">
-                        <v-card>
+                      <div :class="{ 'col-auto ml-auto': msg.user == user.uid }">
+                        <v-card class="chat-box">
                           <v-card-text class="mx-0 my-0">
                             <v-list-tile-content>
                               <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" style="white-space: normal;" class="black--text">{{ msg.message.data }}</v-list-tile-sub-title>
@@ -54,7 +54,7 @@
                             </v-list-tile-content>
                           </v-card-text>
                         </v-card>
-                      </v-flex>
+                      </div>
                       <v-list-tile-avatar class="ml-3" color="grey" size="40" v-if="user && msg.user == user.uid">
                         <img v-if="user.photoUrl != null" :src="user.photoUrl">
                         <v-icon v-if="user.photoUrl == null" size="50" color="white">account_circle</v-icon>
@@ -387,3 +387,14 @@
     }
   }
 </script>
+
+<style lang="stylus">
+  .chat-box {
+    max-width: 140px!important;
+  }
+  @media (min-width: 768px) {
+    .chat-box {
+      max-width: 270px!important;
+    }
+  }
+</style>

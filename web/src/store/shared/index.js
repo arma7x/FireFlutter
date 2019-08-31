@@ -2,12 +2,16 @@ import * as firebase from 'firebase'
 
 export default {
   state: {
+    offline: false,
     client_id: '',
     fcm: '',
     loading: false,
     error: null
   },
   mutations: {
+    setOffline (state, payload) {
+      state.offline = payload
+    },
     setClientId (state, payload) {
       state.client_id = payload
     },
@@ -54,6 +58,9 @@ export default {
     }
   },
   getters: {
+    offline (state) {
+      return state.offline
+    },
     client_id (state) {
       return state.client_id
     },

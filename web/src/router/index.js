@@ -49,7 +49,7 @@ export default new Router({
       beforeEnter: avoidAuth
     },
     {
-      path: '/reset-password',
+      path: '/resetpassword',
       name: 'Reset Password',
       component: ResetPassword,
       beforeEnter: avoidAuth
