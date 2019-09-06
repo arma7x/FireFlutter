@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fireflutter/state/provider_state.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+class Profile extends StatefulWidget {
+  Profile({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -17,10 +17,10 @@ class HomePage extends StatefulWidget {
   final String title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _ProfileState createState() => _ProfileState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ProfileState extends State<Profile> {
   int _counter = 0;
 
   void _incrementCounter() {
@@ -45,11 +45,11 @@ class _HomePageState extends State<HomePage> {
     // than having to individually change instances of widgets.
 
     return Scaffold(
-      //appBar: AppBar(
-        //// Here we take the value from the HomePage object that was created by
-        //// the App.build method, and use it to set our appbar title.
-        //title: Text(widget.title),
-      //),
+      appBar: AppBar(
+        // Here we take the value from the HomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.

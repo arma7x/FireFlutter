@@ -4,10 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class RegisterPage extends StatefulWidget {
-  RegisterPage({Key key, this.title, this.cb}) : super(key: key);
+  RegisterPage({Key key, this.title}) : super(key: key);
 
   final String title;
-  final Function cb;
 
   @override
   RegisterPageState createState() => RegisterPageState();

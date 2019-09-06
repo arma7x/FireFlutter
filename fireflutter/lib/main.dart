@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'package:fireflutter/navigation/fragments.dart';
 import 'package:fireflutter/navigation/screens.dart';
+import 'package:fireflutter/state/provider_state.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -14,12 +17,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "FireFlutter",
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(builder: (_) => Counter()),
+      ],
+      child: Consumer<Counter>(
+        builder: (context, counter, _) {
+          return MaterialApp(
+            title: "FireFlutter",
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: MyHomePage(),
+          );
+        },
       ),
-      home: MyHomePage(),
     );
   }
 
@@ -29,20 +41,21 @@ class DrawerItem {
   String title;
   IconData icon;
   Function body;
-  bool auth;
-  DrawerItem(this.title, this.icon, this.body, this.auth);
+  bool requireAuth;
+  DrawerItem(this.title, this.icon, this.body, this.requireAuth);
 }
 
 class MyHomePage extends StatefulWidget {
 
   final drawerFragments = [
-    new DrawerItem("FireFlutter", Icons.home, (Function cb) => new HomePage(title:"FireFlutter", cb: cb), null),
-    new DrawerItem("Sign In", Icons.exit_to_app, (Function cb) => new LoginPage(title: 'Sign In', cb: cb), false),
+    new DrawerItem("FireFlutter", Icons.home, () => new HomePage(title:"FireFlutter"), null),
   ];
 
   final drawerScreens = [
-    new DrawerItem("Sign Up", Icons.person_add, (Function cb) => new RegisterPage(title: 'Sign Up', cb: cb), false),
-    new DrawerItem("Forgot Password", Icons.lock_open, (Function cb) => new ForgotPassword(title: 'Forgot Password', cb: cb), false),
+    new DrawerItem("Profile", Icons.person, () => new Profile(title:"Profile"), null),
+    new DrawerItem("Sign In", Icons.exit_to_app, () => new LoginPage(title: 'Sign In'), false),
+    new DrawerItem("Sign Up", Icons.person_add, () => new RegisterPage(title: 'Sign Up'), false),
+    new DrawerItem("Forgot Password", Icons.lock_open, () => new ForgotPassword(title: 'Forgot Password'), false),
   ];
 
   MyHomePage({Key key}) : super(key: key);
@@ -57,6 +70,9 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedDrawerFragmentIndex = 0;
 
   _MyHomePageState() {
+    _auth.onAuthStateChanged.listen((event) {
+      setState(() { _user = event; });
+    });
     _auth.currentUser()
     .then((FirebaseUser user) {
       setState(() { _user = user; });
@@ -67,30 +83,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void _signOut() async {
     await _auth.signOut();
     await _googleSignIn.signOut();
-    _authCallback("logout");
-  }
-
-  _authCallback(String text) {
-    print(text);
-    _auth.currentUser()
-    .then((FirebaseUser user) {
-      setState(() {
-        _user = user;
-      });
-      print(_user);
-    })
-    .catchError((e) {
-      print(e.toString());
-      setState(() {
-        _user = null;
-      });
-    });
-    setState(() => _selectedDrawerFragmentIndex = 0);
   }
 
   _getDrawerFragmentWidgetIndex(int pos) {
     if (widget.drawerFragments[pos] != null) {
-      return widget.drawerFragments[pos].body(_authCallback);
+      return widget.drawerFragments[pos].body();
     } else {
       return new Text("Error");
     }
@@ -106,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.of(context).pop(); // close drawer
       Navigator.push(
         context,
-        CupertinoPageRoute(builder: (BuildContext context) => widget.drawerScreens[index].body(_authCallback))
+        CupertinoPageRoute(builder: (BuildContext context) => widget.drawerScreens[index].body())
       );
     }
   }
@@ -116,10 +113,10 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> drawerOptions = [];
 
     for (var i = 0; i < widget.drawerFragments.length; i++) {
-      if (_user != null && widget.drawerFragments[i].auth == false) {
+      if (_user != null && widget.drawerFragments[i].requireAuth == false) {
         continue;
       }
-      if (_user == null && widget.drawerFragments[i].auth == true) {
+      if (_user == null && widget.drawerFragments[i].requireAuth == true) {
         continue;
       }
       var d = widget.drawerFragments[i];
@@ -134,10 +131,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     for (var i = 0; i < widget.drawerScreens.length; i++) {
-      if (_user != null && widget.drawerScreens[i].auth == false) {
+      if (_user != null && widget.drawerScreens[i].requireAuth == false) {
         continue;
       }
-      if (_user == null && widget.drawerScreens[i].auth == true) {
+      if (_user == null && widget.drawerScreens[i].requireAuth == true) {
         continue;
       }
       var d = widget.drawerScreens[i];

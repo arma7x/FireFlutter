@@ -7,10 +7,9 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title, this.cb}) : super(key: key);
+  LoginPage({Key key, this.title}) : super(key: key);
 
   final String title;
-  final Function cb;
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -23,34 +22,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(
-        //title: Text(widget.title),
-        //actions: <Widget>[
-          //Builder(builder: (BuildContext context) {
-            //return FlatButton(
-              //child: const Text('Sign out'),
-              //textColor: Theme.of(context).buttonColor,
-              //onPressed: () async {
-                //_callback(true, null);
-                //final FirebaseUser user = await _auth.currentUser();
-                //if (user == null) {
-                  //Scaffold.of(context).showSnackBar(SnackBar(
-                    //content: const Text('No one has signed in.'),
-                  //));
-                  //_callback(false, null);
-                  //return;
-                //}
-                //_callback(false, null);
-                //_signOut();
-                //final String uid = user.uid;
-                //Scaffold.of(context).showSnackBar(SnackBar(
-                  //content: Text(uid + ' has successfully signed out.'),
-                //));
-              //},
-            //);
-          //})
-        //],
-      //),
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
       body:  IgnorePointer(
         ignoring: _loading,
         child: new Container(
@@ -62,8 +36,8 @@ class _LoginPageState extends State<LoginPage> {
             child: new ListView(
               shrinkWrap: true,
               children: <Widget>[
-                _EmailPasswordForm(callback: _callback, authCallback: widget.cb),
-                _GoogleSignInSection(callback: _callback, authCallback: widget.cb),
+                _EmailPasswordForm(loadingCb: _callback),
+                _GoogleSignInSection(loadingCb: _callback),
                 Container(
                   alignment: Alignment.center,
                   child: this._loading ? new LinearProgressIndicator() : SizedBox(height: 0, width: 0),
@@ -76,12 +50,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  //void _signOut() async {
-    //await _auth.signOut();
-    //await _googleSignIn.signOut();
-    //widget.cb('login page logout');
-  //}
-
   void _callback(bool loading) {
     setState(() { _loading = loading; });
   }
@@ -89,10 +57,9 @@ class _LoginPageState extends State<LoginPage> {
 
 class _EmailPasswordForm extends StatefulWidget {
 
-  Function callback;
-  Function authCallback;
+  Function loadingCb;
 
-  _EmailPasswordForm({Key key, this.callback, this.authCallback}) : super(key: key);
+  _EmailPasswordForm({Key key, this.loadingCb}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _EmailPasswordFormState();
@@ -163,7 +130,7 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
                   child: Text('Sign In With Email'),
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
-                      final String status = await _signInWithEmailAndPassword();
+                      final String status = await _signInWithEmailAndPassword(context);
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text(status),
                       ));
@@ -185,15 +152,15 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
     super.dispose();
   }
 
-  Future _signInWithEmailAndPassword() async {
-    widget.callback(true);
+  Future _signInWithEmailAndPassword(BuildContext context) async {
+    widget.loadingCb(true);
     try {
       FirebaseUser user = await _auth.signInWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
-      widget.callback(false);
-      widget.authCallback('login page login');
+      Navigator.of(context).pop();
+      widget.loadingCb(false);
       return "Successfully signed in";
     } catch (e) {
-      widget.callback(false);
+      widget.loadingCb(false);
       return e.toString();
     }
   }
@@ -207,10 +174,9 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
 
 class _GoogleSignInSection extends StatefulWidget {
 
-  Function callback;
-  Function authCallback;
+  Function loadingCb;
 
-  _GoogleSignInSection({Key key, this.callback, this.authCallback}) : super(key: key);
+  _GoogleSignInSection({Key key, this.loadingCb}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _GoogleSignInSectionState();
@@ -233,7 +199,7 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
               builder: (context) => RaisedButton(
                 child: Text('Sign In with Google'),
                 onPressed: () async {
-                  final String status = await _signInWithGoogle();
+                  final String status = await _signInWithGoogle(context);
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: Text(status),
                   ));
@@ -246,7 +212,7 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
     );
   }
 
-  Future _signInWithGoogle() async {
+  Future _signInWithGoogle(BuildContext context) async {
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
     final AuthCredential credential = GoogleAuthProvider.getCredential(
@@ -254,15 +220,15 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
       idToken: googleAuth.idToken,
     );
 
-    widget.callback(true);
+    widget.loadingCb(true);
 
     try {
       FirebaseUser user = await _auth.signInWithCredential(credential);
-      widget.callback(false);
-      widget.authCallback('login page login');
+      Navigator.of(context).pop();
+      widget.loadingCb(false);
       return "Successfully signed in";
     } catch (e) {
-      widget.callback(false);
+      widget.loadingCb(false);
       return e.toString();
     }
   }
