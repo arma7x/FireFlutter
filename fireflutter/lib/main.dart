@@ -1,7 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:fireflutter/navigation/fragments.dart';
@@ -9,7 +10,6 @@ import 'package:fireflutter/navigation/screens.dart';
 import 'package:fireflutter/state/provider_state.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 void main() => runApp(MyApp());
 
@@ -20,6 +20,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(builder: (_) => Counter()),
+        ChangeNotifierProvider(builder: (_) => Auth()),
+        ChangeNotifierProvider(builder: (_) => Shared()),
       ],
       child: Consumer<Counter>(
         builder: (context, counter, _) {
@@ -55,7 +57,7 @@ class MyHomePage extends StatefulWidget {
     new DrawerItem("Profile", Icons.person, () => new Profile(title:"Profile"), null),
     new DrawerItem("Sign In", Icons.exit_to_app, () => new LoginPage(title: 'Sign In'), false),
     new DrawerItem("Sign Up", Icons.person_add, () => new RegisterPage(title: 'Sign Up'), false),
-    new DrawerItem("Forgot Password", Icons.lock_open, () => new ForgotPassword(title: 'Forgot Password'), false),
+    new DrawerItem("Reset Password", Icons.lock_open, () => new ForgotPassword(title: 'Forgot Password'), false),
   ];
 
   MyHomePage({Key key}) : super(key: key);
@@ -66,24 +68,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  FirebaseUser _user;
   int _selectedDrawerFragmentIndex = 0;
 
-  _MyHomePageState() {
-    _auth.onAuthStateChanged.listen((event) {
-      setState(() { _user = event; });
-    });
-    _auth.currentUser()
-    .then((FirebaseUser user) {
-      setState(() { _user = user; });
-    })
-    .catchError((e) { setState(() { _user = null; }); });
-  }
-
-  void _signOut() async {
-    await _auth.signOut();
-    await _googleSignIn.signOut();
-  }
+  _MyHomePageState();
 
   _getDrawerFragmentWidgetIndex(int pos) {
     if (widget.drawerFragments[pos] != null) {
@@ -108,8 +95,31 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  String _randomString(int length) {
+    var rand = new Random();
+    var codeUnits = new List.generate(length, (index) {
+      return rand.nextInt(33)+89;
+    });
+    return new String.fromCharCodes(codeUnits);
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    _auth.onAuthStateChanged.listen((event) {
+      Provider.of<Auth>(context, listen: false).setUser(event);
+    });
+
+    _auth.currentUser()
+    .then((FirebaseUser user) {
+      Provider.of<Auth>(context, listen: false).setUser(user);
+    })
+    .catchError((e) {
+      Provider.of<Auth>(context, listen: false).setUser(null);
+    });
+
+    FirebaseUser _user = Provider.of<Auth>(context).user;
+
     List<Widget> drawerOptions = [];
 
     for (var i = 0; i < widget.drawerFragments.length; i++) {
@@ -155,15 +165,15 @@ class _MyHomePageState extends State<MyHomePage> {
             return FlatButton(
               child: const Text('Sign out'),
               textColor: Theme.of(context).buttonColor,
-              onPressed: () async {
-                final FirebaseUser _user = await _auth.currentUser();
+              onPressed: () {
                 if (_user == null) {
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: const Text('No one has signed in'),
                   ));
                   return;
                 }
-                _signOut();
+                //remove active device
+                Provider.of<Auth>(context, listen: false).signOut();
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text('Successfully signed out'),
                 ));

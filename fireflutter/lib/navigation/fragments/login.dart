@@ -1,10 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:fireflutter/state/provider_state.dart';
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
-final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -57,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
 
 class _EmailPasswordForm extends StatefulWidget {
 
-  Function loadingCb;
+  final Function loadingCb;
 
   _EmailPasswordForm({Key key, this.loadingCb}) : super(key: key);
 
@@ -155,9 +152,10 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
   Future _signInWithEmailAndPassword(BuildContext context) async {
     widget.loadingCb(true);
     try {
-      FirebaseUser user = await _auth.signInWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
+      await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);
       Navigator.of(context).pop();
       widget.loadingCb(false);
+      //add active device
       return "Successfully signed in";
     } catch (e) {
       widget.loadingCb(false);
@@ -174,7 +172,7 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
 
 class _GoogleSignInSection extends StatefulWidget {
 
-  Function loadingCb;
+  final Function loadingCb;
 
   _GoogleSignInSection({Key key, this.loadingCb}) : super(key: key);
 
@@ -213,17 +211,9 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
   }
 
   Future _signInWithGoogle(BuildContext context) async {
-    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
     widget.loadingCb(true);
-
     try {
-      FirebaseUser user = await _auth.signInWithCredential(credential);
+      await Provider.of<Auth>(context, listen: false).signUserInGoogle();
       Navigator.of(context).pop();
       widget.loadingCb(false);
       return "Successfully signed in";

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
+import 'package:provider/provider.dart';
+import 'package:fireflutter/state/provider_state.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key, this.title}) : super(key: key);
@@ -120,7 +119,7 @@ class RegisterPageState extends State<RegisterPage> {
                         child: Text('Submit Registration'),
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
-                            final String status = await _register();
+                            final String status = await _register(context);
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(status),
                             ));
@@ -151,11 +150,12 @@ class RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  Future _register() async {
+  Future _register(BuildContext context) async {
     setState(() { _loading = true; });
     try {
-      FirebaseUser user = await _auth.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
+      await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);
       setState(() { _loading = false; });
+      Navigator.of(context).pop();
       return "Successfully registered";
     } catch (e) {
       setState(() { _loading = false; });
