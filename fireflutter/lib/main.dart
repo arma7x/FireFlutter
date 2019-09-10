@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:fireflutter/navigation/fragments.dart';
 import 'package:fireflutter/navigation/screens.dart';
 import 'package:fireflutter/state/provider_state.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -68,11 +67,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  int _selectedDrawerFragmentIndex = 0;
+  int _currentFragmentIndex = 0;
+  DatabaseReference _onlineRef;
+  DatabaseReference _lastOnlineRef;
+  DatabaseReference _offlineRef;
 
-  _MyHomePageState();
+  _MyHomePageState() {
+    print(context);
+  }
 
-  _getDrawerFragmentWidgetIndex(int pos) {
+  _getCurrentFragmentIndex(int pos) {
     if (widget.drawerFragments[pos] != null) {
       return widget.drawerFragments[pos].body();
     } else {
@@ -81,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   
   _onSelectFragment(int index) {
-    setState(() => _selectedDrawerFragmentIndex = index);
+    setState(() => _currentFragmentIndex = index);
     Navigator.of(context).pop();
   }
   
@@ -95,16 +99,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  String _randomString(int length) {
-    var rand = new Random();
-    var codeUnits = new List.generate(length, (index) {
-      return rand.nextInt(33)+89;
-    });
-    return new String.fromCharCodes(codeUnits);
+  @override
+  void dispose() {
+    super.dispose();
+    //_onlineRef.cancel();
+    //_lastOnlineRef.cancel();
+    //_offlineRef.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    FirebaseUser _user = Provider.of<Auth>(context).user;
+    //String _clientId = Provider.of<Shared>(context).clientId;
+    //print('CLIENTID :: ${_clientId}');
 
     _auth.onAuthStateChanged.listen((event) {
       Provider.of<Auth>(context, listen: false).setUser(event);
@@ -118,7 +126,19 @@ class _MyHomePageState extends State<MyHomePage> {
       Provider.of<Auth>(context, listen: false).setUser(null);
     });
 
-    FirebaseUser _user = Provider.of<Auth>(context).user;
+    _offlineRef = FirebaseDatabase.instance.reference().child('.info/connected');
+    _offlineRef.onValue.listen((Event event) async {
+      if (event.snapshot.value == true) {
+        if (_user != null) {
+          _onlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online');
+          await _onlineRef.onDisconnect().set(false);
+          await _onlineRef.set(true);
+          _lastOnlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online');
+          await _lastOnlineRef.onDisconnect().set(ServerValue);
+          await _lastOnlineRef.set(ServerValue);
+        }
+      }
+    });
 
     List<Widget> drawerOptions = [];
 
@@ -134,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
         new ListTile(
           leading: new Icon(d.icon),
           title: new Text(d.title),
-          selected: i == _selectedDrawerFragmentIndex,
+          selected: i == _currentFragmentIndex,
           onTap: () => _onSelectFragment(i),
         )
       );
@@ -159,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return new Scaffold(
       appBar: AppBar(
-        title: new Text(widget.drawerFragments[_selectedDrawerFragmentIndex].title),
+        title: new Text(widget.drawerFragments[_currentFragmentIndex].title),
         actions: <Widget>[
           Builder(builder: (BuildContext context) {
             return FlatButton(
@@ -173,6 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   return;
                 }
                 //remove active device
+                Provider.of<Shared>(context, listen: false).removeActiveDevice(_user.uid);
                 Provider.of<Auth>(context, listen: false).signOut();
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text('Successfully signed out'),
@@ -210,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: _getDrawerFragmentWidgetIndex(_selectedDrawerFragmentIndex),
+      body: _getCurrentFragmentIndex(_currentFragmentIndex),
     );
   }
 }

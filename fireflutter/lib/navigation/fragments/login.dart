@@ -153,9 +153,10 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
     widget.loadingCb(true);
     try {
       await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);
+      //add active device
+      Provider.of<Shared>(context, listen: false).removeActiveDevice(Provider.of<Auth>(context).user.uid);
       Navigator.of(context).pop();
       widget.loadingCb(false);
-      //add active device
       return "Successfully signed in";
     } catch (e) {
       widget.loadingCb(false);
@@ -214,6 +215,8 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
     widget.loadingCb(true);
     try {
       await Provider.of<Auth>(context, listen: false).signUserInGoogle();
+      //add active device
+      Provider.of<Shared>(context, listen: false).removeActiveDevice(Provider.of<Auth>(context).user.uid);
       Navigator.of(context).pop();
       widget.loadingCb(false);
       return "Successfully signed in";
