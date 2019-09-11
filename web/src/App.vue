@@ -101,8 +101,6 @@
 </template>
 
 <script>
-  import * as firebase from 'firebase'
-
   export default {
     data () {
       return {
@@ -145,16 +143,6 @@
       offline () {
         return this.$store.getters.offline
       }
-    },
-    mounted () {
-      const connectedRef = firebase.database().ref('.info/connected')
-      connectedRef.on('value', (snap) => {
-        if (snap.val() === true) {
-          this.$store.commit('setOffline', false)
-        } else {
-          this.$store.commit('setOffline', true)
-        }
-      })
     },
     methods: {
       onLogout () {

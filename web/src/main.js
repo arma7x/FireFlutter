@@ -46,7 +46,7 @@ new Vue({
             admin: _user.claims.admin || false
           }
           this.$store.dispatch('autoSignIn', userObj)
-          firebase.database().ref('users/' + _user.claims.user_id)
+          firebase.database().ref('/users/' + _user.claims.user_id)
           .on('value', (dataSnapshot) => {
             this.$store.dispatch('updateMetadata', dataSnapshot.val())
           })
@@ -63,6 +63,9 @@ new Vue({
           lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
           lastOnlineRef.set(firebase.database.ServerValue.TIMESTAMP)
         }
+        this.$store.commit('setOffline', false)
+      } else {
+        this.$store.commit('setOffline', true)
       }
     })
     const messaging = firebase.messaging()

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:fireflutter/navigation/fragments.dart';
 import 'package:fireflutter/navigation/screens.dart';
 import 'package:fireflutter/state/provider_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 void main() => runApp(MyApp());
 
@@ -53,7 +53,7 @@ class MyHomePage extends StatefulWidget {
   ];
 
   final drawerScreens = [
-    new DrawerItem("Profile", Icons.person, () => new Profile(title:"Profile"), null),
+    new DrawerItem("Profile", Icons.person, () => new Profile(title:"Profile"), true),
     new DrawerItem("Sign In", Icons.exit_to_app, () => new LoginPage(title: 'Sign In'), false),
     new DrawerItem("Sign Up", Icons.person_add, () => new RegisterPage(title: 'Sign Up'), false),
     new DrawerItem("Reset Password", Icons.lock_open, () => new ForgotPassword(title: 'Forgot Password'), false),
@@ -67,14 +67,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
   int _currentFragmentIndex = 0;
   DatabaseReference _onlineRef;
   DatabaseReference _lastOnlineRef;
   DatabaseReference _offlineRef;
+  FirebaseUser _user;
 
-  _MyHomePageState() {
-    print(context);
-  }
+  _MyHomePageState();
 
   _getCurrentFragmentIndex(int pos) {
     if (widget.drawerFragments[pos] != null) {
@@ -100,6 +101,64 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _offlineRef = FirebaseDatabase.instance.reference().child('.info/connected');
+    _offlineRef.onValue.listen((Event event) {
+      if (event.snapshot.value == true) {
+        if (_user != null) {
+          try {
+            _onlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online');
+            _onlineRef.onDisconnect().set(false);
+            _onlineRef.set(true);
+          } catch(e) {
+            print("MAIN ONLINE ERROR::"+e.toString());
+          }
+          try {
+            _lastOnlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online');
+            _lastOnlineRef.onDisconnect().set(<dynamic, dynamic>{
+              '.sv': 'timestamp'
+            });
+            _lastOnlineRef.set(<dynamic, dynamic>{
+              '.sv': 'timestamp'
+            });
+          } catch(e) {
+            print("MAIN LAST ONLINE ERROR::"+e.toString());
+          }
+        }
+        Provider.of<Shared>(context, listen: false).setOffline(false);
+      } else {
+        Provider.of<Shared>(context, listen: false).setOffline(true);
+      }
+    });
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
+    _firebaseMessaging.requestNotificationPermissions(const IosNotificationSettings(sound: true, badge: true, alert: true));
+    _firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings settings) {
+      //print("Settings registered: $settings");
+    });
+    _firebaseMessaging.getToken().then((String token) {
+      //print("GET TOKEN :: $token");
+      Provider.of<Shared>(context, listen: false).setFCM(token);
+    });
+    _firebaseMessaging.onTokenRefresh.listen((String token) {
+      //print("REFRESH TOKEN :: $token");
+      Provider.of<Shared>(context, listen: false).setFCM(token);
+    });
+  }
+
+  @override
   void dispose() {
     super.dispose();
     //_onlineRef.cancel();
@@ -110,35 +169,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
 
-    FirebaseUser _user = Provider.of<Auth>(context).user;
+    _user = Provider.of<Auth>(context).user;
+
     //String _clientId = Provider.of<Shared>(context).clientId;
     //print('CLIENTID :: ${_clientId}');
-
-    _auth.onAuthStateChanged.listen((event) {
-      Provider.of<Auth>(context, listen: false).setUser(event);
-    });
-
-    _auth.currentUser()
-    .then((FirebaseUser user) {
-      Provider.of<Auth>(context, listen: false).setUser(user);
-    })
-    .catchError((e) {
-      Provider.of<Auth>(context, listen: false).setUser(null);
-    });
-
-    _offlineRef = FirebaseDatabase.instance.reference().child('.info/connected');
-    _offlineRef.onValue.listen((Event event) async {
-      if (event.snapshot.value == true) {
-        if (_user != null) {
-          _onlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online');
-          await _onlineRef.onDisconnect().set(false);
-          await _onlineRef.set(true);
-          _lastOnlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online');
-          await _lastOnlineRef.onDisconnect().set(ServerValue);
-          await _lastOnlineRef.set(ServerValue);
-        }
-      }
-    });
 
     List<Widget> drawerOptions = [];
 
@@ -216,14 +250,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.white,
-                  child: _user?.photoUrl != null ?
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: NetworkImage(_user.photoUrl))),
-                  ) : Icon(Icons.person, size: 60.0),
+                  backgroundImage: _user?.photoUrl != null ? CachedNetworkImageProvider(_user?.photoUrl) : null,
+                  child: _user?.photoUrl == null ? Icon(Icons.person, size: 60.0) : null,
                 ),
               ),
               new Column(children: drawerOptions)

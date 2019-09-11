@@ -105,6 +105,7 @@ export default {
             }
             commit('setUser', newUser)
             dispatch('addActiveDevice', {uid: state.user.uid})
+            dispatch('goOnline')
           }
         )
         .catch(
@@ -130,6 +131,7 @@ export default {
             }
             commit('setUser', newUser)
             dispatch('addActiveDevice', {uid: state.user.uid})
+            dispatch('goOnline')
           }
         )
         .catch(
@@ -239,8 +241,21 @@ export default {
         }
       )
     },
+    goOnline ({state}) {
+      const onlineRef = firebase.database().ref('/users/' + state.user.uid + '/online')
+      onlineRef.onDisconnect().set(false)
+      onlineRef.set(true)
+      const lastOnlineRef = firebase.database().ref('/users/' + state.user.uid + '/last_online')
+      lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
+      lastOnlineRef.set(firebase.database.ServerValue.TIMESTAMP)
+    },
+    async goOffline ({state}) {
+      await firebase.database().ref('/users/' + state.user.uid + '/online').set(false)
+      await firebase.database().ref('/users/' + state.user.uid + '/last_online').set(firebase.database.ServerValue.TIMESTAMP)
+    },
     logout ({commit, dispatch, state}) {
       dispatch('removeActiveDevice', {uid: state.user.uid})
+      dispatch('goOffline')
       commit('setUser', null)
       commit('setMetadata', null)
       firebase.auth().signOut()

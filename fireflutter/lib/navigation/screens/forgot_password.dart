@@ -99,6 +99,6 @@ class ForgotPasswordState extends State<ForgotPassword> {
     } catch(e) {
       setState(() { _loading = false; });
       return e.toString();
-    };
+    }
   }
 }

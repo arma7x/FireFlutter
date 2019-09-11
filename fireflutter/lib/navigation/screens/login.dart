@@ -127,7 +127,7 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
                   child: Text('Sign In With Email'),
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
-                      final String status = await _signInWithEmailAndPassword(context);
+                      final String status = await _signInWithEmailAndPassword();
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text(status),
                       ));
@@ -149,12 +149,11 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
     super.dispose();
   }
 
-  Future _signInWithEmailAndPassword(BuildContext context) async {
+  Future _signInWithEmailAndPassword() async {
     widget.loadingCb(true);
     try {
       await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);
-      //add active device
-      Provider.of<Shared>(context, listen: false).removeActiveDevice(Provider.of<Auth>(context).user.uid);
+      Provider.of<Shared>(context, listen: false).addActiveDevice(Provider.of<Auth>(context).user.uid);
       Navigator.of(context).pop();
       widget.loadingCb(false);
       return "Successfully signed in";
@@ -198,7 +197,7 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
               builder: (context) => RaisedButton(
                 child: Text('Sign In with Google'),
                 onPressed: () async {
-                  final String status = await _signInWithGoogle(context);
+                  final String status = await _signInWithGoogle();
                   Scaffold.of(context).showSnackBar(SnackBar(
                     content: Text(status),
                   ));
@@ -211,12 +210,11 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
     );
   }
 
-  Future _signInWithGoogle(BuildContext context) async {
+  Future _signInWithGoogle() async {
     widget.loadingCb(true);
     try {
       await Provider.of<Auth>(context, listen: false).signUserInGoogle();
-      //add active device
-      Provider.of<Shared>(context, listen: false).removeActiveDevice(Provider.of<Auth>(context).user.uid);
+      Provider.of<Shared>(context, listen: false).addActiveDevice(Provider.of<Auth>(context).user.uid);
       Navigator.of(context).pop();
       widget.loadingCb(false);
       return "Successfully signed in";

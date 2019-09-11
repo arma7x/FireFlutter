@@ -119,7 +119,7 @@ class RegisterPageState extends State<RegisterPage> {
                         child: Text('Submit Registration'),
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
-                            final String status = await _register(context);
+                            final String status = await _register();
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(status),
                             ));
@@ -150,7 +150,7 @@ class RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  Future _register(BuildContext context) async {
+  Future _register() async {
     setState(() { _loading = true; });
     try {
       await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);

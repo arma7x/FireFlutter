@@ -84,21 +84,53 @@ class Shared with ChangeNotifier {
     notifyListeners();
   }
 
-  void addActiveDevice (String uid) async {
-    await FirebaseDatabase.instance.reference().child('/users/' + uid + '/devices').set(<String, dynamic>{
-      _clientId: <String, dynamic>{
-        'client': _model,
-        'datetime': new DateTime.now().millisecondsSinceEpoch,
-        'fcm': _fcm
-      }
-    });
-    await FirebaseDatabase.instance.reference().child('/users/' + uid + '/online').set(true);
-    await FirebaseDatabase.instance.reference().child('/users/' + uid + '/last_online').set(ServerValue);
+  void addActiveDevice (String uid) {
+    try {
+      FirebaseDatabase.instance.reference().child('/users/' + uid + '/devices').set(<dynamic, dynamic>{
+        _clientId: <dynamic, dynamic>{
+          'client': _model,
+          'datetime': new DateTime.now().millisecondsSinceEpoch,
+          'fcm': _fcm
+        }
+      });
+    } catch(e) {
+      print("[ADD]ACTIVE DEVICE ERROR::"+e.toString());
+    }
+
+    try {
+      FirebaseDatabase.instance.reference().child('/users/' + uid + '/online').set(true);
+    } catch(e) {
+      print("[ADD]ONLINE ERROR::"+e.toString());
+    }
+
+    try {
+      FirebaseDatabase.instance.reference().child('/users/' + uid + '/last_online').set(<dynamic, dynamic>{
+        '.sv': 'timestamp'
+      });
+    } catch(e) {
+      print("[ADD]LAST ONLINE ERROR::"+e.toString());
+    }
   }
 
-  void removeActiveDevice(String uid) async {
-    await FirebaseDatabase.instance.reference().child('/users/' + uid + '/devices/' + _clientId).remove();
-    await FirebaseDatabase.instance.reference().child('/users/' + uid + '/online').set(true);
-    await FirebaseDatabase.instance.reference().child('/users/' + uid + '/last_online').set(ServerValue);
+  void removeActiveDevice(String uid) {
+    try {
+      FirebaseDatabase.instance.reference().child('/users/' + uid + '/devices/' + _clientId).remove();
+    } catch(e) {
+      print("[REMOVE]ACTIVE DEVICE ERROR::"+e.toString());
+    }
+
+    try {
+      FirebaseDatabase.instance.reference().child('/users/' + uid + '/online').set(false);
+    } catch(e) {
+      print("[REMOVE]ONLINE ERROR::"+e.toString());
+    }
+
+    try {
+      FirebaseDatabase.instance.reference().child('/users/' + uid + '/last_online').set(<dynamic, dynamic>{
+        '.sv': 'timestamp'
+      });
+    } catch(e) {
+      print("[REMOVE]LAST ONLINE ERROR::"+e.toString());
+    }
   }
 }

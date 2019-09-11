@@ -48,13 +48,9 @@ export default {
         fcm: state.fcm
       }
       firebase.database().ref('/users/' + payload.uid + '/devices').set({[state.client_id]: deviceInfo})
-      firebase.database().ref('/users/' + payload.uid + '/online').set(true)
-      firebase.database().ref('/users/' + payload.uid + '/last_online').set(firebase.database.ServerValue.TIMESTAMP)
     },
-    removeActiveDevice ({commit, state}, payload) {
-      firebase.database().ref('/users/' + payload.uid + '/devices').child(state.client_id).remove()
-      firebase.database().ref('/users/' + payload.uid + '/online').set(false)
-      firebase.database().ref('/users/' + payload.uid + '/last_online').set(firebase.database.ServerValue.TIMESTAMP)
+    async removeActiveDevice ({commit, state}, payload) {
+      await firebase.database().ref('/users/' + payload.uid + '/devices').child(state.client_id).remove()
     }
   },
   getters: {

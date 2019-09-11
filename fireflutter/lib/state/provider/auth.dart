@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -7,19 +8,39 @@ final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 class Auth with ChangeNotifier {
 
+  Auth() {
+    _auth.onAuthStateChanged.listen((event) {
+      _user = event;
+      if (_user != null ) {
+        _metadataRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}');
+        _metadataRef.onValue.listen((Event event) {
+          _metadata = event.snapshot.value;
+        });
+      }
+    });
+
+    _auth.currentUser()
+    .then((FirebaseUser user) {
+      _user = user;
+    })
+    .catchError((e) {
+      _user = null;
+    });
+  }
+
+  DatabaseReference _metadataRef;
   FirebaseUser _user;
-  Map<String, dynamic> _metadata;
+  Map<dynamic, dynamic> _metadata;
 
   FirebaseUser get user => _user;
-  Map<String, dynamic> get metadata => _metadata;
-
+  Map<dynamic, dynamic> get metadata => _metadata;
 
   void setUser(user) {
     _user = user;
     notifyListeners();
   }
 
-  void setMetadata(Map<String, dynamic> metadata) {
+  void setMetadata(Map<dynamic, dynamic> metadata) {
     _metadata = metadata;
     notifyListeners();
   }
