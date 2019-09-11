@@ -10,6 +10,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+final FirebaseAuth _auth = FirebaseAuth.instance;
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -56,7 +58,7 @@ class MyHomePage extends StatefulWidget {
     new DrawerItem("Profile", Icons.person, () => new Profile(title:"Profile"), true),
     new DrawerItem("Sign In", Icons.exit_to_app, () => new LoginPage(title: 'Sign In'), false),
     new DrawerItem("Sign Up", Icons.person_add, () => new RegisterPage(title: 'Sign Up'), false),
-    new DrawerItem("Reset Password", Icons.lock_open, () => new ForgotPassword(title: 'Forgot Password'), false),
+    new DrawerItem("Reset Password", Icons.lock_open, () => new ForgotPassword(title: 'Reset Password'), false),
   ];
 
   MyHomePage({Key key}) : super(key: key);
@@ -70,8 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   int _currentFragmentIndex = 0;
-  DatabaseReference _onlineRef;
-  DatabaseReference _lastOnlineRef;
+  DatabaseReference _metadataRef;
   DatabaseReference _offlineRef;
   FirebaseUser _user;
 
@@ -104,28 +105,30 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    _auth.onAuthStateChanged.listen((user) {
+      Provider.of<Auth>(context, listen: false).setUser(user);
+      if (user != null ) {
+        Provider.of<Auth>(context, listen: false).goOnline();
+        _metadataRef = FirebaseDatabase.instance.reference().child('/users/${user.uid}');
+        _metadataRef.onValue.listen((Event event) {
+          Provider.of<Auth>(context, listen: false).setMetadata(event.snapshot.value);
+        });
+      }
+    });
+
+    _auth.currentUser()
+    .then((FirebaseUser user) {
+      Provider.of<Auth>(context, listen: false).setUser(user);
+    })
+    .catchError((e) {
+      Provider.of<Auth>(context, listen: false).setUser(null);
+    });
+
     _offlineRef = FirebaseDatabase.instance.reference().child('.info/connected');
     _offlineRef.onValue.listen((Event event) {
       if (event.snapshot.value == true) {
         if (_user != null) {
-          try {
-            _onlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online');
-            _onlineRef.onDisconnect().set(false);
-            _onlineRef.set(true);
-          } catch(e) {
-            print("MAIN ONLINE ERROR::"+e.toString());
-          }
-          try {
-            _lastOnlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online');
-            _lastOnlineRef.onDisconnect().set(<dynamic, dynamic>{
-              '.sv': 'timestamp'
-            });
-            _lastOnlineRef.set(<dynamic, dynamic>{
-              '.sv': 'timestamp'
-            });
-          } catch(e) {
-            print("MAIN LAST ONLINE ERROR::"+e.toString());
-          }
+          Provider.of<Auth>(context, listen: false).goOnline();
         }
         Provider.of<Shared>(context, listen: false).setOffline(false);
       } else {
@@ -161,8 +164,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     super.dispose();
-    //_onlineRef.cancel();
-    //_lastOnlineRef.cancel();
     //_offlineRef.cancel();
   }
 

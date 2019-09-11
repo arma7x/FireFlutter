@@ -56,12 +56,7 @@ new Vue({
     firebase.database().ref('.info/connected').on('value', (snap) => {
       if (snap.val() === true) {
         if (this.$store.getters.user !== null && this.$store.getters.user !== undefined) {
-          const onlineRef = firebase.database().ref('/users/' + this.$store.getters.user.uid + '/online')
-          onlineRef.onDisconnect().set(false)
-          onlineRef.set(true)
-          const lastOnlineRef = firebase.database().ref('/users/' + this.$store.getters.user.uid + '/last_online')
-          lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
-          lastOnlineRef.set(firebase.database.ServerValue.TIMESTAMP)
+          this.$store.dispatch('goOnline')
         }
         this.$store.commit('setOffline', false)
       } else {

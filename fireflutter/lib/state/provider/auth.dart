@@ -8,27 +8,8 @@ final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 class Auth with ChangeNotifier {
 
-  Auth() {
-    _auth.onAuthStateChanged.listen((event) {
-      _user = event;
-      if (_user != null ) {
-        _metadataRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}');
-        _metadataRef.onValue.listen((Event event) {
-          _metadata = event.snapshot.value;
-        });
-      }
-    });
+  Auth();
 
-    _auth.currentUser()
-    .then((FirebaseUser user) {
-      _user = user;
-    })
-    .catchError((e) {
-      _user = null;
-    });
-  }
-
-  DatabaseReference _metadataRef;
   FirebaseUser _user;
   Map<dynamic, dynamic> _metadata;
 
@@ -77,7 +58,46 @@ class Auth with ChangeNotifier {
     return user;
   }
 
+  void goOnline() {
+    try {
+      DatabaseReference _onlineRef;
+      _onlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online');
+      _onlineRef.onDisconnect().set(false);
+      _onlineRef.set(true);
+    } catch(e) {
+      print("[AUTH::goOnline]ONLINE ERROR::"+e.toString());
+    }
+    try {
+      DatabaseReference _lastOnlineRef;
+      _lastOnlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online');
+      _lastOnlineRef.onDisconnect().set(<dynamic, dynamic>{
+        '.sv': 'timestamp'
+      });
+      _lastOnlineRef.set(<dynamic, dynamic>{
+        '.sv': 'timestamp'
+      });
+    } catch(e) {
+      print("[AUTH::goOnline]LAST ONLINE ERROR::"+e.toString());
+    }
+  }
+
+  void goOffline() {
+    try {
+      FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online').set(false);
+    } catch(e) {
+      print("[SHARED::REMOVE]ONLINE ERROR::"+e.toString());
+    }
+    try {
+      FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online').set(<dynamic, dynamic>{
+        '.sv': 'timestamp'
+      });
+    } catch(e) {
+      print("[SHARED::REMOVE]LAST ONLINE ERROR::"+e.toString());
+    }
+  }
+
   void signOut() async {
+    goOffline();
     await _auth.signOut();
     await _googleSignIn.signOut();
     notifyListeners();

@@ -214,7 +214,7 @@ export default {
           }
         )
     },
-    autoSignIn ({commit}, payload) {
+    autoSignIn ({commit, dispatch}, payload) {
       commit('setUser', {
         uid: payload.uid,
         name: payload.name,
@@ -222,6 +222,7 @@ export default {
         photoUrl: payload.photoUrl,
         admin: payload.admin || false
       })
+      dispatch('goOnline')
     },
     resetPasswordWithEmail ({ commit }, payload) {
       const { email } = payload
