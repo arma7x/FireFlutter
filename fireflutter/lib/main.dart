@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:toast/toast.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -75,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
   DatabaseReference _metadataRef;
   DatabaseReference _offlineRef;
   FirebaseUser _user;
+  bool _offline;
 
   _MyHomePageState();
 
@@ -171,6 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
 
     _user = Provider.of<Auth>(context).user;
+    _offline = Provider.of<Shared>(context).offline;
 
     //String _clientId = Provider.of<Shared>(context).clientId;
     //print('CLIENTID :: ${_clientId}');
@@ -214,28 +217,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return new Scaffold(
       appBar: AppBar(
-        title: new Text(widget.drawerFragments[_currentFragmentIndex].title),
+        title: Row(
+          children: <Widget>[
+            new Text(widget.drawerFragments[_currentFragmentIndex].title),
+            SizedBox(width: _offline ? 10 : 0),
+            _offline ? Icon(Icons.signal_wifi_off) : SizedBox(width: 0),
+          ]
+        ),
         actions: <Widget>[
-          Builder(builder: (BuildContext context) {
-            return FlatButton(
-              child: const Text('Sign out'),
-              textColor: Theme.of(context).buttonColor,
-              onPressed: () {
-                if (_user == null) {
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: const Text('No one has signed in'),
-                  ));
-                  return;
-                }
-                //remove active device
-                Provider.of<Shared>(context, listen: false).removeActiveDevice(_user.uid);
-                Provider.of<Auth>(context, listen: false).signOut();
-                Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('Successfully signed out'),
-                ));
-              },
-            );
-          })
+          FlatButton(
+            child: const Text('Sign out'),
+            textColor: Theme.of(context).buttonColor,
+            onPressed: () {
+              if (_user == null) {
+                Toast.show('No one has signed in', context);
+                return;
+              }
+              //remove active device
+              Provider.of<Shared>(context, listen: false).removeActiveDevice(_user.uid);
+              Provider.of<Auth>(context, listen: false).signOut();
+              Toast.show('Successfully signed out', context);
+            },
+          ),
         ],
       ),
       drawer: new SizedBox(

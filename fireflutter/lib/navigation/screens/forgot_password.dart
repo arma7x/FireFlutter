@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:toast/toast.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -56,19 +57,15 @@ class ForgotPasswordState extends State<ForgotPassword> {
                   alignment: Alignment.center,
                   child: SizedBox(
                     width: double.infinity, // match_parent
-                    child: Builder(
-                      builder: (context) => RaisedButton(
-                        child: Text('Send Reset Link'),
-                        onPressed: () async {
-                          if (_formKey.currentState.validate()) {
-                            final String status = await _forgotPassword();
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                              content: Text(status),
-                            ));
-                          }
+                    child: RaisedButton(
+                      child: Text('Send Reset Link'),
+                      onPressed: () async {
+                        if (_formKey.currentState.validate()) {
+                          final String status = await _forgotPassword();
+                          Toast.show(status, context);
                         }
-                      ),
-                    )
+                      }
+                    ),
                   )
                 ),
                 Container(

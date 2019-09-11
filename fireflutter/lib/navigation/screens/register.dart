@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fireflutter/state/provider_state.dart';
+import 'package:toast/toast.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key, this.title}) : super(key: key);
@@ -114,19 +115,15 @@ class RegisterPageState extends State<RegisterPage> {
                   alignment: Alignment.center,
                   child: SizedBox(
                     width: double.infinity, // match_parent
-                    child: Builder(
-                      builder: (context) => RaisedButton(
-                        child: Text('Submit Registration'),
-                        onPressed: () async {
-                          if (_formKey.currentState.validate()) {
-                            final String status = await _register();
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                              content: Text(status),
-                            ));
-                          }
+                    child: RaisedButton(
+                      child: Text('Submit Registration'),
+                      onPressed: () async {
+                        if (_formKey.currentState.validate()) {
+                          final String status = await _register();
+                          Toast.show(status, context);
                         }
-                      ),
-                    )
+                      }
+                    ),
                   )
                 ),
                 Container(

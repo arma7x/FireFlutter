@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fireflutter/state/provider_state.dart';
-
+import 'package:toast/toast.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -122,19 +122,15 @@ class _EmailPasswordFormState extends State<_EmailPasswordForm> {
             alignment: Alignment.center,
             child: SizedBox(
               width: double.infinity, // match_parent
-              child: Builder(
-                builder: (context) => RaisedButton(
-                  child: Text('Sign In With Email'),
-                  onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      final String status = await _signInWithEmailAndPassword();
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text(status),
-                      ));
-                    }
+              child: RaisedButton(
+                child: Text('Sign In With Email'),
+                onPressed: () async {
+                  if (_formKey.currentState.validate()) {
+                    final String status = await _signInWithEmailAndPassword();
+                    Toast.show(status, context);
                   }
-                ),
-              )
+                }
+              ),
             )
           )
         ],
@@ -193,17 +189,13 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
           alignment: Alignment.center,
           child: SizedBox(
             width: double.infinity, // match_parent
-            child: Builder(
-              builder: (context) => RaisedButton(
-                child: Text('Sign In with Google'),
-                onPressed: () async {
-                  final String status = await _signInWithGoogle();
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text(status),
-                  ));
-                }
-              ),
-            )
+            child: RaisedButton(
+              child: Text('Sign In with Google'),
+              onPressed: () async {
+                final String status = await _signInWithGoogle();
+                Toast.show(status, context);
+              }
+            ),
           )
         )
       ],
