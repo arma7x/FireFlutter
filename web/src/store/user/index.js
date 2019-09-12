@@ -242,13 +242,17 @@ export default {
         }
       )
     },
-    goOnline ({state}) {
+    goOnline ({state, dispatch}) {
       const onlineRef = firebase.database().ref('/users/' + state.user.uid + '/online')
       onlineRef.onDisconnect().set(false)
       onlineRef.set(true)
       const lastOnlineRef = firebase.database().ref('/users/' + state.user.uid + '/last_online')
       lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
       lastOnlineRef.set(firebase.database.ServerValue.TIMESTAMP)
+      firebase.database().ref('/users/' + state.user.uid)
+      .on('value', (dataSnapshot) => {
+        dispatch('updateMetadata', dataSnapshot.val())
+      })
     },
     async goOffline ({state}) {
       await firebase.database().ref('/users/' + state.user.uid + '/online').set(false)

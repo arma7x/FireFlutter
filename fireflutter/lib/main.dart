@@ -73,7 +73,6 @@ class _MyHomePageState extends State<MyHomePage> {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   int _currentFragmentIndex = 0;
-  DatabaseReference _metadataRef;
   DatabaseReference _offlineRef;
   FirebaseUser _user;
   bool _offline;
@@ -111,19 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Provider.of<Auth>(context, listen: false).setUser(user);
       if (user != null ) {
         Provider.of<Auth>(context, listen: false).goOnline();
-        _metadataRef = FirebaseDatabase.instance.reference().child('/users/${user.uid}');
-        _metadataRef.onValue.listen((Event event) {
-          Provider.of<Auth>(context, listen: false).setMetadata(event.snapshot.value);
-        });
       }
-    });
-
-    _auth.currentUser()
-    .then((FirebaseUser user) {
-      Provider.of<Auth>(context, listen: false).setUser(user);
-    })
-    .catchError((e) {
-      Provider.of<Auth>(context, listen: false).setUser(null);
     });
 
     _offlineRef = FirebaseDatabase.instance.reference().child('.info/connected');

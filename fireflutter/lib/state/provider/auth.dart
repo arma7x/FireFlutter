@@ -79,6 +79,11 @@ class Auth with ChangeNotifier {
     } catch(e) {
       print("[AUTH::goOnline]LAST ONLINE ERROR::"+e.toString());
     }
+    DatabaseReference _metadataRef;
+    _metadataRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}');
+    _metadataRef.onValue.listen((Event event) {
+      setMetadata(event.snapshot.value);
+    });
   }
 
   void goOffline() {
