@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toast/toast.dart';
+import 'package:fireflutter/widgets/profile_widgets.dart';
 
 class Profile extends StatefulWidget {
   Profile({Key key, this.title}) : super(key: key);
@@ -32,6 +33,8 @@ class _ProfileState extends State<Profile> {
 
   FirebaseUser _user;
   Map<dynamic, dynamic> _metadata;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
 
   void _onImageButtonPressed(ImageSource source) async {
     try {
@@ -44,6 +47,40 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Future<void> _uploadFile(File blob, String name) async {
+    final StorageReference ref = storage.ref().child('/user/${_user.uid}/avatar').child(name);
+    final StorageUploadTask uploadTask = ref.putFile(blob);
+    uploadTask.events.listen((StorageTaskEvent event) {
+      if (event.type == StorageTaskEventType.progress) {
+        Toast.show('Uploading', context, duration: 3);
+      } else if (event.type == StorageTaskEventType.success) {
+        Toast.show('Successfully uploaded', context, duration: 3);
+      } if (event.type == StorageTaskEventType.failure) {
+        Toast.show('Fail during uploading', context, duration: 3);
+      }
+    });
+    uploadTask.onComplete
+    .then((StorageTaskSnapshot data) async {
+      UserUpdateInfo payload = UserUpdateInfo();
+      payload.photoUrl = await data.ref.getDownloadURL();
+      _loadingDialog();
+      await Provider.of<Auth>(context).updateUserProfile(payload);
+      Navigator.of(context).pop();
+    })
+    .catchError((error) async {
+      print(error);
+      Navigator.of(context).pop();
+    });
+  }
+
+  void _updateDisplayName(String name) async {
+    UserUpdateInfo payload = UserUpdateInfo();
+    payload.displayName = name;
+    _loadingDialog();
+    await Provider.of<Auth>(context).updateUserProfile(payload);
+    Navigator.of(context).pop();
+  }
+
   void _showDialog() {
     showDialog(
       context: context,
@@ -54,56 +91,15 @@ class _ProfileState extends State<Profile> {
             height: 130,
             child: new Column(
             children: <Widget>[
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                child: RaisedButton(
-                  elevation: 0,
-                  highlightElevation: 0,
-                  padding: EdgeInsets.fromLTRB(10.0, 15.0, 10.0, 15.0),
-                  onPressed: () {
-                    _onImageButtonPressed(ImageSource.gallery);
-                    Navigator.of(context).pop();
-                  },
-                  color: Colors.white,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Icon(Icons.photo_library, size: 25, color: Colors.blueAccent),
-                      SizedBox(width: 10),
-                      Text(
-                        "Open Gallery",
-                        style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.normal)
-                      ),
-                    ]
-                  )
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
-                child: RaisedButton(
-                  elevation: 0,
-                  highlightElevation: 0,
-                  padding: EdgeInsets.fromLTRB(10.0, 15.0, 10.0, 15.0),
-                  onPressed: () {
-                    _onImageButtonPressed(ImageSource.camera);
-                    Navigator.of(context).pop();
-                  },
-                  color: Colors.white,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Icon(Icons.camera_alt, size: 25, color: Colors.blueAccent),
-                      SizedBox(width: 10),
-                      Text(
-                        "Lauch Camera",
-                        style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.normal)
-                      ),
-                    ]
-                  )
-                ),
-              )
+              DialogButton(text: "Open Gallery", icon: Icons.photo_library, fn: () {
+                _onImageButtonPressed(ImageSource.gallery);
+                Navigator.of(context).pop();
+              }),
+              SizedBox(height: 10),
+              DialogButton(text: "Lauch Camera", icon: Icons.camera_alt, fn: () {
+                _onImageButtonPressed(ImageSource.camera);
+                Navigator.of(context).pop();
+              }),
             ]
           )),
         );
@@ -111,31 +107,32 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Future<void> _uploadFile(File blob, String name) async {
-    final StorageReference ref = storage.ref().child('/user/${_user.uid}/avatar').child(name);
-    final StorageUploadTask uploadTask = ref.putFile(blob);
-    uploadTask.events.listen((StorageTaskEvent event) {
-      if (event.type == StorageTaskEventType.progress) {
-        print("ON PROGRESS");
-      } else if (event.type == StorageTaskEventType.success) {
-        print("SUCCESS");
-      } if (event.type == StorageTaskEventType.failure) {
-        print("FAILURE");
-      }
-    });
-    uploadTask.onComplete
-    .then((StorageTaskSnapshot data) async {
-      print(await data.ref.getDownloadURL());
-    })
-    .catchError((error) async {
-      print(error);
-    });
+  void _loadingDialog() {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            child: new LinearProgressIndicator()
+          ),
+        );
+      },
+    );
   }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
 
     _user = Provider.of<Auth>(context).user;
+    _nameController.text = _user?.displayName != null ? _user.displayName : "Unknown";
     _metadata = Provider.of<Auth>(context).metadata;
 
     return Scaffold(
@@ -192,19 +189,22 @@ class _ProfileState extends State<Profile> {
                     Container(
                       width: double.infinity,
                       margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Name',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
+                      alignment: Alignment.center,
+                      child: Form(
+                        key: _formKey,
+                        child: TextFormField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            labelText: 'NAME'
                           ),
-                          Text(
-                            _user?.displayName != null ? _user.displayName : "Unknown",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
-                          ),
-                        ]
-                      ),
+                          validator: (String value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        )
+                      )
                     ),
                     Container(
                       width: double.infinity,
@@ -244,7 +244,11 @@ class _ProfileState extends State<Profile> {
                       width: double.infinity,
                       margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
                       child: RaisedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            _updateDisplayName(_nameController.text);
+                          }
+                        },
                         color: Colors.blueAccent,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

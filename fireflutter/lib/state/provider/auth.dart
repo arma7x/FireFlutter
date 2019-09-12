@@ -26,8 +26,19 @@ class Auth with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateUserProfile() {
-    notifyListeners();
+  Future<void> updateUserProfile(UserUpdateInfo userUpdateInfo) async {
+    FirebaseUser user = await _auth.currentUser();
+    try {
+      await user.updateProfile(userUpdateInfo);
+      FirebaseUser updatedUser = await _auth.currentUser();
+      FirebaseDatabase.instance.reference().child('/users_public/${updatedUser.providerData[0].uid}').set(<dynamic, dynamic>{
+        'name': updatedUser.providerData[0].displayName != null ? updatedUser.providerData[0].displayName : 'Unknown',
+        'photoUrl': updatedUser.providerData[0].photoUrl
+      });
+      setUser(updatedUser);
+    } catch(e) {
+      print(e);
+    };
   }
 
   void selfDestructAccount() {
@@ -59,6 +70,7 @@ class Auth with ChangeNotifier {
   }
 
   void goOnline() {
+    print("[AUTH::goOnline]${_user.uid}");
     try {
       DatabaseReference _onlineRef;
       _onlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online');
@@ -79,14 +91,19 @@ class Auth with ChangeNotifier {
     } catch(e) {
       print("[AUTH::goOnline]LAST ONLINE ERROR::"+e.toString());
     }
-    DatabaseReference _metadataRef;
-    _metadataRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}');
-    _metadataRef.onValue.listen((Event event) {
-      setMetadata(event.snapshot.value);
-    });
+    try {
+      DatabaseReference _metadataRef;
+      _metadataRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}');
+      _metadataRef.onValue.listen((Event event) {
+        setMetadata(event.snapshot.value);
+      });
+    } catch(e) {
+      print("[AUTH::goOnline]METADATA::"+e.toString());
+    }
   }
 
   void goOffline() {
+    print("[AUTH::goOffnline]${_user.uid}");
     try {
       FirebaseDatabase.instance.reference().child('/users/${_user.uid}/online').set(false);
     } catch(e) {

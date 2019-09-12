@@ -62,17 +62,17 @@ class ForgotPasswordState extends State<ForgotPassword> {
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
                           final String status = await _forgotPassword();
-                          Toast.show(status, context);
+                          Toast.show(status, context, duration: 5);
                         }
                       }
                     ),
                   )
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
-                  alignment: Alignment.center,
-                  child: this._loading ? new LinearProgressIndicator() : SizedBox(height: 0, width: 0),
-                ),
+                //Container(
+                  //padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
+                  //alignment: Alignment.center,
+                  //child: this._loading ? new LinearProgressIndicator() : SizedBox(height: 0, width: 0),
+                //),
               ],
             )
           )
@@ -87,14 +87,31 @@ class ForgotPasswordState extends State<ForgotPassword> {
     super.dispose();
   }
 
+  void _loadingDialog() {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            child: new LinearProgressIndicator()
+          ),
+        );
+      },
+    );
+  }
+
   Future _forgotPassword() async {
     setState(() { _loading = true; });
+    _loadingDialog();
     try {
       await _auth.sendPasswordResetEmail(email: _emailController.text);
       setState(() { _loading = false; });
+      Navigator.of(context).pop();
       return "Check e-mail inbox";
     } catch(e) {
       setState(() { _loading = false; });
+      Navigator.of(context).pop();
       return e.toString();
     }
   }

@@ -162,9 +162,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _user = Provider.of<Auth>(context).user;
     _offline = Provider.of<Shared>(context).offline;
 
-    //String _clientId = Provider.of<Shared>(context).clientId;
-    //print('CLIENTID :: ${_clientId}');
-
     List<Widget> drawerOptions = [];
 
     for (var i = 0; i < widget.drawerFragments.length; i++) {
@@ -217,13 +214,13 @@ class _MyHomePageState extends State<MyHomePage> {
             textColor: Theme.of(context).buttonColor,
             onPressed: () {
               if (_user == null) {
-                Toast.show('No one has signed in', context);
+                Toast.show('No one has signed in', context, duration: 5);
                 return;
               }
               //remove active device
               Provider.of<Shared>(context, listen: false).removeActiveDevice(_user.uid);
               Provider.of<Auth>(context, listen: false).signOut();
-              Toast.show('Successfully signed out', context);
+              Toast.show('Successfully signed out', context, duration: 5);
             },
           ),
         ],

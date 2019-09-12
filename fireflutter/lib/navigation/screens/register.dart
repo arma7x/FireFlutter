@@ -120,17 +120,17 @@ class RegisterPageState extends State<RegisterPage> {
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
                           final String status = await _register();
-                          Toast.show(status, context);
+                          Toast.show(status, context, duration: 5);
                         }
                       }
                     ),
                   )
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
-                  alignment: Alignment.center,
-                  child: this._loading ? new LinearProgressIndicator() : SizedBox(height: 0, width: 0),
-                ),
+                //Container(
+                  //padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
+                  //alignment: Alignment.center,
+                  //child: this._loading ? new LinearProgressIndicator() : SizedBox(height: 0, width: 0),
+                //),
               ],
             )
           )
@@ -147,8 +147,23 @@ class RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
+  void _loadingDialog() {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            child: new LinearProgressIndicator()
+          ),
+        );
+      },
+    );
+  }
+
   Future _register() async {
     setState(() { _loading = true; });
+    _loadingDialog();
     try {
       await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);
       setState(() { _loading = false; });
