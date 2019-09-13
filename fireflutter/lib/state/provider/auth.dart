@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:fireflutter/api.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -38,11 +40,33 @@ class Auth with ChangeNotifier {
       setUser(updatedUser);
     } catch(e) {
       print(e);
-    };
+    }
   }
 
-  void selfDestructAccount() {
-    notifyListeners();
+  Future<Map<String, dynamic>> selfDestructAccount() async {
+    FirebaseUser user = await _auth.currentUser();
+    try {
+      final String token = await user.getIdToken(refresh: true);
+      final request = await Api.selfDestructAccount(<String, String>{'token': token});
+      final response = await request.close(); 
+      if (response.statusCode == 200) {
+        final responseBody = await response.cast<List<int>>().transform(utf8.decoder).join();
+        final Map<String, dynamic> parsedBody = json.decode(responseBody);
+        parsedBody['statusCode'] = response.statusCode;
+        return parsedBody;
+      } else {
+        final responseBody = await response.cast<List<int>>().transform(utf8.decoder).join();
+        final Map<String, dynamic> parsedBody = json.decode(responseBody);
+        parsedBody['statusCode'] = response.statusCode;
+        return parsedBody;
+      }
+    } catch(e) {
+      print(e);
+      return <String, dynamic>{
+        'statusCode': 500,
+        'message': e.toString(),
+      };
+    }
   }
 
   Future<FirebaseUser> signUserUp(String email, String password) {
@@ -119,7 +143,6 @@ class Auth with ChangeNotifier {
   }
 
   void signOut() async {
-    goOffline();
     await _auth.signOut();
     await _googleSignIn.signOut();
     notifyListeners();

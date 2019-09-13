@@ -17,13 +17,11 @@ class Shared with ChangeNotifier {
   }
 
   bool _offline =  false;
-  bool _loading = false;
   String _clientId;
   String _fcm;
   String _model = 'Unknown';
 
   bool get offline => _offline;
-  bool get loading => _loading;
   String get clientId => _clientId;
   String get fcm => _fcm;
   String get model => _model;
@@ -61,11 +59,6 @@ class Shared with ChangeNotifier {
 
   void setOffline(bool offline) {
     _offline = offline;
-    notifyListeners();
-  }
-
-  void setLoading(bool loading) {
-    _loading = loading;
     notifyListeners();
   }
 

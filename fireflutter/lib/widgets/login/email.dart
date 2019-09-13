@@ -101,8 +101,8 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
     try {
       await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);
       Provider.of<Shared>(context, listen: false).addActiveDevice(Provider.of<Auth>(context).user.uid);
-      Navigator.of(context).pop();
       widget.loadingCb(false);
+      Navigator.of(context).pop();
       return "Successfully signed in";
     } catch (e) {
       widget.loadingCb(false);

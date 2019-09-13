@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:fireflutter/state/provider_state.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+  HomePage({Key key, this.title, this.loadingCb}) : super(key: key);
 
   final String title;
+  final Function loadingCb;
 
   @override
   _HomePageState createState() => _HomePageState();

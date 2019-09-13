@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:fireflutter/config.dart';
 import 'package:fireflutter/navigation/fragments.dart';
 import 'package:fireflutter/navigation/screens.dart';
 import 'package:fireflutter/state/provider_state.dart';
@@ -28,9 +29,9 @@ class MyApp extends StatelessWidget {
       child: Consumer<Counter>(
         builder: (context, counter, _) {
           return MaterialApp(
-            title: "FireFlutter",
+            title: Config.APP_NAME,
             theme: ThemeData(
-              primarySwatch: Colors.blue,
+              primaryColor: Config.THEME_COLOR,
             ),
             home: MyHomePage(),
           );
@@ -38,7 +39,6 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class DrawerItem {
@@ -52,14 +52,14 @@ class DrawerItem {
 class MyHomePage extends StatefulWidget {
 
   final drawerFragments = [
-    new DrawerItem("FireFlutter", Icons.home, () => new HomePage(title:"FireFlutter"), null),
+    new DrawerItem("FireFlutter", Icons.home, (Function loadingCb) => new HomePage(title:"FireFlutter", loadingCb: loadingCb), null),
   ];
 
   final drawerScreens = [
-    new DrawerItem("Profile", Icons.person, () => new Profile(title:"Profile"), true),
-    new DrawerItem("Sign In", Icons.exit_to_app, () => new LoginPage(title: 'Sign In'), false),
-    new DrawerItem("Sign Up", Icons.person_add, () => new RegisterPage(title: 'Sign Up'), false),
-    new DrawerItem("Reset Password", Icons.lock_open, () => new ForgotPassword(title: 'Reset Password'), false),
+    new DrawerItem("Profile", Icons.person, (Function loadingCb) => new Profile(title:"Profile", loadingCb: loadingCb), true),
+    new DrawerItem("Sign In", Icons.exit_to_app, (Function loadingCb) => new LoginPage(title: 'Sign In', loadingCb: loadingCb), false),
+    new DrawerItem("Sign Up", Icons.person_add, (Function loadingCb) => new RegisterPage(title: 'Sign Up', loadingCb: loadingCb), false),
+    new DrawerItem("Reset Password", Icons.lock_open, (Function loadingCb) => new ResetPassword(title: 'Reset Password', loadingCb: loadingCb), false),
   ];
 
   MyHomePage({Key key}) : super(key: key);
@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _getCurrentFragmentIndex(int pos) {
     if (widget.drawerFragments[pos] != null) {
-      return widget.drawerFragments[pos].body();
+      return widget.drawerFragments[pos].body(_loadingDialog);
     } else {
       return new Text("Error");
     }
@@ -97,8 +97,26 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.of(context).pop(); // close drawer
       Navigator.push(
         context,
-        CupertinoPageRoute(builder: (BuildContext context) => widget.drawerScreens[index].body())
+        CupertinoPageRoute(builder: (BuildContext context) => widget.drawerScreens[index].body(_loadingDialog))
       );
+    }
+  }
+
+  void _loadingDialog(bool show) {
+    if (show == true) {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Container(
+              child: new LinearProgressIndicator()
+            ),
+          );
+        },
+      );
+    } else {
+      Navigator.of(context).pop();
     }
   }
 
@@ -153,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     super.dispose();
-    //_offlineRef.cancel();
+    //_offlineRef.onDisconnect().cancel();
   }
 
   @override
@@ -219,6 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               //remove active device
               Provider.of<Shared>(context, listen: false).removeActiveDevice(_user.uid);
+              Provider.of<Auth>(context, listen: false).goOffline();
               Provider.of<Auth>(context, listen: false).signOut();
               Toast.show('Successfully signed out', context, duration: 5);
             },

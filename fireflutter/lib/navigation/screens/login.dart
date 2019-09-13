@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:fireflutter/state/provider_state.dart';
-import 'package:toast/toast.dart';
 import 'package:fireflutter/widgets/login_widgets.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title}) : super(key: key);
+  LoginPage({Key key, this.title, this.loadingCb}) : super(key: key);
 
   final String title;
+  final Function loadingCb;
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -34,36 +32,13 @@ class _LoginPageState extends State<LoginPage> {
             child: new ListView(
               shrinkWrap: true,
               children: <Widget>[
-                EmailPasswordForm(loadingCb: _callback),
-                GoogleSignInSection(loadingCb: _callback),
-                //Container(
-                  //alignment: Alignment.center,
-                  //child: this._loading ? new LinearProgressIndicator() : SizedBox(height: 0, width: 0),
-                //),
+                EmailPasswordForm(loadingCb: widget.loadingCb),
+                GoogleSignInSection(loadingCb: widget.loadingCb),
               ],
             )
           )
         )
       )
     );
-  }
-
-  void _callback(bool loading) {
-    if (loading) {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Container(
-              child: new LinearProgressIndicator()
-            ),
-          );
-        },
-      );
-    } else {
-      Navigator.of(context).pop();
-    }
-    setState(() { _loading = loading; });
   }
 }

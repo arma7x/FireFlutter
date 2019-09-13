@@ -10,18 +10,10 @@ import 'package:toast/toast.dart';
 import 'package:fireflutter/widgets/profile_widgets.dart';
 
 class Profile extends StatefulWidget {
-  Profile({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  Profile({Key key, this.title, this.loadingCb}) : super(key: key);
 
   final String title;
+  final Function loadingCb;
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -63,9 +55,9 @@ class _ProfileState extends State<Profile> {
     .then((StorageTaskSnapshot data) async {
       UserUpdateInfo payload = UserUpdateInfo();
       payload.photoUrl = await data.ref.getDownloadURL();
-      _loadingDialog();
+      widget.loadingCb(true);
       await Provider.of<Auth>(context).updateUserProfile(payload);
-      Navigator.of(context).pop();
+      widget.loadingCb(false);
     })
     .catchError((error) async {
       print(error);
@@ -76,12 +68,12 @@ class _ProfileState extends State<Profile> {
   void _updateDisplayName(String name) async {
     UserUpdateInfo payload = UserUpdateInfo();
     payload.displayName = name;
-    _loadingDialog();
+    widget.loadingCb(true);
     await Provider.of<Auth>(context).updateUserProfile(payload);
-    Navigator.of(context).pop();
+    widget.loadingCb(false);
   }
 
-  void _showDialog() {
+  void _selectImageSourceDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -107,15 +99,42 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void _loadingDialog() {
+  void _deleteAccount() async {
+    Navigator.of(context).pop();
+    widget.loadingCb(true);
+    final Map<String, dynamic> status = await Provider.of<Auth>(context).selfDestructAccount();
+    Toast.show(status['message'], context, duration: 5);
+    print(status);
+    widget.loadingCb(false);
+    if (status['statusCode'] == 200) {
+      Provider.of<Auth>(context, listen: false).signOut();
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _confirmDeleteAccountDialog() {
     showDialog(
-      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Container(
-            child: new LinearProgressIndicator()
-          ),
+          title: new Text("Confirm to delete your account ?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text(
+                "Yes",
+                style: TextStyle(color: Colors.redAccent)
+              ),
+              onPressed: () async {
+                _deleteAccount();
+              },
+            ),
+          ],
         );
       },
     );
@@ -163,7 +182,7 @@ class _ProfileState extends State<Profile> {
                             bottom: 0.0,
                             child: FloatingActionButton(
                               backgroundColor: Colors.blueAccent,
-                              onPressed: _showDialog,
+                              onPressed: _selectImageSourceDialog,
                               child: Icon(Icons.camera_alt),
                             )
                           ),
@@ -180,7 +199,7 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                           ),
                           Text(
-                            _user.uid,
+                            _user?.uid == null ? "" : _user.uid,
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
                           ),
                         ]
@@ -217,7 +236,7 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                           ),
                           Text(
-                            _user?.email,
+                            _user?.email == null ? "" : _user.email,
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
                           ),
                         ]
@@ -234,7 +253,7 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                           ),
                           Text(
-                            _metadata['role'] == 1 ? 'TRUE' : 'FALSE',
+                            _metadata != null ? (_metadata['role'] == 1 ? 'TRUE' : 'FALSE') : 'FALSE',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
                           ),
                         ]
@@ -267,7 +286,7 @@ class _ProfileState extends State<Profile> {
                       width: double.infinity,
                       margin: EdgeInsets.fromLTRB(50.0, 5.0, 50.0, 0.0),
                       child: RaisedButton(
-                        onPressed: () {},
+                        onPressed: _confirmDeleteAccountDialog,
                         color: Colors.redAccent,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -15,14 +15,11 @@ class GoogleSignInSection extends StatefulWidget {
 
 class GoogleSignInSectionState extends State<GoogleSignInSection> {
 
-  bool _secure = true;
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         Container(
-          padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
           alignment: Alignment.center,
           child: SizedBox(
             width: double.infinity, // match_parent
@@ -44,8 +41,8 @@ class GoogleSignInSectionState extends State<GoogleSignInSection> {
     try {
       await Provider.of<Auth>(context, listen: false).signUserInGoogle();
       Provider.of<Shared>(context, listen: false).addActiveDevice(Provider.of<Auth>(context).user.uid);
-      Navigator.of(context).pop();
       widget.loadingCb(false);
+      Navigator.of(context).pop();
       return "Successfully signed in";
     } catch (e) {
       widget.loadingCb(false);

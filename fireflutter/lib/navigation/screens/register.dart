@@ -4,9 +4,10 @@ import 'package:fireflutter/state/provider_state.dart';
 import 'package:toast/toast.dart';
 
 class RegisterPage extends StatefulWidget {
-  RegisterPage({Key key, this.title}) : super(key: key);
+  RegisterPage({Key key, this.title, this.loadingCb}) : super(key: key);
 
   final String title;
+  final Function loadingCb;
 
   @override
   RegisterPageState createState() => RegisterPageState();
@@ -20,7 +21,6 @@ class RegisterPageState extends State<RegisterPage> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _secure = true;
-  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,113 +28,105 @@ class RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: IgnorePointer(
-        ignoring: _loading,
-        child: Form(
-          key: _formKey,
-          child: new Center(
-            child: ListView(
-              shrinkWrap: true,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
-                  alignment: Alignment.center,
-                  child: TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.email),
-                      labelText: 'Enter Email'
-                    ),
-                    validator: (String value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
+      body: Form(
+        key: _formKey,
+        child: new Center(
+          child: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
+                alignment: Alignment.center,
+                child: TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.email),
+                    labelText: 'Enter Email'
                   ),
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
-                  alignment: Alignment.center,
-                  child: TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.vpn_key),
-                      //suffixIcon: GestureDetector(
-                        //child: Icon(_secure ? Icons.visibility : Icons.visibility_off),
-                        //onTap: _toggleSecure
-                      //),
-                      labelText: 'Enter Password'
-                    ),
-                    obscureText: _secure,
-                    validator: (String value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      if (value.length < 8) {
-                        return 'Minimum 8 character';
-                      }
-                      if (value != _confirmPasswordController.text) {
-                        return 'Password not match';
-                      }
-                      return null;
-                    },
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
+                alignment: Alignment.center,
+                child: TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.vpn_key),
+                    //suffixIcon: GestureDetector(
+                      //child: Icon(_secure ? Icons.visibility : Icons.visibility_off),
+                      //onTap: _toggleSecure
+                    //),
+                    labelText: 'Enter Password'
                   ),
+                  obscureText: _secure,
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    if (value.length < 8) {
+                      return 'Minimum 8 character';
+                    }
+                    if (value != _confirmPasswordController.text) {
+                      return 'Password not match';
+                    }
+                    return null;
+                  },
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
-                  alignment: Alignment.center,
-                  child: TextFormField(
-                    controller: _confirmPasswordController,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.vpn_key),
-                      suffixIcon: GestureDetector(
-                        child: Icon(_secure ? Icons.visibility : Icons.visibility_off),
-                        onTap: _toggleSecure
-                      ),
-                      labelText: 'Confirm Password'
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
+                alignment: Alignment.center,
+                child: TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.vpn_key),
+                    suffixIcon: GestureDetector(
+                      child: Icon(_secure ? Icons.visibility : Icons.visibility_off),
+                      onTap: _toggleSecure
                     ),
-                    obscureText: _secure,
-                    validator: (String value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      if (value.length < 8) {
-                        return 'Minimum 8 character';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Password not match';
-                      }
-                      return null;
-                    },
+                    labelText: 'Confirm Password'
                   ),
+                  obscureText: _secure,
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    if (value.length < 8) {
+                      return 'Minimum 8 character';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Password not match';
+                    }
+                    return null;
+                  },
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    width: double.infinity, // match_parent
-                    child: RaisedButton(
-                      child: Text('Submit Registration'),
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          final String status = await _register();
-                          Toast.show(status, context, duration: 5);
-                        }
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: double.infinity, // match_parent
+                  child: RaisedButton(
+                    child: Text('Submit Registration'),
+                    onPressed: () async {
+                      if (_formKey.currentState.validate()) {
+                        final String status = await _register();
+                        Toast.show(status, context, duration: 5);
                       }
-                    ),
-                  )
-                ),
-                //Container(
-                  //padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
-                  //alignment: Alignment.center,
-                  //child: this._loading ? new LinearProgressIndicator() : SizedBox(height: 0, width: 0),
-                //),
-              ],
-            )
+                    }
+                  ),
+                )
+              ),
+            ],
           )
-        ),
+        )
       ),
     );
   }
@@ -147,30 +139,15 @@ class RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void _loadingDialog() {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            child: new LinearProgressIndicator()
-          ),
-        );
-      },
-    );
-  }
-
   Future _register() async {
-    setState(() { _loading = true; });
-    _loadingDialog();
+    widget.loadingCb(true);
     try {
-      await Provider.of<Auth>(context, listen: false).signUserIn(_emailController.text, _passwordController.text);
-      setState(() { _loading = false; });
+      await Provider.of<Auth>(context, listen: false).signUserUp(_emailController.text, _passwordController.text);
+      widget.loadingCb(false);
       Navigator.of(context).pop();
       return "Successfully registered";
     } catch (e) {
-      setState(() { _loading = false; });
+      widget.loadingCb(false);
       return e.toString();
     }
   }
