@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: Config.APP_NAME,
             theme: ThemeData(
-              primaryColor: Config.THEME_COLOR,
+              primarySwatch: Config.THEME_COLOR,
             ),
             home: MyHomePage(),
           );
@@ -46,20 +46,23 @@ class DrawerItem {
   IconData icon;
   Function body;
   bool requireAuth;
-  DrawerItem(this.title, this.icon, this.body, this.requireAuth);
+  int minRole;
+  DrawerItem(this.title, this.icon, this.body, this.requireAuth, this.minRole);
 }
 
 class MyHomePage extends StatefulWidget {
 
-  final drawerFragments = [
-    new DrawerItem("FireFlutter", Icons.home, (Function loadingCb) => new HomePage(title:"FireFlutter", loadingCb: loadingCb), null),
+  final List<DrawerItem> drawerFragments = [
+    new DrawerItem("FireFlutter", Icons.home, (Function loadingCb) => new HomePage(title:"FireFlutter", loadingCb: loadingCb), null, null),
   ];
 
-  final drawerScreens = [
-    new DrawerItem("Profile", Icons.person, (Function loadingCb) => new Profile(title:"Profile", loadingCb: loadingCb), true),
-    new DrawerItem("Sign In", Icons.exit_to_app, (Function loadingCb) => new LoginPage(title: 'Sign In', loadingCb: loadingCb), false),
-    new DrawerItem("Sign Up", Icons.person_add, (Function loadingCb) => new RegisterPage(title: 'Sign Up', loadingCb: loadingCb), false),
-    new DrawerItem("Reset Password", Icons.lock_open, (Function loadingCb) => new ResetPassword(title: 'Reset Password', loadingCb: loadingCb), false),
+  final List<DrawerItem> drawerScreens = [
+    new DrawerItem("Chat", Icons.live_help, (Function loadingCb) => new ChatPage(title:"Chat", loadingCb: loadingCb), true, 999),
+    new DrawerItem("Queue", Icons.traffic, (Function loadingCb) => new QueuePage(title:"Queue", loadingCb: loadingCb), true, 1),
+    new DrawerItem("Profile", Icons.person, (Function loadingCb) => new Profile(title:"Profile", loadingCb: loadingCb), true, null),
+    new DrawerItem("Sign In", Icons.exit_to_app, (Function loadingCb) => new LoginPage(title: 'Sign In', loadingCb: loadingCb), false, null),
+    new DrawerItem("Sign Up", Icons.person_add, (Function loadingCb) => new RegisterPage(title: 'Sign Up', loadingCb: loadingCb), false, null),
+    new DrawerItem("Reset Password", Icons.lock_open, (Function loadingCb) => new ResetPassword(title: 'Reset Password', loadingCb: loadingCb), false, null),
   ];
 
   MyHomePage({Key key}) : super(key: key);
@@ -75,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentFragmentIndex = 0;
   DatabaseReference _offlineRef;
   FirebaseUser _user;
+  Map<dynamic, dynamic> _metadata;
   bool _offline;
 
   _MyHomePageState();
@@ -178,18 +182,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
 
     _user = Provider.of<Auth>(context).user;
+    _metadata = Provider.of<Auth>(context).metadata;
     _offline = Provider.of<Shared>(context).offline;
 
     List<Widget> drawerOptions = [];
 
-    for (var i = 0; i < widget.drawerFragments.length; i++) {
+    for (int i = 0; i < widget.drawerFragments.length; i++) {
       if (_user != null && widget.drawerFragments[i].requireAuth == false) {
         continue;
       }
       if (_user == null && widget.drawerFragments[i].requireAuth == true) {
         continue;
       }
-      var d = widget.drawerFragments[i];
+      if (_metadata != null && widget.drawerFragments[i].minRole != null) {
+        if (_metadata['role'] > widget.drawerFragments[i].minRole) {
+          continue;
+        }
+      }
+      DrawerItem d = widget.drawerFragments[i];
       drawerOptions.add(
         new ListTile(
           leading: new Icon(d.icon),
@@ -200,14 +210,19 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
 
-    for (var i = 0; i < widget.drawerScreens.length; i++) {
+    for (int i = 0; i < widget.drawerScreens.length; i++) {
       if (_user != null && widget.drawerScreens[i].requireAuth == false) {
         continue;
       }
       if (_user == null && widget.drawerScreens[i].requireAuth == true) {
         continue;
       }
-      var d = widget.drawerScreens[i];
+      if (_metadata != null && widget.drawerScreens[i].minRole != null) {
+        if (_metadata['role'] > widget.drawerScreens[i].minRole) {
+          continue;
+        }
+      }
+      DrawerItem d = widget.drawerScreens[i];
       drawerOptions.add(
         new ListTile(
           leading: new Icon(d.icon),

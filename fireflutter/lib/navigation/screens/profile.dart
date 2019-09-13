@@ -181,7 +181,7 @@ class _ProfileState extends State<Profile> {
                             right: 5.0,
                             bottom: 0.0,
                             child: FloatingActionButton(
-                              backgroundColor: Colors.blueAccent,
+                              backgroundColor: Theme.of(context).primaryColor,
                               onPressed: _selectImageSourceDialog,
                               child: Icon(Icons.camera_alt),
                             )
@@ -268,7 +268,7 @@ class _ProfileState extends State<Profile> {
                             _updateDisplayName(_nameController.text);
                           }
                         },
-                        color: Colors.blueAccent,
+                        color: Theme.of(context).primaryColor,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[

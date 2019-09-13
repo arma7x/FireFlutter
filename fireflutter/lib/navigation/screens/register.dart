@@ -114,7 +114,11 @@ class RegisterPageState extends State<RegisterPage> {
                 child: SizedBox(
                   width: double.infinity, // match_parent
                   child: RaisedButton(
-                    child: Text('Submit Registration'),
+                    color: Theme.of(context).primaryColor,
+                    child: Text(
+                      'Submit Registration',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         final String status = await _register();

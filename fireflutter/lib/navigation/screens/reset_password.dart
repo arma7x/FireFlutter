@@ -55,7 +55,11 @@ class ResetPasswordState extends State<ResetPassword> {
                 child: SizedBox(
                   width: double.infinity, // match_parent
                   child: RaisedButton(
-                    child: Text('Send Reset Link'),
+                    color: Theme.of(context).primaryColor,
+                    child: Text(
+                      'Send Reset Link',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         final String status = await _forgotPassword();

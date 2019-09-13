@@ -74,7 +74,11 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
             child: SizedBox(
               width: double.infinity, // match_parent
               child: RaisedButton(
-                child: Text('Sign In With Email'),
+                color: Theme.of(context).primaryColor,
+                child: Text(
+                  'Sign In With Email',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     final String status = await _signInWithEmailAndPassword();
