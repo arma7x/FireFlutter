@@ -53,6 +53,7 @@
 <script>
   import * as firebase from 'firebase'
   import axios from 'axios'
+  import Config from '../../config'
 
   export default {
     data () {
@@ -101,7 +102,7 @@
           .then(() => {
             firebase.auth().currentUser.getIdToken(true)
             .then((idToken) => {
-              axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': id } })
+              axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': id } })
             })
             this.joinChat(id)
           })

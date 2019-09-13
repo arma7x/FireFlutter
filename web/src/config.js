@@ -13,6 +13,7 @@
 // }
 
 module.exports = {
+  app_name: 'FireFlutter',
   firebase: {
     apiKey: 'AIzaSyDqnMO3jiIVhs8hRj7SInrcIb0yYP_UOWo',
     authDomain: 'fireflutter-f1304.firebaseapp.com',

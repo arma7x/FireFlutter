@@ -13,10 +13,9 @@ const AlertCmp = () => import('./components/Shared/Alert.vue')
 
 Vue.use(Vuetify)
 Vue.config.productionTip = false
-window.APP_NAME = 'FireFlutter'
 
 router.beforeEach((to, from, next) => {
-  document.title = `${window.APP_NAME} | ${to.name}`
+  document.title = `${Config.app_name} | ${to.name}`
   next()
 })
 

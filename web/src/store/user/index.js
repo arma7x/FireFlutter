@@ -1,5 +1,6 @@
 import * as firebase from 'firebase'
 import axios from 'axios'
+import Config from '../../config'
 
 export default {
   state: {
@@ -51,7 +52,7 @@ export default {
       commit('setLoading', true)
       firebase.auth().currentUser.getIdToken(true)
       .then((idToken) => {
-        return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/selfDestructAccount`, { params: { 'token': idToken } })
+        return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/selfDestructAccount`, { params: { 'token': idToken } })
       })
       .then((response) => {
         commit('setLoading', false)

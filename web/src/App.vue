@@ -101,10 +101,12 @@
 </template>
 
 <script>
+  import Config from './config'
+
   export default {
     data () {
       return {
-        app_name: window.APP_NAME,
+        app_name: Config.app_name,
         touchless: false,
         sideNav: false
       }

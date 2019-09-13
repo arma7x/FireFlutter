@@ -196,6 +196,7 @@
 <script>
   import * as firebase from 'firebase'
   import axios from 'axios'
+  import Config from '../../config'
 
   export default {
     data () {
@@ -287,7 +288,7 @@
           this.$store.commit('clearError')
           firebase.auth().currentUser.getIdToken(true)
           .then((idToken) => {
-            return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/joinQueue`, { params: { 'token': idToken, topic: this.topic } })
+            return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/joinQueue`, { params: { 'token': idToken, topic: this.topic } })
           })
           .then((response) => {
             this.$store.commit('setLoading', false)
@@ -323,7 +324,7 @@
           this.$store.commit('setLoading', true)
           firebase.auth().currentUser.getIdToken(true)
           .then((idToken) => {
-            return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/deleteQueue`, { params: { 'token': idToken } })
+            return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/deleteQueue`, { params: { 'token': idToken } })
           })
           .then((response) => {
             this.$store.commit('setLoading', false)
@@ -350,7 +351,7 @@
         this.$store.commit('setLoading', true)
         firebase.auth().currentUser.getIdToken(true)
         .then((idToken) => {
-          return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': this.uid } })
+          return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': this.uid } })
         })
         .then((response) => {
           this.$store.commit('setLoading', false)
@@ -367,7 +368,7 @@
           this.$store.commit('setLoading', true)
           firebase.auth().currentUser.getIdToken(true)
           .then((idToken) => {
-            return axios.get(`https://us-central1-${firebase.apps[0].options.projectId}.cloudfunctions.net/adminDeleteQueue`, { params: { 'token': idToken, 'queue': this.uid } })
+            return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/adminDeleteQueue`, { params: { 'token': idToken, 'queue': this.uid } })
           })
           .then((response) => {
             this.$store.commit('setLoading', false)
