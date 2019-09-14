@@ -1,23 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class QueueItem extends StatelessWidget {
 
-  final FirebaseUser current_user;
-  final dynamic user_metadata;
-  final dynamic queue_data;
+  final FirebaseUser currentUser;
+  final dynamic userMetadata;
+  final dynamic assignedUserMetadata;
+  final dynamic queueData;
+  final Function joinChatCb;
+  final Function handleChatCb;
 
-  QueueItem({Key key, this.current_user, this.user_metadata, this.queue_data}) {
-    print(user_metadata.runtimeType);
-    print(queue_data.runtimeType);
-  }
+  QueueItem({Key key, this.currentUser, this.userMetadata, this.assignedUserMetadata, this.queueData, this.joinChatCb, this.handleChatCb});
 
   @override
   Widget build(BuildContext context) {
 
     return new Container(
       width: double.infinity,
-      child: Text('123123'),
+      margin: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+      child: Card(
+        child: Container(
+          margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+          child: Row(
+            children: <Widget>[
+              Container(
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey[100],
+                  backgroundImage: userMetadata['photoUrl'] != null ? CachedNetworkImageProvider(userMetadata['photoUrl']) : null,
+                  child: userMetadata['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Icon(
+                            queueData['status'] != 0 ? Icons.lock : Icons.lock_open,
+                          ),
+                          Text(
+                            queueData['topic'],
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+                          ),
+                        ]
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        userMetadata['name'],
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            DateTime.fromMillisecondsSinceEpoch(queueData['timestamp']).toLocal().toString(),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
+                          ),
+                          queueData['assigned_user'] != false && queueData['assigned_user'] != currentUser.uid ? Text(
+                            assignedUserMetadata['name'],
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
+                          ) : SizedBox(width: 0, height: 0),
+                        ]
+                      ),
+                    ]
+                  ),
+                ),
+              ),
+              Container(
+                child: queueData['assigned_user'] == currentUser.uid || queueData['assigned_user'] == false
+                ? queueData['assigned_user'] == currentUser.uid
+                  ? SizedBox(
+                      width: 76.0,
+                      height: 76.0,
+                      child: FloatingActionButton(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        onPressed: () { joinChatCb(queueData['key']); },
+                        child: Icon(Icons.chat, size: 30.0),
+                      )
+                    ) 
+                  : (queueData['assigned_user'] == false
+                    ? SizedBox(
+                      width: 76.0,
+                      height: 76.0,
+                      child: FloatingActionButton(
+                        backgroundColor: Colors.orange,
+                        onPressed: () { handleChatCb(queueData['key']); },
+                        child: Icon(Icons.supervisor_account, size: 30.0),
+                      ),
+                    )
+                    : Text('ERROR')
+                  )
+                : CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey[100],
+                  backgroundImage: assignedUserMetadata['photoUrl'] != null ? CachedNetworkImageProvider(assignedUserMetadata['photoUrl']) : null,
+                  child: assignedUserMetadata['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
+                )
+              ),
+            ]
+          )
+        ),
+      ),
     );
   }
 }

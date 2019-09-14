@@ -1,10 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fireflutter/state/provider_state.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fireflutter/widgets/queue_widgets.dart';
+import 'package:fireflutter/api.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
+import 'package:fireflutter/navigation/screens.dart' show ChatPage;
+import 'package:toast/toast.dart';
 
 class QueuePage extends StatefulWidget {
   QueuePage({Key key, this.title, this.loadingCb}) : super(key: key);
@@ -18,9 +21,9 @@ class QueuePage extends StatefulWidget {
 
 class _QueuePageState extends State<QueuePage> {
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser _user;
   Map<dynamic, dynamic> _usersMetadata;
-  List<Map<dynamic, dynamic>> _queue;
   List<Widget> _queueWidgets;
   DatabaseReference _queueRef;
   DatabaseReference _userRef;
@@ -43,20 +46,71 @@ class _QueuePageState extends State<QueuePage> {
     _queueRef.orderByChild('timestamp').onValue.listen((Event event) {
       if (event.snapshot.value != null) {
         List<Widget> queueWidgets = List();
-        List<Map<dynamic, dynamic>> queue = List();
         event.snapshot.value.forEach((k,v) {
-          var queue_data = new Map<dynamic, dynamic>.from(v);
-          queue_data['key'] = k;
-          queue.add(queue_data);
-          queueWidgets.add(QueueItem(current_user: _user, user_metadata: _usersMetadata[k], queue_data: queue_data));
+          var queueData = new Map<dynamic, dynamic>.from(v);
+          queueData['key'] = k;
+          dynamic assignedUserMetadata = queueData['assigned_user'] != false ? _usersMetadata[queueData['assigned_user']] : null;
+          queueWidgets.add(QueueItem(currentUser: _user, userMetadata: _usersMetadata[k], assignedUserMetadata: assignedUserMetadata, queueData: queueData, joinChatCb: _joinChat, handleChatCb: _handleChat));
         });
-        queue.sort((a, b) => (a['timestamp'] > b['timestamp']) ? 1 : -1);
         setState(() {
-          _queue = queue;
           _queueWidgets = queueWidgets;
         });
       }
     });
+  }
+
+  void _joinChat(String id) {
+    try {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (BuildContext context) => new ChatPage(title:"Chat", uid: id, loadingCb: widget.loadingCb))
+    );
+    } catch(e) {
+      print(e);
+    }
+  }
+
+  void _handleChat(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Are sure to put this queue under your supervision ?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text(
+                "Yes",
+                style: TextStyle(color: Colors.redAccent)
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                try {
+                  widget.loadingCb(true);
+                  final Map<String, dynamic> updateData = { 'assigned_user': _user.uid, 'status': 1 };
+                  FirebaseDatabase.instance.reference().child('/queues/' + id).update(updateData);
+                  FirebaseDatabase.instance.reference().child('/chats/' + id).update(updateData);
+                  _auth.currentUser()
+                  .then((FirebaseUser u) => u.getIdToken(refresh: true))
+                  .then((String token) => Api.adminNotifyClient(<String, String>{'token': token, 'queue': id}))
+                  .then((request) => request.close());
+                  widget.loadingCb(false);
+                  _joinChat(id);
+                } catch(e) {
+                  widget.loadingCb(false);
+                  Toast.show(e.toString(), context, duration: 5);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -76,9 +130,8 @@ class _QueuePageState extends State<QueuePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        child: ListView(
           children: _queueWidgets == null ? <Widget>[
             Text(
               'You have pushed the button this many times:',
@@ -91,6 +144,7 @@ class _QueuePageState extends State<QueuePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "queue_fab",
         onPressed: () {
           Provider.of<Counter>(context, listen: false).increment();
         },
