@@ -175,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     super.dispose();
-    //_offlineRef.onDisconnect().cancel();
+    _offlineRef.onDisconnect().cancel();
   }
 
   @override
