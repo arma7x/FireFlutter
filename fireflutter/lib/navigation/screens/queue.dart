@@ -63,7 +63,7 @@ class _QueuePageState extends State<QueuePage> {
     try {
     Navigator.push(
       context,
-      CupertinoPageRoute(builder: (BuildContext context) => new ChatPage(title:"Chat", uid: id, loadingCb: widget.loadingCb))
+      CupertinoPageRoute(builder: (BuildContext context) => new ChatPage(title:"Chat", any: id, loadingCb: widget.loadingCb))
     );
     } catch(e) {
       print(e);
@@ -93,8 +93,8 @@ class _QueuePageState extends State<QueuePage> {
                 try {
                   widget.loadingCb(true);
                   final Map<String, dynamic> updateData = { 'assigned_user': _user.uid, 'status': 1 };
-                  FirebaseDatabase.instance.reference().child('/queues/' + id).update(updateData);
-                  FirebaseDatabase.instance.reference().child('/chats/' + id).update(updateData);
+                  await FirebaseDatabase.instance.reference().child('/queues/' + id).update(updateData);
+                  await FirebaseDatabase.instance.reference().child('/chats/' + id).update(updateData);
                   _auth.currentUser()
                   .then((FirebaseUser u) => u.getIdToken(refresh: true))
                   .then((String token) => Api.adminNotifyClient(<String, String>{'token': token, 'queue': id}))
@@ -123,7 +123,6 @@ class _QueuePageState extends State<QueuePage> {
   @override
   Widget build(BuildContext context) {
 
-    final counter = Provider.of<Counter>(context);
     _user = Provider.of<Auth>(context).user;
 
     return Scaffold(
@@ -131,25 +130,14 @@ class _QueuePageState extends State<QueuePage> {
         title: Text(widget.title),
       ),
       body: Container(
-        child: ListView(
-          children: _queueWidgets == null ? <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '${counter.count}',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ] : _queueWidgets,
+        child: _queueWidgets != null
+        ? ListView(children: _queueWidgets)
+        : Center(
+          child: Text(
+            'No user join queue list',
+            style: Theme.of(context).textTheme.display1,
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "queue_fab",
-        onPressed: () {
-          Provider.of<Counter>(context, listen: false).increment();
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }

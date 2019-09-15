@@ -111,7 +111,7 @@ export const joinQueue = functions.https.onRequest((request, response) => {
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Your have joined queued' });
+      response.status(200).json({ 'message': 'Your have joined queue' });
     });
   })
   .catch((error) => {

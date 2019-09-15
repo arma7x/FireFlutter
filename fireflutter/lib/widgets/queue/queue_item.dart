@@ -46,7 +46,7 @@ class QueueItem extends StatelessWidget {
                             queueData['status'] != 0 ? Icons.lock : Icons.lock_open,
                           ),
                           Text(
-                            queueData['topic'],
+                            queueData['topic'].length > 35 ? queueData['topic'].substring(0, 35) + '...' : queueData['topic'],
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
                           ),
                         ]
@@ -80,20 +80,38 @@ class QueueItem extends StatelessWidget {
                   ? SizedBox(
                       width: 76.0,
                       height: 76.0,
-                      child: FloatingActionButton(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        onPressed: () { joinChatCb(queueData['key']); },
-                        child: Icon(Icons.chat, size: 30.0),
-                      )
-                    ) 
+                      child: Material(
+                        elevation: 4.0,
+                        shape: CircleBorder(),
+                        child: InkWell(
+                          onTap: () { joinChatCb(queueData['key']); },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.chat, size: 30.0, color: Colors.white),
+                            ]
+                          ),
+                        ),
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    )
                   : (queueData['assigned_user'] == false
                     ? SizedBox(
                       width: 76.0,
                       height: 76.0,
-                      child: FloatingActionButton(
-                        backgroundColor: Colors.orange,
-                        onPressed: () { handleChatCb(queueData['key']); },
-                        child: Icon(Icons.supervisor_account, size: 30.0),
+                      child: Material(
+                        elevation: 4.0,
+                        shape: CircleBorder(),
+                        child: InkWell(
+                          onTap: () { handleChatCb(queueData['key']); },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.supervisor_account, size: 30.0, color: Colors.white),
+                            ]
+                          ),
+                        ),
+                        color: Colors.orange,
                       ),
                     )
                     : Text('ERROR')

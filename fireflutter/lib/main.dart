@@ -53,16 +53,16 @@ class DrawerItem {
 class MyHomePage extends StatefulWidget {
 
   final List<DrawerItem> drawerFragments = [
-    new DrawerItem("FireFlutter", Icons.home, (Function loadingCb) => new HomePage(title:"FireFlutter", loadingCb: loadingCb), null, null),
+    new DrawerItem("FireFlutter", Icons.home, (Function loadingCb, {String uid}) => new HomePage(title:"FireFlutter", loadingCb: loadingCb), null, null),
   ];
 
   final List<DrawerItem> drawerScreens = [
-    new DrawerItem("Chat", Icons.live_help, (Function loadingCb) => new ChatPage(title:"Chat", loadingCb: loadingCb), true, 999),
-    new DrawerItem("Queue", Icons.traffic, (Function loadingCb) => new QueuePage(title:"Queue", loadingCb: loadingCb), true, 1),
-    new DrawerItem("Profile", Icons.person, (Function loadingCb) => new Profile(title:"Profile", loadingCb: loadingCb), true, null),
-    new DrawerItem("Sign In", Icons.exit_to_app, (Function loadingCb) => new LoginPage(title: 'Sign In', loadingCb: loadingCb), false, null),
-    new DrawerItem("Sign Up", Icons.person_add, (Function loadingCb) => new RegisterPage(title: 'Sign Up', loadingCb: loadingCb), false, null),
-    new DrawerItem("Reset Password", Icons.lock_open, (Function loadingCb) => new ResetPassword(title: 'Reset Password', loadingCb: loadingCb), false, null),
+    new DrawerItem("Chat", Icons.live_help, (Function loadingCb, {dynamic uid}) => new ChatPage(title:"Chat", loadingCb: loadingCb, any: uid), true, 999),
+    new DrawerItem("Queue", Icons.traffic, (Function loadingCb, {dynamic uid}) => new QueuePage(title:"Queue", loadingCb: loadingCb), true, 1),
+    new DrawerItem("Profile", Icons.person, (Function loadingCb, {dynamic uid}) => new Profile(title:"Profile", loadingCb: loadingCb), true, null),
+    new DrawerItem("Sign In", Icons.exit_to_app, (Function loadingCb, {dynamic uid}) => new LoginPage(title: 'Sign In', loadingCb: loadingCb), false, null),
+    new DrawerItem("Sign Up", Icons.person_add, (Function loadingCb, {dynamic uid}) => new RegisterPage(title: 'Sign Up', loadingCb: loadingCb), false, null),
+    new DrawerItem("Reset Password", Icons.lock_open, (Function loadingCb, {dynamic uid}) => new ResetPassword(title: 'Reset Password', loadingCb: loadingCb), false, null),
   ];
 
   MyHomePage({Key key}) : super(key: key);
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.of(context).pop(); // close drawer
       Navigator.push(
         context,
-        CupertinoPageRoute(builder: (BuildContext context) => widget.drawerScreens[index].body(_loadingDialog))
+        CupertinoPageRoute(builder: (BuildContext context) => widget.drawerScreens[index].body(_loadingDialog, uid: _user != null ? _user.uid : null))
       );
     }
   }
