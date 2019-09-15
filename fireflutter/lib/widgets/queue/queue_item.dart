@@ -41,14 +41,15 @@ class QueueItem extends StatelessWidget {
                     children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Icon(
                             queueData['status'] != 0 ? Icons.lock : Icons.lock_open,
                           ),
-                          Text(
-                            queueData['topic'].length > 35 ? queueData['topic'].substring(0, 35) + '...' : queueData['topic'],
+                          Expanded(child: Text(
+                            queueData['topic'],
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
-                          ),
+                          )),
                         ]
                       ),
                       SizedBox(height: 10),

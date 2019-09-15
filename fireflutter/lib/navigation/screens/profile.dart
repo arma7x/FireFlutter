@@ -198,6 +198,7 @@ class _ProfileState extends State<Profile> {
                             'UID',
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                           ),
+                          SizedBox(height: 5),
                           Text(
                             _user?.uid == null ? "" : _user.uid,
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
@@ -235,6 +236,7 @@ class _ProfileState extends State<Profile> {
                             'Email',
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                           ),
+                          SizedBox(height: 5),
                           Text(
                             _user?.email == null ? "" : _user.email,
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
@@ -252,6 +254,7 @@ class _ProfileState extends State<Profile> {
                             'Admin',
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                           ),
+                          SizedBox(height: 5),
                           Text(
                             _metadata != null ? (_metadata['role'] == 1 ? 'TRUE' : 'FALSE') : 'FALSE',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),

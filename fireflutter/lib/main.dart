@@ -135,17 +135,21 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
-    _offlineRef = FirebaseDatabase.instance.reference().child('.info/connected');
-    _offlineRef.onValue.listen((Event event) {
-      if (event.snapshot.value == true) {
-        if (_user != null) {
-          Provider.of<Auth>(context, listen: false).goOnline();
+    try {
+      _offlineRef = FirebaseDatabase.instance.reference().child('.info/connected');
+      _offlineRef.onValue.listen((Event event) {
+        if (event.snapshot.value == true) {
+          if (_user != null) {
+            Provider.of<Auth>(context, listen: false).goOnline();
+          }
+          Provider.of<Shared>(context, listen: false).setOffline(false);
+        } else {
+          Provider.of<Shared>(context, listen: false).setOffline(true);
         }
-        Provider.of<Shared>(context, listen: false).setOffline(false);
-      } else {
-        Provider.of<Shared>(context, listen: false).setOffline(true);
-      }
-    });
+      });
+    } catch(e) {
+      print(e);
+    }
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
