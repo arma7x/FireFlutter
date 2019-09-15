@@ -45,6 +45,7 @@ class QueueItem extends StatelessWidget {
                         children: <Widget>[
                           Icon(
                             queueData['status'] != 0 ? Icons.lock : Icons.lock_open,
+                            color: queueData['status'] != 0 ? Colors.red : Colors.green,
                           ),
                           Expanded(child: Text(
                             queueData['topic'],

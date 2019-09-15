@@ -364,7 +364,7 @@
         })
       },
       adminDeleteQueue () {
-        if (confirm('Are sure to delete this chat from queue list ?')) {
+        if (confirm('Are sure to remove this chat from queue list ?')) {
           this.$store.commit('setLoading', true)
           firebase.auth().currentUser.getIdToken(true)
           .then((idToken) => {

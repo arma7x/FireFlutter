@@ -60,14 +60,10 @@ class _QueuePageState extends State<QueuePage> {
   }
 
   void _joinChat(String id) {
-    try {
     Navigator.push(
       context,
       CupertinoPageRoute(builder: (BuildContext context) => new ChatPage(title:"Chat", any: id, loadingCb: widget.loadingCb))
     );
-    } catch(e) {
-      print(e);
-    }
   }
 
   void _handleChat(String id) {

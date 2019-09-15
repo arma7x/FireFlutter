@@ -170,23 +170,23 @@ class _ProfileState extends State<Profile> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Stack(
-                        children: <Widget>[
-                          CircleAvatar(
-                            radius: 90,
-                            backgroundColor: Colors.grey[100],
-                            backgroundImage: _user?.photoUrl != null ? CachedNetworkImageProvider(_user?.photoUrl) : null,
-                            child: _user?.photoUrl == null ? Icon(Icons.person, size: 150.0) : null,
-                          ),
-                          Positioned(
-                            right: 5.0,
-                            bottom: 0.0,
-                            child: FloatingActionButton(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              onPressed: _selectImageSourceDialog,
-                              child: Icon(Icons.camera_alt),
-                            )
-                          ),
-                        ]
+                      children: <Widget>[
+                        CircleAvatar(
+                          radius: 90,
+                          backgroundColor: Colors.grey[100],
+                          backgroundImage: _user?.photoUrl != null ? CachedNetworkImageProvider(_user?.photoUrl) : null,
+                          child: _user?.photoUrl == null ? Icon(Icons.person, size: 150.0) : null,
+                        ),
+                        Positioned(
+                          right: 5.0,
+                          bottom: 0.0,
+                          child: FloatingActionButton(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            onPressed: _selectImageSourceDialog,
+                            child: Icon(Icons.camera_alt),
+                          )
+                        ),
+                      ]
                     ),
                     Container(
                       width: double.infinity,

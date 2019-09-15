@@ -106,12 +106,8 @@ class Auth with ChangeNotifier {
     try {
       DatabaseReference _lastOnlineRef;
       _lastOnlineRef = FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online');
-      _lastOnlineRef.onDisconnect().set(<dynamic, dynamic>{
-        '.sv': 'timestamp'
-      });
-      _lastOnlineRef.set(<dynamic, dynamic>{
-        '.sv': 'timestamp'
-      });
+      _lastOnlineRef.onDisconnect().set(ServerValue.timestamp);
+      _lastOnlineRef.set(ServerValue.timestamp);
     } catch(e) {
       print("[AUTH::goOnline]LAST ONLINE ERROR::"+e.toString());
     }
@@ -134,9 +130,7 @@ class Auth with ChangeNotifier {
       print("[SHARED::REMOVE]ONLINE ERROR::"+e.toString());
     }
     try {
-      FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online').set(<dynamic, dynamic>{
-        '.sv': 'timestamp'
-      });
+      FirebaseDatabase.instance.reference().child('/users/${_user.uid}/last_online').set(ServerValue.timestamp);
     } catch(e) {
       print("[SHARED::REMOVE]LAST ONLINE ERROR::"+e.toString());
     }
