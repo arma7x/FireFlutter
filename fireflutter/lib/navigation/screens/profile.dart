@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toast/toast.dart';
 import 'package:fireflutter/widgets/profile_widgets.dart';
+import 'package:fireflutter/widgets/misc_widgets.dart';
 
 class Profile extends StatefulWidget {
   Profile({Key key, this.title, this.loadingCb}) : super(key: key);
@@ -188,34 +189,18 @@ class _ProfileState extends State<Profile> {
                         ),
                       ]
                     ),
-                    Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'UID',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            _user?.uid == null ? "" : _user.uid,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
-                          ),
-                        ]
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                      alignment: Alignment.center,
-                      child: Form(
+                    ListViewChild(title: 'UID', subtitle: _user?.uid == null ? "" : _user.uid),
+                    ListViewWidget(
+                      widget: Form(
                         key: _formKey,
                         child: TextFormField(
                           controller: _nameController,
                           decoration: InputDecoration(
-                            labelText: 'NAME'
+                            labelText: 'NAME',
+                            labelStyle: TextStyle(
+                              fontSize: 23,
+                              fontWeight: FontWeight.normal
+                            )
                           ),
                           validator: (String value) {
                             if (value.isEmpty) {
@@ -226,46 +211,10 @@ class _ProfileState extends State<Profile> {
                         )
                       )
                     ),
-                    Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Email',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            _user?.email == null ? "" : _user.email,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
-                          ),
-                        ]
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Admin',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            _metadata != null ? (_metadata['role'] == 1 ? 'TRUE' : 'FALSE') : 'FALSE',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
-                          ),
-                        ]
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                      child: RaisedButton(
+                    ListViewChild(title: 'Email', subtitle: _user?.email == null ? "" : _user.email),
+                    ListViewChild(title: 'Admin', subtitle: _metadata != null ? (_metadata['role'] == 1 ? 'TRUE' : 'FALSE') : 'FALSE'),
+                    ListViewWidget(
+                       widget: RaisedButton(
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
                             _updateDisplayName(_nameController.text);
@@ -283,12 +232,10 @@ class _ProfileState extends State<Profile> {
                             ),
                           ]
                         )
-                      ),
+                      )
                     ),
-                    Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.fromLTRB(50.0, 5.0, 50.0, 0.0),
-                      child: RaisedButton(
+                    ListViewWidget(
+                      widget: RaisedButton(
                         onPressed: _confirmDeleteAccountDialog,
                         color: Colors.redAccent,
                         child: Row(
@@ -302,8 +249,8 @@ class _ProfileState extends State<Profile> {
                             ),
                           ]
                         )
-                      ),
-                    )
+                      )
+                    ),
                   ],
                 ),
               ),
