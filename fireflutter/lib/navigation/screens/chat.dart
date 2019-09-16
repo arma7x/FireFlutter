@@ -117,7 +117,27 @@ class _ChatPageState extends State<ChatPage> {
                 child: queue_user['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
               ));
             }
-            dataWidget.add(Text(data['message']['data']));
+            dataWidget.add(
+              Container(
+                margin: EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                child: Card(
+                  child: Container(
+                    constraints: BoxConstraints(minWidth: 100, maxWidth: MediaQuery.of(context).size.width * 0.70),
+                    margin: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
+                    padding: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: data['user'] == _user.uid ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                      children: [
+                        Text(data['message']['data']),
+                        SizedBox(height: 10, width: 0),
+                        Text(DateTime.fromMillisecondsSinceEpoch(data['timestamp']).toLocal().toString(), textAlign: TextAlign.right,)
+                      ]
+                    )
+                  )
+                )
+              )
+            );
             if (data['user'] == _user.uid){
               dataWidget.add(CircleAvatar(
                 radius: 40,
@@ -129,13 +149,16 @@ class _ChatPageState extends State<ChatPage> {
             temp_log_widget.add(
               Container(
                 width: double.infinity,
-                color: Colors.red,
+                margin: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 0.0),
+                padding: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
                 child: Row(
                   mainAxisAlignment: data['user'] == _user.uid ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: dataWidget
                 )
               )
             );
+            print(temp_log_widget.length);
           }
           setState(() {
             chat_log = temp_log_widget;
@@ -173,13 +196,13 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _joinQueue() {
+  void _enterQueue() {
     if (_topicFormKey.currentState.validate()) {
       showDialog(
         context: context,
         builder: (BuildContext _) {
           return AlertDialog(
-            title: new Text("Are sure to enter chat queue list ?"),
+            title: new Text("Are sure to enter queue list ?"),
             actions: <Widget>[
               new FlatButton(
                 child: new Text("No"),
@@ -197,7 +220,7 @@ class _ChatPageState extends State<ChatPage> {
                   widget.loadingCb(true);
                   _auth.currentUser()
                   .then((FirebaseUser u) => u.getIdToken(refresh: true))
-                  .then((String token) => Api.joinQueue(<String, String>{ 'token': token, 'topic': _topicController.text }))
+                  .then((String token) => Api.enterQueue(<String, String>{ 'token': token, 'topic': _topicController.text }))
                   .then((request) => request.close())
                   .then((response) async {
                     widget.loadingCb(false);
@@ -221,13 +244,13 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _deleteQueue() {
+  void _exitQueue() {
     Navigator.of(context).pop();
     showDialog(
       context: context,
       builder: (BuildContext _) {
         return AlertDialog(
-          title: new Text("Are sure to exit from chat queue list ?"),
+          title: new Text("Are sure to exit from queue list ?"),
           actions: <Widget>[
             new FlatButton(
               child: new Text("No"),
@@ -245,7 +268,7 @@ class _ChatPageState extends State<ChatPage> {
                 widget.loadingCb(true);
                 _auth.currentUser()
                 .then((FirebaseUser u) => u.getIdToken(refresh: true))
-                .then((String token) => Api.deleteQueue(<String, String>{ 'token': token }))
+                .then((String token) => Api.exitQueue(<String, String>{ 'token': token }))
                 .then((request) => request.close())
                 .then((response) async {
                   widget.loadingCb(false);
@@ -402,7 +425,7 @@ class _ChatPageState extends State<ChatPage> {
                           'Join Queue',
                           style: TextStyle(color: Colors.white),
                         ),
-                        onPressed: _joinQueue
+                        onPressed: _enterQueue
                       ),
                     )
                   ),
@@ -411,113 +434,111 @@ class _ChatPageState extends State<ChatPage> {
             )
           ),
         )
-      : chat_log != null
-      ? Container(
-          color: Colors.red,
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                child: ListView(
-                  controller: _scrollController,
-                  children: chat_log,
-                ),
-              ),
-              chat != null ? Container(
-                color: Colors.white,
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                      child: SizedBox(
-                        width: 60.0,
-                        height: 60.0,
-                        child: Material(
-                          child: InkWell(
-                            onTap: () {
-                              _scaffoldKey.currentState.openEndDrawer();
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.announcement, size: 25, color: Colors.grey),
-                              ]
-                            ),
-                          ),
-                          color: Colors.transparent,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                      margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
-                      child: Form(
-                          key: _messageFormKey,
-                          child: TextFormField(
-                            maxLines: null,
-                            controller: _messageController,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Please enter enter text here'
-                            ),
-                            validator: (String value) {
-                              if (value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                          )
-                        ),
-                      )
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                      child: SizedBox(
-                        width: 60.0,
-                        height: 60.0,
-                        child: Material(
-                          child: InkWell(
-                            onTap: _sendMessage,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.send, size: 25, color: Colors.grey),
-                              ]
-                            ),
-                          ),
-                          color: Colors.transparent,
-                        ),
-                      ),
-                    ),
-                  ]
-                )
-              ) : SizedBox(width: 0.0, height: 0.0,),
-            ]
-          ),
-        )
-      : Center(
+      : Container(
+        height: MediaQuery.of(context).size.height,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(
-              'Break the iceberg!!!',
-              style: Theme.of(context).textTheme.display1,
+            chat_log != null
+            ? Expanded(
+              child: ListView(
+                controller: _scrollController,
+                children: chat_log,
+              ),
+            ) : Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Text(
+                    'Break the iceberg!!!',
+                    style: Theme.of(context).textTheme.display1,
+                  ),
+                ],
+              )
             ),
-          ],
+            Container(
+              color: Colors.white,
+              width: double.infinity,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                    child: SizedBox(
+                      width: 60.0,
+                      height: 60.0,
+                      child: Material(
+                        child: InkWell(
+                          onTap: () {
+                            _scaffoldKey.currentState.openEndDrawer();
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.announcement, size: 25, color: Colors.grey),
+                            ]
+                          ),
+                        ),
+                        color: Colors.transparent,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
+                    child: Form(
+                        key: _messageFormKey,
+                        child: TextFormField(
+                          maxLines: null,
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Please enter enter text here'
+                          ),
+                          validator: (String value) {
+                            if (value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        )
+                      ),
+                    )
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                    child: SizedBox(
+                      width: 60.0,
+                      height: 60.0,
+                      child: Material(
+                        child: InkWell(
+                          onTap: _sendMessage,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.send, size: 25, color: Colors.grey),
+                            ]
+                          ),
+                        ),
+                        color: Colors.transparent,
+                      ),
+                    ),
+                  ),
+                ]
+              )
+            )
+          ]
         ),
       ),
-      endDrawer: new SizedBox(
+      endDrawer: chat != null ? new SizedBox(
         width: MediaQuery.of(context).size.width * 0.80,
         child: new Drawer(
           child: new Container(
             padding: const EdgeInsets.fromLTRB(5.0, 30.0, 5.0, 0.0),
             child: Padding(
               padding: const EdgeInsets.all(30.0),
-              child: chat != null ? Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Container(
@@ -528,7 +549,7 @@ class _ChatPageState extends State<ChatPage> {
                       children: <Widget>[
                         Text(
                           'Topic',
-                          style: TextStyle(fontSize: 25, fontWeight: FontWeight.normal)
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
                         ),
                         SizedBox(height: 5),
                         Text(
@@ -717,7 +738,7 @@ class _ChatPageState extends State<ChatPage> {
                       width: double.infinity,
                       margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
                       child: RaisedButton(
-                        onPressed: _deleteQueue,
+                        onPressed: _exitQueue,
                         color: Colors.redAccent,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -734,11 +755,11 @@ class _ChatPageState extends State<ChatPage> {
                     )
                   : SizedBox(height: 0, width: 0), //client
                 ]
-              ) : SizedBox(height: 0, width: 0),
+              )
             ),
           ),
         ),
-      )
+      ) : null
     );
   }
 }

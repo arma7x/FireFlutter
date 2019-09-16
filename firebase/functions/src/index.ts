@@ -41,7 +41,7 @@ export const selfDestructAccount = functions.https.onRequest((request, response)
   });
 });
 
-export const joinQueue = functions.https.onRequest((request, response) => {
+export const enterQueue = functions.https.onRequest((request, response) => {
   const corsFn = cors();
   const token = request.query.token || 'string';
   let uid:string;
@@ -84,7 +84,7 @@ export const joinQueue = functions.https.onRequest((request, response) => {
         const payload = {
           notification: {
             title: 'Chat Queue',
-            body : 'New user waiting in queue list'
+            body : 'There are users waiting in queue list'
           }
         };
         console.log(regFCMTokens);
@@ -111,7 +111,7 @@ export const joinQueue = functions.https.onRequest((request, response) => {
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Your have joined queue' });
+      response.status(200).json({ 'message': 'Your have entered queue list' });
     });
   })
   .catch((error) => {
@@ -121,7 +121,7 @@ export const joinQueue = functions.https.onRequest((request, response) => {
   });
 });
 
-export const deleteQueue = functions.https.onRequest((request, response) => {
+export const exitQueue = functions.https.onRequest((request, response) => {
   const corsFn = cors();
   const token = request.query.token || 'string';
   let uid:string;
@@ -136,7 +136,7 @@ export const deleteQueue = functions.https.onRequest((request, response) => {
     if (!snapshot.exists()) {
       return Promise.reject({ 'message': 'Queue does not exist' });
     } else if(snapshot.val().status === 1) {
-      return Promise.reject({ 'message': 'Your queues is active' });
+      return Promise.reject({ 'message': 'Your queue is active' });
     } else {
       return admin.database().ref('/queues/' + uid).remove();
     }
@@ -146,7 +146,7 @@ export const deleteQueue = functions.https.onRequest((request, response) => {
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Succesfully remove your chat from queue list' });
+      response.status(200).json({ 'message': 'Succesfully exited from queue list' });
     });
   })
   .catch((error) => {
@@ -250,7 +250,7 @@ export const adminDeleteQueue = functions.https.onRequest((request, response) =>
     if (!snapshot.exists()) {
       return Promise.reject({ 'message': 'Queue does not exist' });
     } else if(snapshot.val().status === 1) {
-      return Promise.reject({ 'message': 'Current queues is active' });
+      return Promise.reject({ 'message': 'Current queue is active' });
     } else {
       return admin.database().ref('/queues/' + queue).remove();
     }
@@ -260,7 +260,7 @@ export const adminDeleteQueue = functions.https.onRequest((request, response) =>
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Succesfully remove you from chat queue list' });
+      response.status(200).json({ 'message': 'Succesfully removed from queue list' });
     });
   })
   .catch((error) => {

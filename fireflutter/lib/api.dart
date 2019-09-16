@@ -6,8 +6,8 @@ class Api {
 
   static final FirebaseApp _instance = FirebaseApp.instance;
   static const String SELFDESTRUCTACCOUNTURL = '/selfDestructAccount';
-  static const String JOINQUEUEURL = '/joinQueue';
-  static const String DELETEQUEUEURL = '/deleteQueue';
+  static const String JOINQUEUEURL = '/enterQueue';
+  static const String DELETEQUEUEURL = '/exitQueue';
   static const String ADMINDELETEQUEUEURL = 'adminDeleteQueue';
   static const String ADMINNOTIFYCLIENTURL = '/adminNotifyClient';
 
@@ -22,13 +22,13 @@ class Api {
     return httpClient.getUrl(url);
   }
 
-  static Future joinQueue(Map<String, String> queryParameters) async {
+  static Future enterQueue(Map<String, String> queryParameters) async {
     final url = Uri.https(await baseUrl, JOINQUEUEURL, queryParameters);
     final httpClient = HttpClient();
     return httpClient.getUrl(url);
   }
 
-  static Future deleteQueue(Map<String, String> queryParameters) async {
+  static Future exitQueue(Map<String, String> queryParameters) async {
     final url = Uri.https(await baseUrl, DELETEQUEUEURL, queryParameters);
     final httpClient = HttpClient();
     return httpClient.getUrl(url);
