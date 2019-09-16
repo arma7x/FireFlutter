@@ -59,12 +59,12 @@
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
         <v-toolbar class="primary font-weight-bold text-uppercase" flat>
-          <v-avatar v-if="userIsAuthenticated && $store.getters.user" :tile="false" :size="49" color="transparent" style="margin-right:5px;">
+          <v-avatar v-if="userIsAuthenticated && $store.getters.user" :tile="false" :size="39" color="transparent" style="margin-right:5px;">
             <img v-if="$store.getters.user.photoUrl != null" :src="$store.getters.user.photoUrl" alt="avatar">
-            <v-icon v-if="$store.getters.user.photoUrl == null" size="60">account_circle</v-icon>
+            <v-icon v-if="$store.getters.user.photoUrl == null" size="50">account_circle</v-icon>
           </v-avatar>
-          <v-avatar v-if="!userIsAuthenticated" :tile="false" :size="49" color="transparent" style="margin-right:5px;">
-            <v-icon size="60">account_circle</v-icon>
+          <v-avatar v-if="!userIsAuthenticated" :tile="false" :size="39" color="transparent" style="margin-right:5px;">
+            <v-icon size="50">account_circle</v-icon>
           </v-avatar>
           {{ userIsAuthenticated ? $store.getters.user.name : 'Hi, Guest' }}
         </v-toolbar>
@@ -127,7 +127,7 @@
               menuItems = [...menuItems, {icon: 'live_help', title: 'Chat', link: '/chat'}]
             }
             if (this.$store.getters.metadata.role === 1) {
-              menuItems = [...menuItems, {icon: 'traffic', title: 'Queue', link: '/queue'}]
+              menuItems = [...menuItems, {icon: 'live_help', title: 'Chat', link: '/chat'}, {icon: 'traffic', title: 'Queue', link: '/queue'}]
             }
           }
         }

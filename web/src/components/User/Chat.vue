@@ -109,8 +109,12 @@
               <v-list subheader>
                 <v-list-tile>
                   <v-list-tile-content>
-                    <v-list-tile-title class="title">Topic</v-list-tile-title>
-                    <v-list-tile-sub-title class="body-1">{{ chat.topic }}</v-list-tile-sub-title>
+                    <v-list-tile-title class="body-2">Topic</v-list-tile-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+                <v-list-tile style="margin-top:-15px;">
+                  <v-list-tile-content>
+                    <v-list-tile-sub-title style="white-space: normal!important;"><p class="body-1 mt-1">{{ chat.topic }}</p></v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
                 <v-list-tile class="mt-1">
@@ -144,38 +148,43 @@
                     <v-list-tile-title class="body-2">Client Status</v-list-tile-title>
                     <v-list-tile-sub-title class="body-1">{{ queue_user_private.online != true ? `Last Seen ${new Date(queue_user_private.last_online).toLocaleString()}` : 'Online' }}</v-list-tile-sub-title>
                   </v-list-tile-content>
+                </v-list-tile><v-list-tile v-if="queue_user_private != null && metadata.role == 1" class="mt-1">
+                  <v-list-tile-content>
+                    <v-list-tile-title class="body-2">
+                      Status
+                      <v-icon v-if="chat.status != 0" color="error">lock</v-icon>
+                      <v-icon v-if="chat.status == 0" color="success">lock_open</v-icon>
+                    </v-list-tile-title>
+                  </v-list-tile-content>
                 </v-list-tile>
-                <v-layout row class="mt-1">
+                <v-layout row>
                   <v-list-tile v-if="metadata.role == 1">
                     <v-list-tile-content>
-                      <v-list-tile-title class="body-2 pb-2">{{ chat.status == 0 ? 'Unlocked' : 'Locked' }}</v-list-tile-title>
                       <v-list-tile-sub-title class="body-1">
-                        <v-switch class="my-0 mx-2" v-model="chat.status == 0 ? false : true" @change="adminToggleStatus"></v-switch>
+                        <v-switch class="mt-2 ml-3" v-model="chat.status == 0 ? false : true" @change="adminToggleStatus"></v-switch>
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
                   <v-spacer v-if="metadata.role == 1 && chat.status == 0"></v-spacer>
                   <v-list-tile v-if="metadata.role == 1 && chat.status == 0">
                     <v-list-tile-content>
-                      <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
-                        <v-btn color="error" @click="adminDeleteQueue">
-                          Delete
-                          <v-icon right>delete</v-icon>
-                        </v-btn>
+                      <v-btn color="error" block @click="adminDeleteQueue">
+                        Delete
+                        <v-icon right>delete</v-icon>
+                      </v-btn>
                     </v-list-tile-content>
                   </v-list-tile>
-                  <v-spacer v-if="user.uid == uid && chat.status == 0"></v-spacer>
-                  <v-list-tile v-if="user.uid == uid && chat.status == 0">
-                    <v-list-tile-content>
-                      <v-list-tile-title class="body-2">Delete Queue</v-list-tile-title>
-                        <v-btn color="error" @click="deleteQueue">
-                          Delete
-                          <v-icon right>delete</v-icon>
-                        </v-btn>
-                    </v-list-tile-content>
-                  </v-list-tile>
-                  </v-layout>
-                <v-list-tile v-if="metadata.role == 1">
+                </v-layout>
+                <v-list-tile class="mt-1" v-if="user.uid == uid && chat.status == 0">
+                  <v-list-tile-content>
+                    <v-list-tile-title class="body-2"></v-list-tile-title>
+                      <v-btn block class="py-2" color="error" @click="deleteQueue">
+                        Delete
+                        <v-icon right>delete</v-icon>
+                      </v-btn>
+                  </v-list-tile-content>
+                </v-list-tile>
+                <v-list-tile class="mt-1" v-if="metadata.role == 1">
                   <v-list-tile-content>
                     <v-list-tile-title class="body-2"></v-list-tile-title>
                       <v-btn block class="py-2" color="success" @click="adminNotifyClient">
@@ -195,8 +204,7 @@
 
 <script>
   import * as firebase from 'firebase'
-  import axios from 'axios'
-  import Config from '../../config'
+  import Api from '../../api'
 
   export default {
     data () {
@@ -267,7 +275,7 @@
           }
         } else {
           this.chat = null
-          if (this.metadata.role === 1) {
+          if (this.$store.getters.user.uid !== this.uid) {
             this.$router.push({ path: 'queue' })
           }
         }
@@ -283,12 +291,12 @@
         this.hidden = !this.hidden
       },
       joinQueue () {
-        if (confirm('Are sure to enter chat queue list ?')) {
+        if (confirm('Are sure to enter queue list ?')) {
           this.$store.commit('setLoading', true)
           this.$store.commit('clearError')
           firebase.auth().currentUser.getIdToken(true)
           .then((idToken) => {
-            return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/joinQueue`, { params: { 'token': idToken, topic: this.topic } })
+            return Api.enterQueue({ 'token': idToken, 'topic': this.topic })
           })
           .then((response) => {
             this.$store.commit('setLoading', false)
@@ -320,11 +328,11 @@
         })
       },
       deleteQueue () {
-        if (confirm('Are sure to exit from chat queue list ?')) {
+        if (confirm('Are sure to exit from queue list ?')) {
           this.$store.commit('setLoading', true)
           firebase.auth().currentUser.getIdToken(true)
           .then((idToken) => {
-            return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/deleteQueue`, { params: { 'token': idToken } })
+            return Api.exitQueue({ 'token': idToken })
           })
           .then((response) => {
             this.$store.commit('setLoading', false)
@@ -351,7 +359,7 @@
         this.$store.commit('setLoading', true)
         firebase.auth().currentUser.getIdToken(true)
         .then((idToken) => {
-          return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': this.uid } })
+          return Api.adminNotifyClient({ 'token': idToken, 'queue': this.uid })
         })
         .then((response) => {
           this.$store.commit('setLoading', false)
@@ -368,7 +376,7 @@
           this.$store.commit('setLoading', true)
           firebase.auth().currentUser.getIdToken(true)
           .then((idToken) => {
-            return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/adminDeleteQueue`, { params: { 'token': idToken, 'queue': this.uid } })
+            return Api.adminDeleteQueue({ 'token': idToken, 'queue': this.uid })
           })
           .then((response) => {
             this.$store.commit('setLoading', false)

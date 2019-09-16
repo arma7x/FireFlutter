@@ -8,7 +8,7 @@
       </v-layout> -->
       <v-layout row>
         <v-flex xs12 sm6 offset-sm3>
-          <v-list subheader v-if="queues != null" class="py-0">
+          <v-list three-line subheader v-if="queues != null" class="py-0">
             <v-list-tile :key="i" v-for="(chat, i) in queues" avatar @click="">
               <v-list-tile-avatar v-if="users[chat.key]" size="40" color="grey">
                 <img v-if="users[chat.key].photoUrl != null" :src="users[chat.key].photoUrl">
@@ -21,12 +21,11 @@
                   {{ chat.topic }}
                 </v-list-tile-title>
                 <v-list-tile-sub-title v-if="users[chat.key]">
-                  <v-layout row>
                   {{ users[chat.key].name }}
-                  <v-spacer></v-spacer>
-                  {{ new Date(chat.timestamp).toLocaleString() }}
-                  <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
-                  <span v-if="chat.assigned_user != false && chat.assigned_user != user.uid">{{ users[chat.assigned_user].name }}</span>
+                  <v-layout row>
+                    {{ new Date(chat.timestamp).toLocaleString() }}
+                    <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
+                    <span v-if="chat.assigned_user != false && chat.assigned_user != user.uid">{{ users[chat.assigned_user].name }}</span>
                   </v-layout>
                 </v-list-tile-sub-title>
               </v-list-tile-content>
@@ -52,8 +51,7 @@
 
 <script>
   import * as firebase from 'firebase'
-  import axios from 'axios'
-  import Config from '../../config'
+  import Api from '../../api'
 
   export default {
     data () {
@@ -102,7 +100,7 @@
           .then(() => {
             firebase.auth().currentUser.getIdToken(true)
             .then((idToken) => {
-              axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/adminNotifyClient`, { params: { 'token': idToken, 'queue': id } })
+              Api.adminNotifyClient({ 'token': idToken, 'queue': id })
             })
             this.joinChat(id)
           })

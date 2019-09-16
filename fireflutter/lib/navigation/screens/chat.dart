@@ -26,7 +26,6 @@ class _ChatPageState extends State<ChatPage> {
   FirebaseUser _user;
   Map<dynamic, dynamic> _metadata;
   String _uid;
-  String _topic;
   List<Widget> chat_log;
   Map<dynamic, dynamic> chat;
   Map<dynamic, dynamic> assigned_user;
@@ -376,7 +375,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
 
-    final counter = Provider.of<Counter>(context);
     _user = Provider.of<Auth>(context).user;
     _metadata = Provider.of<Auth>(context).metadata;
 

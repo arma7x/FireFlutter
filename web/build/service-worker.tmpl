@@ -132,6 +132,7 @@ self.addEventListener('fetch', function(event) {
     const hosts = [
       'https://fonts.googleapis.com',
       'https://fonts.gstatic.com',
+      'https://firebasestorage.googleapis.com/v0/b/fireflutter-f1304.appspot.com'
     ];
 
     if (hosts.some((host) => event.request.url.startsWith(host))) {
