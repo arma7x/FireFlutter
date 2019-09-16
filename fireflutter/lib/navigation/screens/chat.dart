@@ -103,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
             var data = new Map<dynamic, dynamic>.from(i);
             if (data['user'] != _user.uid && data['user'] == chat['assigned_user']) {
               dataWidget.add(CircleAvatar(
-                radius: 40,
+                radius: 35,
                 backgroundColor: Colors.grey[100],
                 backgroundImage: assigned_user['photoUrl'] != null ? CachedNetworkImageProvider(assigned_user['photoUrl']) : null,
                 child: assigned_user['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
@@ -111,7 +111,7 @@ class _ChatPageState extends State<ChatPage> {
             }
             if (data['user'] != _user.uid && data['user'] == _uid) {
               dataWidget.add(CircleAvatar(
-                radius: 40,
+                radius: 35,
                 backgroundColor: Colors.grey[100],
                 backgroundImage: queue_user['photoUrl'] != null ? CachedNetworkImageProvider(queue_user['photoUrl']) : null,
                 child: queue_user['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
@@ -140,7 +140,7 @@ class _ChatPageState extends State<ChatPage> {
             );
             if (data['user'] == _user.uid){
               dataWidget.add(CircleAvatar(
-                radius: 40,
+                radius: 35,
                 backgroundColor: Colors.grey[100],
                 backgroundImage: _user.photoUrl != null ? CachedNetworkImageProvider(_user.photoUrl) : null,
                 child: _user.photoUrl == null ? Icon(Icons.person, size: 50.0) : null,
@@ -149,7 +149,7 @@ class _ChatPageState extends State<ChatPage> {
             temp_log_widget.add(
               Container(
                 width: double.infinity,
-                margin: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 0.0),
+                margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0.0),
                 padding: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
                 child: Row(
                   mainAxisAlignment: data['user'] == _user.uid ? MainAxisAlignment.end : MainAxisAlignment.start,
