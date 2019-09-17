@@ -32,7 +32,7 @@
       <v-layout row v-if="chat != null">
         <v-flex xs12 sm6 offset-sm3>
           <div v-if="chat != null">
-            <v-container class="mx-0 my-0 px-0 py-0 scroll-y" style="height:68vh;" ref="chat_scroller">
+            <v-container class="mx-0 my-0 px-0 py-0 scroll-y" style="height:72vh;" ref="chat_scroller">
               <v-layout class="mx-0 px-0" column v-if="chat.logs != undefined">
                 <ul style="list-style: none;">
                   <li :key="i" v-for="(msg, i) in chat.logs">
@@ -47,7 +47,7 @@
                       </v-list-tile-avatar>
                       <div :class="{ 'col-auto ml-auto': msg.user == user.uid }">
                         <v-card class="chat-box">
-                          <v-card-text class="mx-0 my-0">
+                          <v-card-text class="px-2 py-1 mx-0 my-0">
                             <v-list-tile-content>
                               <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" style="white-space: normal;" class="black--text">{{ msg.message.data }}</v-list-tile-sub-title>
                               <v-list-tile-sub-title :style="{ textAlign: (msg.user == user.uid ? 'right' : 'left') }" class="caption grey--text">{{ new Date(msg.timestamp).toLocaleString() }}</v-list-tile-sub-title>
@@ -65,12 +65,13 @@
               </v-layout>
             </v-container>
             <form style="width:100%;" @submit.prevent="sendMessage" class="transparent">
-              <v-layout row wrap align-center class="transparent">
+              <v-layout row wrap class="transparent">
                 <v-flex xs2 style="display:flex;align-items:center;justify-content:center;">
                   <v-btn fab small color="info" @click="toggleHidden"><v-icon dark>announcement</v-icon></v-btn>
                 </v-flex>
                 <v-flex xs8 class="transparent">
                   <v-textarea
+                    class="px-0 py-0 mx-0 my-0"
                     v-model="message"
                     :auto-grow="autoGrow"
                     :clearable="clearable"

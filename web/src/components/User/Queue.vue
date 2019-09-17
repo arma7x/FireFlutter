@@ -8,42 +8,48 @@
       </v-layout> -->
       <v-layout row>
         <v-flex xs12 sm6 offset-sm3>
-          <v-list three-line subheader v-if="queues != null" class="py-0">
-            <v-list-tile :key="i" v-for="(chat, i) in queues" avatar @click="">
-              <v-list-tile-avatar v-if="users[chat.key]" size="40" color="grey">
-                <img v-if="users[chat.key].photoUrl != null" :src="users[chat.key].photoUrl">
-                <v-icon v-if="users[chat.key].photoUrl == null" size="50" color="white">account_circle</v-icon>
-              </v-list-tile-avatar>
-              <v-list-tile-content v-if="users[chat.key]">
-                <v-list-tile-title>
-                  <v-icon v-if="chat.status != 0" size="16" color="info">lock</v-icon>
-                  <v-icon v-if="chat.status == 0" size="16" color="warning">lock_open</v-icon>
-                  {{ chat.topic }}
-                </v-list-tile-title>
-                <v-list-tile-sub-title v-if="users[chat.key]">
-                  <v-icon size="16" color="primary">calendar_today</v-icon>
-                  {{ new Date(chat.timestamp).toLocaleString() }}
+          <div v-if="queues != null" class="py-0">
+            <v-card :key="i" v-for="(chat, i) in queues" avatar class="mb-2">
+              <v-layout column>
+                <v-card-text>
+                  <v-layout row>
+                    <v-avatar v-if="users[chat.key]" size="40" color="grey">
+                      <img v-if="users[chat.key].photoUrl != null" :src="users[chat.key].photoUrl">
+                      <v-icon v-if="users[chat.key].photoUrl == null" size="50" color="white">account_circle</v-icon>
+                    </v-avatar>
+                    <v-layout class="mx-2" style="line-height: normal;" column v-if="users[chat.key]">
+                      <v-layout align-start class="mx-1 body-2">
+                        <v-icon class="mr-1 body-2" v-if="chat.status != 0" color="info">lock</v-icon>
+                        <v-icon class="mr-1 body-2" v-if="chat.status == 0" color="warning">lock_open</v-icon>
+                        {{ chat.topic }}
+                      </v-layout>
+                      <v-layout align-start class="mt-2 mx-1 caption">
+                        <v-icon class="mr-1 caption" color="primary">calendar_today</v-icon>
+                        {{ new Date(chat.timestamp).toLocaleString() }}
+                      </v-layout>
+                    </v-layout>
+                    <v-layout align-start justify-end v-if="chat.assigned_user == user.uid || chat.assigned_user == false">
+                      <v-btn class="px-0 py-0 mx-0 my-0" v-if="chat.assigned_user == user.uid" fab small color="primary" @click="joinChat(chat.key)">
+                        <v-icon>chat</v-icon>
+                      </v-btn>
+                      <v-btn class="px-0 py-0 mx-0 my-0" v-if="chat.assigned_user == false" fab small color="warning" @click="handleChat(chat.key)">
+                        <v-icon>supervisor_account</v-icon>
+                      </v-btn>
+                    </v-layout>
+                    <v-avatar size="40" color="grey" v-if="chat.assigned_user != false && chat.assigned_user != user.uid && (users[chat.assigned_user] !== null && users[chat.assigned_user] !== undefined)">
+                      <img v-if="users[chat.assigned_user].photoUrl != null" :src="users[chat.assigned_user].photoUrl">
+                      <v-icon v-if="users[chat.assigned_user].photoUrl == null" size="50" color="white">account_circle</v-icon>
+                    </v-avatar>
+                  </v-layout>
                   <v-layout row>
                     {{ users[chat.key].name }}
                     <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
                     <span v-if="chat.assigned_user != false && chat.assigned_user != user.uid">{{ users[chat.assigned_user].name }}</span>
                   </v-layout>
-                </v-list-tile-sub-title>
-              </v-list-tile-content>
-              <v-list-tile-action v-if="chat.assigned_user == user.uid || chat.assigned_user == false">
-                <v-btn v-if="chat.assigned_user == user.uid" fab small color="primary" @click="joinChat(chat.key)">
-                  <v-icon>chat</v-icon>
-                </v-btn>
-                <v-btn v-if="chat.assigned_user == false" fab small color="warning" @click="handleChat(chat.key)">
-                  <v-icon>supervisor_account</v-icon>
-                </v-btn>
-              </v-list-tile-action>
-              <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && chat.assigned_user != user.uid && (users[chat.assigned_user] !== null && users[chat.assigned_user] !== undefined)">
-                <img v-if="users[chat.assigned_user].photoUrl != null" :src="users[chat.assigned_user].photoUrl">
-                <v-icon v-if="users[chat.assigned_user].photoUrl == null" size="50" color="white">account_circle</v-icon>
-              </v-list-tile-avatar>
-            </v-list-tile>
-          </v-list>
+                </v-card-text>
+              </v-layout>
+            </v-card>
+          </div>
         </v-flex>
       </v-layout>
     </v-layout>

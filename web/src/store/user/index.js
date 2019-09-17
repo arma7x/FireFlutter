@@ -28,7 +28,7 @@ export default {
         commit('clearError')
         const newUser = {
           uid: userNow.uid,
-          name: userNow.displayName,
+          name: userNow.displayName || 'Unknown',
           email: userNow.email,
           photoUrl: userNow.photoURL
         }
