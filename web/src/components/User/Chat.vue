@@ -105,7 +105,7 @@
       <v-card>
         <v-card-text>
           <div class="text-xl-center text-lg-center text-sm-center text-md-center text-xs-center">
-            <div v-if="chat != null">
+            <div v-if="chat != null && metadata.role != null">
               <v-list subheader>
                 <v-list-tile>
                   <v-list-tile-content>

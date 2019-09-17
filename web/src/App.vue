@@ -123,11 +123,11 @@
             {icon: 'person', title: 'Profile', link: '/profile'}
           ]
           if (this.$store.getters.metadata !== null && this.$store.getters.metadata !== undefined) {
-            if (this.$store.getters.metadata.role !== 1) {
+            if (this.$store.getters.metadata.role <= 999) {
               menuItems = [...menuItems, {icon: 'live_help', title: 'Chat', link: '/chat'}]
             }
-            if (this.$store.getters.metadata.role === 1) {
-              menuItems = [...menuItems, {icon: 'live_help', title: 'Chat', link: '/chat'}, {icon: 'traffic', title: 'Queue', link: '/queue'}]
+            if (this.$store.getters.metadata.role <= 1) {
+              menuItems = [...menuItems, {icon: 'traffic', title: 'Queue', link: '/queue'}]
             }
           }
         }

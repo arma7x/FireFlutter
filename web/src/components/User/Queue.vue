@@ -21,9 +21,10 @@
                   {{ chat.topic }}
                 </v-list-tile-title>
                 <v-list-tile-sub-title v-if="users[chat.key]">
-                  {{ users[chat.key].name }}
+                  <v-icon size="16" color="primary">calendar_today</v-icon>
+                  {{ new Date(chat.timestamp).toLocaleString() }}
                   <v-layout row>
-                    {{ new Date(chat.timestamp).toLocaleString() }}
+                    {{ users[chat.key].name }}
                     <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
                     <span v-if="chat.assigned_user != false && chat.assigned_user != user.uid">{{ users[chat.assigned_user].name }}</span>
                   </v-layout>
