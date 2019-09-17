@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:fireflutter/api.dart';
 import 'package:toast/toast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fireflutter/widgets/misc_widgets.dart';
 
 class ChatPage extends StatefulWidget {
   ChatPage({Key key, this.title, this.any, this.loadingCb}) : super(key: key);
@@ -28,12 +29,12 @@ class _ChatPageState extends State<ChatPage> {
   String _uid;
   List<Widget> chat_log;
   Map<dynamic, dynamic> chat;
-  Map<dynamic, dynamic> assigned_user;
-  Map<dynamic, dynamic> queue_user;
-  Map<dynamic, dynamic> queue_user_private;
+  Map<dynamic, dynamic> _assignedUserMetadata;
+  Map<dynamic, dynamic> _queueUserMetadata;
+  Map<dynamic, dynamic> _queueUserMetadataPrivate;
 
-  DatabaseReference _queueUserRef;
-  DatabaseReference _queueUserPrivateRef;
+  DatabaseReference _queueUserMetadataRef;
+  DatabaseReference _queueUserMetadataPrivateRef;
   DatabaseReference _chatRef;
 
   final GlobalKey<FormState> _topicFormKey = GlobalKey<FormState>();
@@ -51,21 +52,21 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
     _uid = widget.any;
 
-    if (queue_user == null) {
-      _queueUserRef = FirebaseDatabase.instance.reference().child('users_public/' + _uid);
-      _queueUserRef.onValue.listen((Event event) {
+    if (_queueUserMetadata == null) {
+      _queueUserMetadataRef = FirebaseDatabase.instance.reference().child('users_public/' + _uid);
+      _queueUserMetadataRef.onValue.listen((Event event) {
         if (event.snapshot.value != null) {
           var u = new Map<dynamic, dynamic>.from(event.snapshot.value);
-          setState(() { queue_user = u; });
+          setState(() { _queueUserMetadata = u; });
         }
       });
     }
 
-    _queueUserPrivateRef = FirebaseDatabase.instance.reference().child('users/' + _uid);
-    _queueUserPrivateRef.onValue.listen((Event event) {
+    _queueUserMetadataPrivateRef = FirebaseDatabase.instance.reference().child('users/' + _uid);
+    _queueUserMetadataPrivateRef.onValue.listen((Event event) {
       if (event.snapshot.value != null) {
         var u = new Map<dynamic, dynamic>.from(event.snapshot.value);
-        setState(() { queue_user_private = u; });
+        setState(() { _queueUserMetadataPrivate = u; });
       }
     });
 
@@ -74,47 +75,37 @@ class _ChatPageState extends State<ChatPage> {
       if (event.snapshot.value != null) {
         var c = new Map<dynamic, dynamic>.from(event.snapshot.value);
         setState(() { chat = c; });
-        if (event.snapshot.value['assigned_user'] != false && assigned_user == null) {
+        if (event.snapshot.value['assigned_user'] != false && _assignedUserMetadata == null) {
           FirebaseDatabase.instance.reference().child('users_public/' + event.snapshot.value['assigned_user'])
           .onValue.listen((Event event) {
             if (event.snapshot.value != null) {
               var u = new Map<dynamic, dynamic>.from(event.snapshot.value);
-              setState(() { assigned_user = u; });
+              setState(() { _assignedUserMetadata = u; });
             }
           });
         }
         if (event.snapshot.value['logs'] != null) {
-          List<Map<dynamic,dynamic>> temp_log_data = List();
-          List<Widget> temp_log_widget = List();
+          List<Map<dynamic,dynamic>> tempLogData = List();
+          List<Widget> tempLogWidget = List();
           event.snapshot.value['logs'].forEach((k,v) {
             var data = new Map<dynamic, dynamic>.from(v);
-            temp_log_data.add(data);
+            tempLogData.add(data);
             data['key'] = k;
           });
-          temp_log_data.sort((m1, m2) {
+          tempLogData.sort((m1, m2) {
             var r = m1["timestamp"].compareTo(m2["timestamp"]);
             if (r != 0)
               return r;
             return m1["timestamp"].compareTo(m2["timestamp"]);
           });
-          for (var i in temp_log_data) {
+          for (var i in tempLogData) {
             List<Widget> dataWidget = List();
             var data = new Map<dynamic, dynamic>.from(i);
             if (data['user'] != _user.uid && data['user'] == chat['assigned_user']) {
-              dataWidget.add(CircleAvatar(
-                radius: 35,
-                backgroundColor: Colors.grey[100],
-                backgroundImage: assigned_user['photoUrl'] != null ? CachedNetworkImageProvider(assigned_user['photoUrl']) : null,
-                child: assigned_user['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
-              ));
+              dataWidget.add(CircleAvatarIcon(url: _assignedUserMetadata['photoUrl'], radius: 35));
             }
             if (data['user'] != _user.uid && data['user'] == _uid) {
-              dataWidget.add(CircleAvatar(
-                radius: 35,
-                backgroundColor: Colors.grey[100],
-                backgroundImage: queue_user['photoUrl'] != null ? CachedNetworkImageProvider(queue_user['photoUrl']) : null,
-                child: queue_user['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
-              ));
+              dataWidget.add(CircleAvatarIcon(url: _queueUserMetadata['photoUrl'], radius: 35));
             }
             dataWidget.add(
               Container(
@@ -123,14 +114,17 @@ class _ChatPageState extends State<ChatPage> {
                   child: Container(
                     constraints: BoxConstraints(minWidth: 100, maxWidth: MediaQuery.of(context).size.width * 0.70),
                     margin: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
-                    padding: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: data['user'] == _user.uid ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                      children: [
-                        Text(data['message']['data']),
+                      children: <Widget>[
+                        Text(data['message']['data'], textAlign: TextAlign.left),
                         SizedBox(height: 10, width: 0),
-                        Text(DateTime.fromMillisecondsSinceEpoch(data['timestamp']).toLocal().toString(), textAlign: TextAlign.right,)
+                        Text(
+                          DateTime.fromMillisecondsSinceEpoch(data['timestamp']).toLocal().toString().substring(0, 19),
+                          textAlign: TextAlign.right,
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal, color: Colors.grey),
+                        )
                       ]
                     )
                   )
@@ -138,14 +132,9 @@ class _ChatPageState extends State<ChatPage> {
               )
             );
             if (data['user'] == _user.uid){
-              dataWidget.add(CircleAvatar(
-                radius: 35,
-                backgroundColor: Colors.grey[100],
-                backgroundImage: _user.photoUrl != null ? CachedNetworkImageProvider(_user.photoUrl) : null,
-                child: _user.photoUrl == null ? Icon(Icons.person, size: 50.0) : null,
-              ));
+              dataWidget.add(CircleAvatarIcon(url: _user.photoUrl, radius: 35));
             }
-            temp_log_widget.add(
+            tempLogWidget.add(
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0.0),
@@ -157,10 +146,9 @@ class _ChatPageState extends State<ChatPage> {
                 )
               )
             );
-            print(temp_log_widget.length);
           }
           setState(() {
-            chat_log = temp_log_widget;
+            chat_log = tempLogWidget;
           });
         }
       } else {
@@ -367,8 +355,8 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     super.dispose();
     _messageController.dispose();
-    _queueUserRef.onDisconnect().cancel();
-    _queueUserPrivateRef.onDisconnect().cancel();
+    _queueUserMetadataRef.onDisconnect().cancel();
+    _queueUserMetadataPrivateRef.onDisconnect().cancel();
     _chatRef.onDisconnect().cancel();
   }
 
@@ -445,10 +433,11 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ) : Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    'Break the iceberg!!!',
+                    'Be nice to each others',
                     style: Theme.of(context).textTheme.display1,
                   ),
                 ],
@@ -492,7 +481,7 @@ class _ChatPageState extends State<ChatPage> {
                           controller: _messageController,
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Please enter enter text here'
+                            hintText: 'Please enter your message here'
                           ),
                           validator: (String value) {
                             if (value.isEmpty) {
@@ -539,53 +528,21 @@ class _ChatPageState extends State<ChatPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          'Topic',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          chat['topic'] == null ? "" : chat['topic'],
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
-                        ),
-                      ]
-                    ),
+                  ListViewChild(
+                    title: 'Topic',
+                    subtitle: chat['topic'] == null ? "" : chat['topic'],
+                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
                   ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          'Timestamp',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          chat['timestamp'] == null ? "" : DateTime.fromMillisecondsSinceEpoch(chat['timestamp']).toLocal().toString(),
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
-                        ),
-                      ]
-                    ),
+                  ListViewChild(
+                    title: 'Timestamp',
+                    subtitle: chat['timestamp'] == null ? "" : DateTime.fromMillisecondsSinceEpoch(chat['timestamp']).toLocal().toString().substring(0, 19),
+                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
                   ),
-                  assigned_user != null ? Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                    child: Row(
+                  _assignedUserMetadata != null ? ListViewWidget(
+                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                    widget: Row(
                       children: <Widget>[
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundColor: Colors.grey[100],
-                          backgroundImage: assigned_user['photoUrl'] != null ? CachedNetworkImageProvider(assigned_user['photoUrl']) : null,
-                          child: assigned_user['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
-                        ),
+                        CircleAvatarIcon(url: _assignedUserMetadata['photoUrl'], radius: 35),
                         SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,7 +553,7 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             SizedBox(height: 5),
                             Text(
-                              assigned_user['name'] == null ? "" : assigned_user['name'],
+                              _assignedUserMetadata['name'] == null ? "" : _assignedUserMetadata['name'],
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
                             ),
                           ]
@@ -604,17 +561,11 @@ class _ChatPageState extends State<ChatPage> {
                       ]
                     )
                   ) : SizedBox(height: 0, width: 0),
-                  queue_user != null ? Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                    child: Row(
+                  _queueUserMetadata != null ? ListViewWidget(
+                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                    widget: Row(
                       children: <Widget>[
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundColor: Colors.grey[100],
-                          backgroundImage: queue_user['photoUrl'] != null ? CachedNetworkImageProvider(queue_user['photoUrl']) : null,
-                          child: queue_user['photoUrl'] == null ? Icon(Icons.person, size: 50.0) : null,
-                        ),
+                        CircleAvatarIcon(url: _queueUserMetadata['photoUrl'], radius: 35),
                         SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -625,7 +576,7 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             SizedBox(height: 5),
                             Text(
-                              queue_user['name'] == null ? "" : queue_user['name'],
+                              _queueUserMetadata['name'] == null ? "" : _queueUserMetadata['name'],
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
                             ),
                           ]
@@ -633,29 +584,15 @@ class _ChatPageState extends State<ChatPage> {
                       ]
                     )
                   ) : SizedBox(height: 0, width: 0),
-                  _metadata['role'] == 1 ? Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                    child: Column(
+                  _metadata['role'] == 1 ? ListViewWidget(
+                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                    widget: Column(
                       children: <Widget>[
-                        queue_user_private != null
-                        ? Container(
-                          width: double.infinity,
+                        _queueUserMetadataPrivate != null
+                        ? ListViewChild(
+                          title: 'Client Status',
+                          subtitle: _queueUserMetadataPrivate['online'] != true ? 'Last seen ' + DateTime.fromMillisecondsSinceEpoch(_queueUserMetadataPrivate['last_online']).toLocal().toString().substring(0, 19) : 'Online',
                           margin: EdgeInsets.fromLTRB(0.0, 20.0, 00.0, 0.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Client Status',
-                                style: TextStyle(fontSize: 25, fontWeight: FontWeight.normal)
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                queue_user_private['online'] != true ? 'Last seen ' + DateTime.fromMillisecondsSinceEpoch(queue_user_private['last_online']).toLocal().toString() : 'Online',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
-                              ),
-                            ]
-                          ),
                         ) : SizedBox(height: 0, width: 0),
                         Container(
                           width: double.infinity,
@@ -666,7 +603,7 @@ class _ChatPageState extends State<ChatPage> {
                               Column(
                                 children: <Widget>[
                                   Row(
-                                    children: [
+                                    children: <Widget>[
                                       Text(
                                         'Status',
                                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal)
@@ -710,7 +647,6 @@ class _ChatPageState extends State<ChatPage> {
                           )
                         ),
                         Container(
-                          width: double.infinity,
                           margin: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
                           child: RaisedButton(
                             onPressed: _adminNotifyClient,
@@ -726,32 +662,30 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ]
                             )
-                          ),
-                        )
+                          )
+                        ),
                       ]
                     )
-                  )
-                  : SizedBox(height: 0, width: 0), //admin
-                  _user.uid == _uid && chat['status'] == 0 ? Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
-                      child: RaisedButton(
-                        onPressed: _exitQueue,
-                        color: Colors.redAccent,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.delete, size: 25, color: Colors.white),
-                            SizedBox(width: 10),
-                            Text(
-                              "Delete Queue",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ]
-                        )
-                      ),
+                  ) : SizedBox(height: 0, width: 0), //admin
+                  _user.uid == _uid && chat['status'] == 0
+                  ? ListViewWidget(
+                    margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                    widget: RaisedButton(
+                      onPressed: _exitQueue,
+                      color: Colors.redAccent,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.delete, size: 25, color: Colors.white),
+                          SizedBox(width: 10),
+                          Text(
+                            "Delete Queue",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ]
+                      )
                     )
-                  : SizedBox(height: 0, width: 0), //client
+                  ) : SizedBox(height: 0, width: 0), //client
                 ]
               )
             ),

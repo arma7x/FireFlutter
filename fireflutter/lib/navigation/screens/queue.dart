@@ -43,15 +43,26 @@ class _QueuePageState extends State<QueuePage> {
     });
 
     _queueRef = FirebaseDatabase.instance.reference().child('queues');
-    _queueRef.orderByChild('timestamp').onValue.listen((Event event) {
+    _queueRef.onValue.listen((Event event) {
       if (event.snapshot.value != null) {
+        List<Map<dynamic,dynamic>> tempQueueData = List();
         List<Widget> queueWidgets = List();
         event.snapshot.value.forEach((k,v) {
-          var queueData = new Map<dynamic, dynamic>.from(v);
-          queueData['key'] = k;
-          dynamic assignedUserMetadata = queueData['assigned_user'] != false ? _usersMetadata[queueData['assigned_user']] : null;
-          queueWidgets.add(QueueItem(currentUser: _user, userMetadata: _usersMetadata[k], assignedUserMetadata: assignedUserMetadata, queueData: queueData, joinChatCb: _joinChat, handleChatCb: _handleChat));
+          var data = new Map<dynamic, dynamic>.from(v);
+          tempQueueData.add(data);
+          data['key'] = k;
         });
+        tempQueueData.sort((m1, m2) {
+          var r = m1["timestamp"].compareTo(m2["timestamp"]);
+          if (r != 0)
+            return r;
+          return m1["timestamp"].compareTo(m2["timestamp"]);
+        });
+        for (var i in tempQueueData) {
+          var queueData = new Map<dynamic, dynamic>.from(i);
+          dynamic assignedUserMetadata = queueData['assigned_user'] != false ? _usersMetadata[queueData['assigned_user']] : null;
+          queueWidgets.add(QueueItem(currentUser: _user, userMetadata: _usersMetadata[queueData['key']], assignedUserMetadata: assignedUserMetadata, queueData: queueData, joinChatCb: _joinChat, handleChatCb: _handleChat));
+        };
         setState(() {
           _queueWidgets = queueWidgets;
         });
@@ -130,7 +141,7 @@ class _QueuePageState extends State<QueuePage> {
         ? ListView(children: _queueWidgets)
         : Center(
           child: Text(
-            'No user join queue list',
+            'No user in queue list',
             style: Theme.of(context).textTheme.display1,
           ),
         ),

@@ -245,7 +245,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _offline ? Icon(Icons.signal_wifi_off) : SizedBox(width: 0),
           ]
         ),
-        actions: <Widget>[
+        actions: _user !=null ? <Widget>[
           FlatButton(
             child: const Text('Sign out'),
             textColor: Theme.of(context).buttonColor,
@@ -261,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Toast.show('Successfully signed out', context, duration: 5);
             },
           ),
-        ],
+        ] : null,
       ),
       drawer: new SizedBox(
         width: MediaQuery.of(context).size.width * 0.80,

@@ -4,15 +4,16 @@ class ListViewChild extends StatelessWidget {
 
   final String title;
   final String subtitle;
+  final EdgeInsetsGeometry margin;
 
-  ListViewChild({Key key, this.title, this.subtitle});
+  ListViewChild({Key key, this.title, this.subtitle, this.margin});
 
   @override
   Widget build(BuildContext context) {
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.fromLTRB(50.0, 20.0, 50.0, 0.0),
+      margin: margin!= null ? margin : EdgeInsets.fromLTRB(50.0, 5.0, 50.0, 0.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
