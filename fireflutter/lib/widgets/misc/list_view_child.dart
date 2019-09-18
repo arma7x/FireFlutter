@@ -5,11 +5,14 @@ class ListViewChild extends StatelessWidget {
   final String title;
   final String subtitle;
   final EdgeInsetsGeometry margin;
+  double _pxRatio;
 
   ListViewChild({Key key, this.title, this.subtitle, this.margin});
 
   @override
   Widget build(BuildContext context) {
+
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Container(
       width: double.infinity,
@@ -20,14 +23,14 @@ class ListViewChild extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 12.0,
+              fontSize: 8.0 * _pxRatio,
               fontWeight: FontWeight.normal
             )
           ),
           SizedBox(height: 5),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.normal, color: Colors.grey)
+            style: TextStyle(fontSize: 6.5 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey)
           ),
         ]
       ),

@@ -14,9 +14,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  double _pxRatio;
+
   @override
   Widget build(BuildContext context) {
 
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
     final counter = Provider.of<Counter>(context);
 
     return Scaffold(
@@ -26,10 +29,17 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             Text(
               'You have pushed the button this many times:',
+              style: TextStyle(
+                fontSize: 8.5 * _pxRatio,
+                fontWeight: FontWeight.normal,
+              )
             ),
             Text(
               '${counter.count}',
-              style: Theme.of(context).textTheme.display1,
+              style: TextStyle(
+                fontSize: 18.5 * _pxRatio,
+                fontWeight: FontWeight.normal,
+              )
             ),
           ],
         ),

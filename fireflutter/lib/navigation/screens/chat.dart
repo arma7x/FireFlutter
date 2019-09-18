@@ -25,6 +25,7 @@ class _ChatPageState extends State<ChatPage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  double _pxRatio;
   FirebaseUser _user;
   Map<dynamic, dynamic> _metadata;
   String _uid;
@@ -105,10 +106,10 @@ class _ChatPageState extends State<ChatPage> {
             List<Widget> dataWidget = List();
             var data = new Map<dynamic, dynamic>.from(i);
             if (data['user'] != _user.uid && data['user'] == chat['assigned_user']) {
-              dataWidget.add(CircleAvatarIcon(url: _assignedUserMetadata == null ? null : _assignedUserMetadata['photoUrl'], radius: 20));
+              dataWidget.add(CircleAvatarIcon(url: _assignedUserMetadata == null ? null : _assignedUserMetadata['photoUrl'], radius: 13.0));
             }
             if (data['user'] != _user.uid && data['user'] == _uid) {
-              dataWidget.add(CircleAvatarIcon(url: _queueUserMetadata == null ? null : _queueUserMetadata['photoUrl'], radius: 20));
+              dataWidget.add(CircleAvatarIcon(url: _queueUserMetadata == null ? null : _queueUserMetadata['photoUrl'], radius: 13.0));
             }
             dataWidget.add(
               Container(
@@ -124,13 +125,13 @@ class _ChatPageState extends State<ChatPage> {
                         Text(
                           data['message']['data'] != null ? data['message']['data'] : "-",
                           textAlign: TextAlign.left,
-                          style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.normal)
+                          style: TextStyle(fontSize: 6.5 * _pxRatio, fontWeight: FontWeight.normal)
                         ),
                         SizedBox(height: 10, width: 0),
                         Text(
                           DateTime.fromMillisecondsSinceEpoch(data['timestamp']).toLocal().toString().substring(0, 19),
                           textAlign: TextAlign.right,
-                          style: TextStyle(fontSize: 8.0, fontWeight: FontWeight.normal, color: Colors.grey),
+                          style: TextStyle(fontSize: 6.0 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey),
                         )
                       ]
                     )
@@ -139,7 +140,7 @@ class _ChatPageState extends State<ChatPage> {
               )
             );
             if (data['user'] == _user.uid){
-              dataWidget.add(CircleAvatarIcon(url: _user.photoUrl, radius: 20));
+              dataWidget.add(CircleAvatarIcon(url: _user.photoUrl, radius: 13.0));
             }
             tempLogWidget.add(
               Container(
@@ -198,7 +199,10 @@ class _ChatPageState extends State<ChatPage> {
         context: context,
         builder: (BuildContext _) {
           return AlertDialog(
-            title: new Text("Are sure to enter queue list ?"),
+            title: new Text(
+              "Are sure to enter queue list ?",
+              style: TextStyle(fontSize: 10.0 * _pxRatio),
+            ),
             actions: <Widget>[
               new FlatButton(
                 child: new Text("No"),
@@ -246,7 +250,10 @@ class _ChatPageState extends State<ChatPage> {
       context: context,
       builder: (BuildContext _) {
         return AlertDialog(
-          title: new Text("Are sure to exit from queue list ?"),
+          title: new Text(
+            "Are sure to exit from queue list ?",
+            style: TextStyle(fontSize: 10.0 * _pxRatio),
+          ),
           actions: <Widget>[
             new FlatButton(
               child: new Text("No"),
@@ -321,7 +328,10 @@ class _ChatPageState extends State<ChatPage> {
       context: context,
       builder: (BuildContext _) {
         return AlertDialog(
-          title: new Text("Are sure to remove this chat from queue list ?"),
+          title: new Text(
+            "Are sure to remove this chat from queue list ?",
+            style: TextStyle(fontSize: 10.0 * _pxRatio),
+          ),
           actions: <Widget>[
             new FlatButton(
               child: new Text("No"),
@@ -374,6 +384,7 @@ class _ChatPageState extends State<ChatPage> {
 
     _user = Provider.of<Auth>(context).user;
     _metadata = Provider.of<Auth>(context).metadata;
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -396,9 +407,12 @@ class _ChatPageState extends State<ChatPage> {
                     alignment: Alignment.center,
                     child: TextFormField(
                       controller: _topicController,
+                      style: TextStyle(fontSize: 8.0 * _pxRatio,),
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email),
-                        labelText: 'Topic of discussion or issue ?'
+                        prefixIcon: Icon(Icons.email, size: 10.0 * _pxRatio,),
+                        labelText: 'Topic of discussion or issue ?',
+                        labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
+                        contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
                       ),
                       validator: (String value) {
                         if (value.isEmpty) {
@@ -417,8 +431,8 @@ class _ChatPageState extends State<ChatPage> {
                       child: RaisedButton(
                         color: Theme.of(context).primaryColor,
                         child: Text(
-                          'Join Queue',
-                          style: TextStyle(color: Colors.white),
+                          'ENTER QUEUE',
+                          style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio,),
                         ),
                         onPressed: _enterQueue
                       ),
@@ -447,7 +461,7 @@ class _ChatPageState extends State<ChatPage> {
                 children: <Widget>[
                   Text(
                     'Be nice to each others',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.grey),
+                    style: TextStyle(fontSize: 8.0 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey),
                   ),
                 ],
               )
@@ -462,8 +476,8 @@ class _ChatPageState extends State<ChatPage> {
                   Container(
                     margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                     child: SizedBox(
-                      width: 60.0,
-                      height: 60.0,
+                      width: 25.0 * _pxRatio,
+                      height: 25.0 * _pxRatio,
                       child: Material(
                         child: InkWell(
                           onTap: () {
@@ -472,7 +486,7 @@ class _ChatPageState extends State<ChatPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Icon(Icons.announcement, size: 18.0, color: Colors.grey),
+                              Icon(Icons.announcement, size: 12.0 * _pxRatio, color: Colors.grey),
                             ]
                           ),
                         ),
@@ -482,15 +496,17 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   Expanded(
                     child: Container(
-                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
+                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                     child: Form(
                         key: _messageFormKey,
                         child: TextFormField(
                           maxLines: null,
                           controller: _messageController,
+                          style: TextStyle(fontSize: 8.0 * _pxRatio,),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Please enter your message here'
+                            hintText: 'Please enter your message here',
+                            hintStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
                           ),
                           validator: (String value) {
                             if (value.isEmpty) {
@@ -505,15 +521,15 @@ class _ChatPageState extends State<ChatPage> {
                   Container(
                     margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                     child: SizedBox(
-                      width: 60.0,
-                      height: 60.0,
+                      width: 25.0 * _pxRatio,
+                      height: 25.0 * _pxRatio,
                       child: Material(
                         child: InkWell(
                           onTap: _sendMessage,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Icon(Icons.send, size: 18.0, color: Colors.grey),
+                              Icon(Icons.send, size: 12.0 * _pxRatio, color: Colors.grey),
                             ]
                           ),
                         ),
@@ -544,25 +560,25 @@ class _ChatPageState extends State<ChatPage> {
                   ListViewChild(
                     title: 'Timestamp',
                     subtitle: chat['timestamp'] == null ? "" : DateTime.fromMillisecondsSinceEpoch(chat['timestamp']).toLocal().toString().substring(0, 19),
-                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                    margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                   ),
                   _assignedUserMetadata != null ? ListViewWidget(
-                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                    margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                     widget: Row(
                       children: <Widget>[
-                        CircleAvatarIcon(url: _assignedUserMetadata['photoUrl'], radius: 20),
+                        CircleAvatarIcon(url: _assignedUserMetadata['photoUrl'], radius: 12),
                         SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
                               'Supervisor',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal)
+                              style: TextStyle(fontSize: 8.0 * _pxRatio, fontWeight: FontWeight.normal)
                             ),
                             SizedBox(height: 5),
                             Text(
                               _assignedUserMetadata['name'] == null ? "" : _assignedUserMetadata['name'],
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal, color: Colors.grey)
+                              style: TextStyle(fontSize: 6.5 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey)
                             ),
                           ]
                         ),
@@ -570,22 +586,22 @@ class _ChatPageState extends State<ChatPage> {
                     )
                   ) : SizedBox(height: 0, width: 0),
                   _queueUserMetadata != null ? ListViewWidget(
-                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                    margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                     widget: Row(
                       children: <Widget>[
-                        CircleAvatarIcon(url: _queueUserMetadata['photoUrl'], radius: 20),
+                        CircleAvatarIcon(url: _queueUserMetadata['photoUrl'], radius: 12),
                         SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
                               'Client',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal)
+                              style: TextStyle(fontSize: 8.0 * _pxRatio, fontWeight: FontWeight.normal)
                             ),
                             SizedBox(height: 5),
                             Text(
                               _queueUserMetadata['name'] == null ? "" : _queueUserMetadata['name'],
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal, color: Colors.grey)
+                              style: TextStyle(fontSize: 6.5 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey)
                             ),
                           ]
                         ),
@@ -593,7 +609,7 @@ class _ChatPageState extends State<ChatPage> {
                     )
                   ) : SizedBox(height: 0, width: 0),
                   _metadata['role'] == 1 ? ListViewWidget(
-                    margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                    margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                     widget: Column(
                       children: <Widget>[
                         _queueUserMetadataPrivate != null
@@ -614,13 +630,13 @@ class _ChatPageState extends State<ChatPage> {
                                     children: <Widget>[
                                       Text(
                                         'Status',
-                                        style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.normal)
+                                        style: TextStyle(fontSize: 8.0 * _pxRatio, fontWeight: FontWeight.normal)
                                       ),
                                       SizedBox(width: 5),
                                       Icon(
                                         chat['status'] != 0 ? Icons.lock : Icons.lock_open,
                                         color: chat['status'] != 0 ? Colors.red : Colors.green,
-                                        size: 12.0,
+                                        size: 8.0 * _pxRatio,
                                       ),
                                     ]
                                   ),
@@ -642,11 +658,11 @@ class _ChatPageState extends State<ChatPage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
-                                      Icon(Icons.delete, size: 12.0, color: Colors.white),
+                                      Icon(Icons.delete, size: 8.0 * _pxRatio, color: Colors.white),
                                       SizedBox(width: 10),
                                       Text(
-                                        "Delete Queue",
-                                        style: TextStyle(color: Colors.white, fontSize: 12.0,),
+                                        "DELETE QUEUE",
+                                        style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio,),
                                       ),
                                     ]
                                   )
@@ -663,11 +679,11 @@ class _ChatPageState extends State<ChatPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                Icon(Icons.notification_important, size: 12.0, color: Colors.white),
+                                Icon(Icons.notification_important, size: 8.0 * _pxRatio, color: Colors.white),
                                 SizedBox(width: 10),
                                 Text(
-                                  "Notify Client",
-                                  style: TextStyle(color: Colors.white, fontSize: 12.0,),
+                                  "NOTIFY CLIENT",
+                                  style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio,),
                                 ),
                               ]
                             )
@@ -685,11 +701,11 @@ class _ChatPageState extends State<ChatPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Icon(Icons.delete, size: 12.0, color: Colors.white),
+                          Icon(Icons.delete, size: 8.0 * _pxRatio, color: Colors.white),
                           SizedBox(width: 10),
                           Text(
-                            "Delete Queue",
-                            style: TextStyle(color: Colors.white, fontSize: 12.0),
+                            "EXIT QUEUE",
+                            style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio),
                           ),
                         ]
                       )

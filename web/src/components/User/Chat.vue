@@ -180,7 +180,7 @@
                   <v-list-tile-content>
                     <v-list-tile-title class="body-2"></v-list-tile-title>
                       <v-btn block class="py-2" color="error" @click="deleteQueue">
-                        Delete
+                        Exit
                         <v-icon right>delete</v-icon>
                       </v-btn>
                   </v-list-tile-content>

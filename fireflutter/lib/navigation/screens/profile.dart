@@ -28,6 +28,7 @@ class _ProfileState extends State<Profile> {
   Map<dynamic, dynamic> _metadata;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  double _pxRatio;
 
   void _onImageButtonPressed(ImageSource source) async {
     try {
@@ -79,16 +80,19 @@ class _ProfileState extends State<Profile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Select source:"),
+          title: new Text(
+            "Select source:",
+            style: TextStyle(fontSize: 10.0 * _pxRatio),
+          ),
           content: Container(
-            height: 130,
+            height: 68.0 * _pxRatio,
             child: new Column(
             children: <Widget>[
               DialogButton(text: "Open Gallery", icon: Icons.photo_library, fn: () {
                 _onImageButtonPressed(ImageSource.gallery);
                 Navigator.of(context).pop();
               }),
-              SizedBox(height: 10),
+              SizedBox(height: 4),
               DialogButton(text: "Lauch Camera", icon: Icons.camera_alt, fn: () {
                 _onImageButtonPressed(ImageSource.camera);
                 Navigator.of(context).pop();
@@ -118,7 +122,10 @@ class _ProfileState extends State<Profile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Confirm to delete your account ?"),
+          title: new Text(
+            "Confirm to delete your account ?",
+            style: TextStyle(fontSize: 10.0 * _pxRatio),
+          ),
           actions: <Widget>[
             new FlatButton(
               child: new Text("No"),
@@ -153,6 +160,7 @@ class _ProfileState extends State<Profile> {
 
     _user = Provider.of<Auth>(context).user;
     _nameController.text = _user?.displayName != null ? _user.displayName : "Unknown";
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
     _metadata = Provider.of<Auth>(context).metadata;
 
     return Scaffold(
@@ -165,14 +173,14 @@ class _ProfileState extends State<Profile> {
             child: Card(
               margin: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 30.0),
               child: Container(
-                height: 480,
+                height: 320 * _pxRatio,
                 width: (MediaQuery.of(context).size.width - 60),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Stack(
                       children: <Widget>[
-                        CircleAvatarIcon(url: _user?.photoUrl, radius: 60),
+                        CircleAvatarIcon(url: _user?.photoUrl, radius: 36.0),
                         Positioned(
                           right: 0.0,
                           bottom: 0.0,
@@ -180,7 +188,7 @@ class _ProfileState extends State<Profile> {
                             mini: true,
                             backgroundColor: Theme.of(context).primaryColor,
                             onPressed: _selectImageSourceDialog,
-                            child: Icon(Icons.camera_alt, size: 18.0),
+                            child: Icon(Icons.camera_alt, size: 12.0 * _pxRatio),
                           )
                         ),
                       ]
@@ -196,12 +204,14 @@ class _ProfileState extends State<Profile> {
                         key: _formKey,
                         child: TextFormField(
                           controller: _nameController,
+                          style: TextStyle(fontSize: 8.0 * _pxRatio,),
                           decoration: InputDecoration(
                             labelText: 'NAME',
                             labelStyle: TextStyle(
-                              fontSize: 12,
+                              fontSize: 8.0 * _pxRatio,
                               fontWeight: FontWeight.normal
-                            )
+                            ),
+                            contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
                           ),
                           validator: (String value) {
                             if (value.isEmpty) {
@@ -234,11 +244,11 @@ class _ProfileState extends State<Profile> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.save, size: 12.0, color: Colors.white),
+                            Icon(Icons.save, size: 8.0 * _pxRatio, color: Colors.white),
                             SizedBox(width: 10),
                             Text(
                               "UPDATE PROFILE",
-                              style: TextStyle(color: Colors.white, fontSize: 12.0,),
+                              style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio,),
                             ),
                           ]
                         )
@@ -252,11 +262,11 @@ class _ProfileState extends State<Profile> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.delete, size: 12.0, color: Colors.white),
+                            Icon(Icons.delete, size: 8.0 * _pxRatio, color: Colors.white),
                             SizedBox(width: 10),
                             Text(
                               "SELF-DESTRUCT ACCOUNT",
-                              style: TextStyle(color: Colors.white, fontSize: 12.0,),
+                              style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio,),
                             ),
                           ]
                         )

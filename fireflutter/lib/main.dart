@@ -80,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseUser _user;
   Map<dynamic, dynamic> _metadata;
   bool _offline;
+  double _pxRatio;
 
   _MyHomePageState();
 
@@ -125,14 +126,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showNotification(Map<String, dynamic> message, BuildContext context) {
-    print(message);
     showDialog(
       barrierDismissible: true,
       context: context,
       builder: (BuildContext _) {
         return AlertDialog(
-          title: Text(message['notification']['title']),
-          content: Text(message['notification']['body']),
+          title: Text(
+            message['notification']['title'],
+            style: TextStyle(fontSize: 10.0 * _pxRatio)
+          ),
+          content: Text(
+            message['notification']['body'],
+            style: TextStyle(fontSize: 8.2 * _pxRatio, fontWeight: FontWeight.normal)
+          ),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Close"),
@@ -210,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _user = Provider.of<Auth>(context).user;
     _metadata = Provider.of<Auth>(context).metadata;
     _offline = Provider.of<Shared>(context).offline;
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     List<Widget> drawerOptions = [];
 
@@ -229,7 +236,10 @@ class _MyHomePageState extends State<MyHomePage> {
       drawerOptions.add(
         new ListTile(
           leading: new Icon(d.icon),
-          title: new Text(d.title),
+          title: new Text(
+            d.title,
+            style: TextStyle(fontSize: 8.2 * _pxRatio, fontWeight: FontWeight.normal)
+          ),
           selected: i == _currentFragmentIndex,
           onTap: () => _onSelectFragment(i),
         )
@@ -252,7 +262,10 @@ class _MyHomePageState extends State<MyHomePage> {
       drawerOptions.add(
         new ListTile(
           leading: new Icon(d.icon),
-          title: new Text(d.title),
+          title: new Text(
+            d.title,
+            style: TextStyle(fontSize: 8.2 * _pxRatio, fontWeight: FontWeight.normal)
+          ),
           onTap: () => _onSelectScreen(i),
         )
       );
@@ -291,10 +304,11 @@ class _MyHomePageState extends State<MyHomePage> {
           child: new Column(
             children: <Widget>[
               new UserAccountsDrawerHeader(
-                accountName: new Text(_user != null ? (_user?.displayName != null ? _user.displayName : "Unknown") : "Guest", style: TextStyle(fontSize: 16)),
+                accountName: new Text(
+                  _user != null ? (_user?.displayName != null ? _user.displayName : "Unknown") : "Guest", style: TextStyle(fontSize: 8.5 * _pxRatio)),
                 accountEmail: new Text(
                   _user != null ? _user.email : "Please sign in",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)
+                  style: TextStyle(fontSize:  8.0 * _pxRatio, fontWeight: FontWeight.normal)
                 ),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.white,

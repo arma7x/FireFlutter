@@ -19,8 +19,13 @@ class ResetPasswordState extends State<ResetPassword> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
 
+  double _pxRatio;
+
   @override
   Widget build(BuildContext context) {
+
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -36,9 +41,12 @@ class ResetPasswordState extends State<ResetPassword> {
                 alignment: Alignment.center,
                 child: TextFormField(
                   controller: _emailController,
+                  style: TextStyle(fontSize: 8.0 * _pxRatio,),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email),
-                    labelText: 'Enter Email'
+                    prefixIcon: Icon(Icons.email, size: 10.0 * _pxRatio,),
+                    labelText: 'Enter Email',
+                    labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
+                    contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
                   ),
                   validator: (String value) {
                     if (value.isEmpty) {
