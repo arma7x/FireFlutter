@@ -165,27 +165,33 @@ class _ProfileState extends State<Profile> {
             child: Card(
               margin: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 30.0),
               child: Container(
-                height: 650,
+                height: 480,
                 width: (MediaQuery.of(context).size.width - 60),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Stack(
                       children: <Widget>[
-                        CircleAvatarIcon(url: _user?.photoUrl, radius: 90),
+                        CircleAvatarIcon(url: _user?.photoUrl, radius: 60),
                         Positioned(
-                          right: 5.0,
+                          right: 0.0,
                           bottom: 0.0,
                           child: FloatingActionButton(
+                            mini: true,
                             backgroundColor: Theme.of(context).primaryColor,
                             onPressed: _selectImageSourceDialog,
-                            child: Icon(Icons.camera_alt),
+                            child: Icon(Icons.camera_alt, size: 18.0),
                           )
                         ),
                       ]
                     ),
-                    ListViewChild(title: 'UID', subtitle: _user?.uid == null ? "" : _user.uid),
+                    ListViewChild(
+                      title: 'UID',
+                      subtitle: _user?.uid == null ? "" : _user.uid,
+                      margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                    ),
                     ListViewWidget(
+                      margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                       widget: Form(
                         key: _formKey,
                         child: TextFormField(
@@ -193,7 +199,7 @@ class _ProfileState extends State<Profile> {
                           decoration: InputDecoration(
                             labelText: 'NAME',
                             labelStyle: TextStyle(
-                              fontSize: 23,
+                              fontSize: 12,
                               fontWeight: FontWeight.normal
                             )
                           ),
@@ -206,10 +212,19 @@ class _ProfileState extends State<Profile> {
                         )
                       )
                     ),
-                    ListViewChild(title: 'Email', subtitle: _user?.email == null ? "" : _user.email),
-                    ListViewChild(title: 'Admin', subtitle: _metadata != null ? (_metadata['role'] == 1 ? 'TRUE' : 'FALSE') : 'FALSE'),
+                    ListViewChild(
+                      title: 'Email',
+                      subtitle: _user?.email == null ? "" : _user.email,
+                      margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                    ),
+                    ListViewChild(
+                      title: 'Admin',
+                      subtitle: _metadata != null ? (_metadata['role'] == 1 ? 'TRUE' : 'FALSE') : 'FALSE',
+                      margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                    ),
                     ListViewWidget(
-                       widget: RaisedButton(
+                      margin: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+                      widget: RaisedButton(
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
                             _updateDisplayName(_nameController.text);
@@ -219,28 +234,29 @@ class _ProfileState extends State<Profile> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.save, size: 25, color: Colors.white),
+                            Icon(Icons.save, size: 12.0, color: Colors.white),
                             SizedBox(width: 10),
                             Text(
                               "UPDATE PROFILE",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.white, fontSize: 12.0,),
                             ),
                           ]
                         )
                       )
                     ),
                     ListViewWidget(
+                      margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0.0),
                       widget: RaisedButton(
                         onPressed: _confirmDeleteAccountDialog,
                         color: Colors.redAccent,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.delete, size: 25, color: Colors.white),
+                            Icon(Icons.delete, size: 12.0, color: Colors.white),
                             SizedBox(width: 10),
                             Text(
                               "SELF-DESTRUCT ACCOUNT",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.white, fontSize: 12.0,),
                             ),
                           ]
                         )

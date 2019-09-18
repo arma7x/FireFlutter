@@ -14,7 +14,7 @@ class CircleAvatarIcon extends StatelessWidget {
       radius: radius,
       backgroundColor: Colors.grey[100],
       backgroundImage: url != null ? CachedNetworkImageProvider(url) : null,
-      child: url == null ? Icon(Icons.person, size: 50.0) : null,
+      child: url == null ? Icon(Icons.person, size: 24.0) : null,
     );
   }
 }

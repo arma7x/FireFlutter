@@ -142,7 +142,7 @@ class _QueuePageState extends State<QueuePage> {
         : Center(
           child: Text(
             'No user in queue list',
-            style: Theme.of(context).textTheme.display1,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.grey),
           ),
         ),
       ),

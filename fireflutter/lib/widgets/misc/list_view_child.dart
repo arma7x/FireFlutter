@@ -20,14 +20,14 @@ class ListViewChild extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 12.0,
               fontWeight: FontWeight.normal
             )
           ),
           SizedBox(height: 5),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey)
+            style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.normal, color: Colors.grey)
           ),
         ]
       ),

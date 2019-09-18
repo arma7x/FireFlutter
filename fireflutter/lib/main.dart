@@ -124,6 +124,28 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _showNotification(Map<String, dynamic> message, BuildContext context) {
+    print(message);
+    showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext _) {
+        return AlertDialog(
+          title: Text(message['notification']['title']),
+          content: Text(message['notification']['body']),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -153,13 +175,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
+        _showNotification(message, context);
       },
       onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
+        _showNotification(message, context);
       },
       onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
+        _showNotification(message, context);
       },
     );
     _firebaseMessaging.requestNotificationPermissions(const IosNotificationSettings(sound: true, badge: true, alert: true));

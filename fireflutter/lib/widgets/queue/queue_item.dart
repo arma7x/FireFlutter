@@ -26,46 +26,81 @@ class QueueItem extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Icon(
+                    queueData['status'] != 0 ? Icons.lock : Icons.lock_open,
+                    color: queueData['status'] != 0 ? Colors.red : Colors.green,
+                    size: 12.0
+                  ),
+                  SizedBox(width: 5),
+                  Expanded(child: Text(
+                    queueData['topic'],
+                    style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.normal),
+                  )),
+                ]
+              ),
+              SizedBox(height: 10),
+              Row(
                 children: <Widget>[
                   Container(
-                    child: CircleAvatarIcon(url: userMetadata['photoUrl'], radius: 35),
+                    child: CircleAvatarIcon(url: userMetadata['photoUrl'], radius: 20),
                   ),
                   Expanded(
                     child: Container(
                       margin: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Icon(
-                                queueData['status'] != 0 ? Icons.lock : Icons.lock_open,
-                                color: queueData['status'] != 0 ? Colors.red : Colors.green,
-                                size: 20.0
+                                Icons.keyboard_arrow_left,
+                                color: Theme.of(context).primaryColor,
+                                size: 12.0,
                               ),
-                              SizedBox(width: 5),
-                              Expanded(child: Text(
-                                queueData['topic'],
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
-                              )),
-                            ]
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    'Client',
+                                    style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.normal),
+                                  ),
+                                  Text(
+                                    userMetadata['name'],
+                                    style: TextStyle(fontSize: 8.0, fontWeight: FontWeight.normal, color: Colors.grey),
+                                  ),
+                                ]
+                              )
+                            ],
                           ),
-                          SizedBox(height: 10),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
-                              Icon(Icons.calendar_today, color: Theme.of(context).primaryColor, size: 20.0),
-                              SizedBox(width: 5),
-                              Expanded(child: Text(
-                                DateTime.fromMillisecondsSinceEpoch(queueData['timestamp']).toLocal().toString().substring(0, 19),
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
-                              )),
-                            ]
+                              queueData['assigned_user'] != false && queueData['assigned_user'] != currentUser.uid ? 
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: <Widget>[
+                                  Text(
+                                    'Supervisor',
+                                    style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.normal),
+                                  ),
+                                  Text(
+                                    assignedUserMetadata['name'],
+                                    style: TextStyle(fontSize: 8.0, fontWeight: FontWeight.normal, color: Colors.grey),
+                                  ),
+                                ]
+                              ) : SizedBox(width:0, height: 0),
+                              queueData['assigned_user'] != false && queueData['assigned_user'] != currentUser.uid ? Icon(
+                                Icons.keyboard_arrow_right,
+                                color: Theme.of(context).primaryColor,
+                                size: 12.0,
+                              ) : SizedBox(width:0, height: 0),
+                            ],
                           ),
-                        ]
+                        ],
                       ),
                     ),
                   ),
@@ -73,17 +108,17 @@ class QueueItem extends StatelessWidget {
                     child: queueData['assigned_user'] == currentUser.uid || queueData['assigned_user'] == false
                     ? queueData['assigned_user'] == currentUser.uid
                       ? SizedBox(
-                          width: 70.0,
-                          height: 70.0,
+                          width: 40.0,
+                          height: 40.0,
                           child: Material(
-                            elevation: 4.0,
+                            elevation: 1.0,
                             shape: CircleBorder(),
                             child: InkWell(
                               onTap: () { joinChatCb(queueData['key']); },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Icon(Icons.chat, size: 30.0, color: Colors.white),
+                                  Icon(Icons.chat, size: 18.0, color: Colors.white),
                                 ]
                               ),
                             ),
@@ -92,17 +127,17 @@ class QueueItem extends StatelessWidget {
                         )
                       : (queueData['assigned_user'] == false
                         ? SizedBox(
-                          width: 70.0,
-                          height: 70.0,
+                          width: 40.0,
+                          height: 40.0,
                           child: Material(
-                            elevation: 2.0,
+                            elevation: 1.0,
                             shape: CircleBorder(),
                             child: InkWell(
                               onTap: () { handleChatCb(queueData['key']); },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Icon(Icons.supervisor_account, size: 30.0, color: Colors.white),
+                                  Icon(Icons.supervisor_account, size: 18.0, color: Colors.white),
                                 ]
                               ),
                             ),
@@ -111,27 +146,29 @@ class QueueItem extends StatelessWidget {
                         )
                         : Text('ERROR')
                       )
-                    : CircleAvatarIcon(url: assignedUserMetadata['photoUrl'], radius: 35)
+                    : CircleAvatarIcon(url: assignedUserMetadata['photoUrl'], radius: 20)
                   ),
                 ]
               ),
               SizedBox(height: 10),
               Container(
-                margin: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      userMetadata['name'],
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Icon(Icons.calendar_today, color: Theme.of(context).primaryColor, size: 10.0),
+                        SizedBox(width: 5),
+                        Text(
+                          DateTime.fromMillisecondsSinceEpoch(queueData['timestamp']).toLocal().toString().substring(0, 19),
+                          style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.normal, color: Colors.grey),
+                        ),
+                      ]
                     ),
-                    queueData['assigned_user'] != false && queueData['assigned_user'] != currentUser.uid ? Text(
-                      assignedUserMetadata['name'],
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
-                    ) : SizedBox(width:0, height: 0),
                   ]
                 ),
-              )
+              ),
             ]
           )
         ),
