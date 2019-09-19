@@ -12,20 +12,33 @@
             <v-card :key="i" v-for="(chat, i) in queues" avatar class="mb-2">
               <v-layout column>
                 <v-card-text>
-                  <v-layout row>
+                  <v-layout align-start class="body-2">
+                    <v-icon class="mr-1 body-2" v-if="chat.status != 0" color="info">lock</v-icon>
+                    <v-icon class="mr-1 body-2" v-if="chat.status == 0" color="warning">lock_open</v-icon>
+                    {{ chat.topic }}
+                  </v-layout>
+                  <v-layout row class="mt-1">
                     <v-avatar v-if="users[chat.key]" size="40" color="grey">
                       <img v-if="users[chat.key].photoUrl != null" :src="users[chat.key].photoUrl">
                       <v-icon v-if="users[chat.key].photoUrl == null" size="50" color="white">account_circle</v-icon>
                     </v-avatar>
-                    <v-layout class="mx-2" style="line-height: normal;" column v-if="users[chat.key]">
-                      <v-layout align-start class="mx-1 body-2">
-                        <v-icon class="mr-1 body-2" v-if="chat.status != 0" color="info">lock</v-icon>
-                        <v-icon class="mr-1 body-2" v-if="chat.status == 0" color="warning">lock_open</v-icon>
-                        {{ chat.topic }}
+                    <v-layout row class="px-2">
+                      <v-layout>
+                        <v-layout row>
+                          <v-layout column>
+                          <span class="body-2">Client</span>
+                          <span class="caption grey--text">{{ users[chat.key].name }}</span>
+                          </v-layout>
+                        </v-layout>
                       </v-layout>
-                      <v-layout align-start class="mt-2 mx-1 caption">
-                        <v-icon class="mr-1 caption" color="primary">calendar_today</v-icon>
-                        {{ new Date(chat.timestamp).toLocaleString() }}
+                      <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
+                      <v-layout v-if="chat.assigned_user != false && chat.assigned_user != user.uid">
+                        <v-layout row>
+                          <v-layout column align-end>
+                          <span class="body-2">Supervisor</span>
+                          <span class="caption grey--text">{{ users[chat.assigned_user].name }}</span>
+                          </v-layout>
+                        </v-layout>
                       </v-layout>
                     </v-layout>
                     <v-layout align-start justify-end v-if="chat.assigned_user == user.uid || chat.assigned_user == false">
@@ -41,10 +54,11 @@
                       <v-icon v-if="users[chat.assigned_user].photoUrl == null" size="50" color="white">account_circle</v-icon>
                     </v-avatar>
                   </v-layout>
-                  <v-layout row>
-                    {{ users[chat.key].name }}
-                    <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
-                    <span v-if="chat.assigned_user != false && chat.assigned_user != user.uid">{{ users[chat.assigned_user].name }}</span>
+                  <v-layout align-end justify-end style="line-height: normal;" column v-if="users[chat.key]">
+                    <v-layout align-end class="mt-2 mx-1 caption">
+                      <v-icon class="mr-1 caption" color="primary">calendar_today</v-icon>
+                      {{ new Date(chat.timestamp).toLocaleString() }}
+                    </v-layout>
                   </v-layout>
                 </v-card-text>
               </v-layout>
