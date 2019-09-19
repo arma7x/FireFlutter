@@ -15,8 +15,13 @@ class GoogleSignInSection extends StatefulWidget {
 
 class GoogleSignInSectionState extends State<GoogleSignInSection> {
 
+  double _pxRatio;
+
   @override
   Widget build(BuildContext context) {
+
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
+
     return Column(
       children: <Widget>[
         Container(
@@ -24,7 +29,9 @@ class GoogleSignInSectionState extends State<GoogleSignInSection> {
           child: SizedBox(
             width: double.infinity, // match_parent
             child: RaisedButton(
-              child: Text('Sign In with Google'),
+              child: Text(
+                'Sign In with Google',
+              ),
               onPressed: () async {
                 final String status = await _signInWithGoogle();
                 Toast.show(status, context, duration: 5);

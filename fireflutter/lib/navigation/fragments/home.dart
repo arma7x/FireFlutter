@@ -14,34 +14,35 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  double _pxRatio;
-
   @override
   Widget build(BuildContext context) {
 
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
     final counter = Provider.of<Counter>(context);
 
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-              style: TextStyle(
-                fontSize: 8.5 * _pxRatio,
-                fontWeight: FontWeight.normal,
-              )
-            ),
-            Text(
-              '${counter.count}',
-              style: TextStyle(
-                fontSize: 18.5 * _pxRatio,
-                fontWeight: FontWeight.normal,
-              )
-            ),
-          ],
+      body: Container(
+        margin: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'You have pushed the button this many times:',
+                style: TextStyle(
+                  fontSize: 13.0,
+                  fontWeight: FontWeight.normal,
+                )
+              ),
+              Text(
+                '${counter.count}',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.grey,
+                )
+              ),
+            ],
+          )
         ),
       ),
       floatingActionButton: FloatingActionButton(

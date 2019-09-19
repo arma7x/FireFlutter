@@ -27,7 +27,6 @@ class _QueuePageState extends State<QueuePage> {
   List<Widget> _queueWidgets;
   DatabaseReference _queueRef;
   DatabaseReference _userRef;
-  double _pxRatio;
 
   @override
   void initState() {
@@ -85,7 +84,7 @@ class _QueuePageState extends State<QueuePage> {
         return AlertDialog(
           title: new Text(
             "Are sure to put this queue under your supervision ?",
-            style: TextStyle(fontSize: 10.0 * _pxRatio),
+            style: TextStyle(fontSize: 16.0),
           ),
           actions: <Widget>[
             new FlatButton(
@@ -135,7 +134,6 @@ class _QueuePageState extends State<QueuePage> {
   Widget build(BuildContext context) {
 
     _user = Provider.of<Auth>(context).user;
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Scaffold(
       appBar: AppBar(
@@ -147,7 +145,7 @@ class _QueuePageState extends State<QueuePage> {
         : Center(
           child: Text(
             'No user in queue list',
-            style: TextStyle(fontSize: 8.0 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey),
+            style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.normal, color: Colors.grey),
           ),
         ),
       ),

@@ -82,10 +82,10 @@ class _ProfileState extends State<Profile> {
         return AlertDialog(
           title: new Text(
             "Select source:",
-            style: TextStyle(fontSize: 10.0 * _pxRatio),
+            style: TextStyle(fontSize: 16.0),
           ),
           content: Container(
-            height: 68.0 * _pxRatio,
+            height: 110,
             child: new Column(
             children: <Widget>[
               DialogButton(text: "Open Gallery", icon: Icons.photo_library, fn: () {
@@ -124,7 +124,7 @@ class _ProfileState extends State<Profile> {
         return AlertDialog(
           title: new Text(
             "Confirm to delete your account ?",
-            style: TextStyle(fontSize: 10.0 * _pxRatio),
+            style: TextStyle(fontSize: 16.0),
           ),
           actions: <Widget>[
             new FlatButton(
@@ -160,8 +160,8 @@ class _ProfileState extends State<Profile> {
 
     _user = Provider.of<Auth>(context).user;
     _nameController.text = _user?.displayName != null ? _user.displayName : "Unknown";
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
     _metadata = Provider.of<Auth>(context).metadata;
+    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Scaffold(
       appBar: AppBar(
@@ -173,25 +173,30 @@ class _ProfileState extends State<Profile> {
             child: Card(
               margin: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 30.0),
               child: Container(
-                height: 320 * _pxRatio,
+                margin: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 30.0),
                 width: (MediaQuery.of(context).size.width - 60),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Stack(
-                      children: <Widget>[
-                        CircleAvatarIcon(url: _user?.photoUrl, radius: 36.0),
-                        Positioned(
-                          right: 0.0,
-                          bottom: 0.0,
-                          child: FloatingActionButton(
-                            mini: true,
-                            backgroundColor: Theme.of(context).primaryColor,
-                            onPressed: _selectImageSourceDialog,
-                            child: Icon(Icons.camera_alt, size: 12.0 * _pxRatio),
-                          )
-                        ),
-                      ]
+                    Container(
+                      width: 80 * _pxRatio,
+                      child:Stack(
+                        children: <Widget>[
+                          Center(
+                            child: CircleAvatarIcon(url: _user?.photoUrl, radius: 28.0),
+                          ),
+                          Positioned(
+                            right: 6 * _pxRatio,
+                            bottom: 0.0,
+                            child: FloatingActionButton(
+                              mini: true,
+                              backgroundColor: Theme.of(context).primaryColor,
+                              onPressed: _selectImageSourceDialog,
+                              child: Icon(Icons.camera_alt, size: 8.0 * _pxRatio),
+                            )
+                          ),
+                        ]
+                      )
                     ),
                     ListViewChild(
                       title: 'UID',
@@ -204,11 +209,11 @@ class _ProfileState extends State<Profile> {
                         key: _formKey,
                         child: TextFormField(
                           controller: _nameController,
-                          style: TextStyle(fontSize: 8.0 * _pxRatio,),
+                          style: TextStyle(fontSize: 11.0),
                           decoration: InputDecoration(
                             labelText: 'NAME',
                             labelStyle: TextStyle(
-                              fontSize: 8.0 * _pxRatio,
+                              fontSize: 13.0,
                               fontWeight: FontWeight.normal
                             ),
                             contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
@@ -241,17 +246,10 @@ class _ProfileState extends State<Profile> {
                           }
                         },
                         color: Theme.of(context).primaryColor,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.save, size: 8.0 * _pxRatio, color: Colors.white),
-                            SizedBox(width: 10),
-                            Text(
-                              "UPDATE PROFILE",
-                              style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio,),
-                            ),
-                          ]
-                        )
+                        child: Text(
+                          "Update Profile",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       )
                     ),
                     ListViewWidget(
@@ -259,17 +257,10 @@ class _ProfileState extends State<Profile> {
                       widget: RaisedButton(
                         onPressed: _confirmDeleteAccountDialog,
                         color: Colors.redAccent,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.delete, size: 8.0 * _pxRatio, color: Colors.white),
-                            SizedBox(width: 10),
-                            Text(
-                              "SELF-DESTRUCT ACCOUNT",
-                              style: TextStyle(color: Colors.white, fontSize: 8.0 * _pxRatio,),
-                            ),
-                          ]
-                        )
+                        child: Text(
+                          "Self-Destruct Account",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       )
                     ),
                   ],

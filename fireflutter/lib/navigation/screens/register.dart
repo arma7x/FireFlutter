@@ -21,12 +21,9 @@ class RegisterPageState extends State<RegisterPage> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _secure = true;
-  double _pxRatio;
 
   @override
   Widget build(BuildContext context) {
-
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,11 +40,9 @@ class RegisterPageState extends State<RegisterPage> {
                 alignment: Alignment.center,
                 child: TextFormField(
                   controller: _emailController,
-                  style: TextStyle(fontSize: 8.0 * _pxRatio,),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email, size: 10.0 * _pxRatio,),
+                    prefixIcon: Icon(Icons.email),
                     labelText: 'Enter Email',
-                    labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
                     contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
                   ),
                   validator: (String value) {
@@ -63,15 +58,13 @@ class RegisterPageState extends State<RegisterPage> {
                 alignment: Alignment.center,
                 child: TextFormField(
                   controller: _passwordController,
-                  style: TextStyle(fontSize: 8.0 * _pxRatio,),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.vpn_key, size: 10.0 * _pxRatio,),
+                    prefixIcon: Icon(Icons.vpn_key),
                     //suffixIcon: GestureDetector(
                       //child: Icon(_secure ? Icons.visibility : Icons.visibility_off),
                       //onTap: _toggleSecure
                     //),
                     labelText: 'Enter Password',
-                    labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
                     contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
                   ),
                   obscureText: _secure,
@@ -94,15 +87,13 @@ class RegisterPageState extends State<RegisterPage> {
                 alignment: Alignment.center,
                 child: TextFormField(
                   controller: _confirmPasswordController,
-                  style: TextStyle(fontSize: 8.0 * _pxRatio,),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.vpn_key, size: 10.0 * _pxRatio,),
+                    prefixIcon: Icon(Icons.vpn_key),
                     suffixIcon: GestureDetector(
-                      child: Icon(_secure ? Icons.visibility : Icons.visibility_off, size: 10.0 * _pxRatio,),
+                      child: Icon(_secure ? Icons.visibility : Icons.visibility_off),
                       onTap: _toggleSecure
                     ),
                     labelText: 'Confirm Password',
-                    labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
                     contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
                   ),
                   obscureText: _secure,
@@ -122,10 +113,10 @@ class RegisterPageState extends State<RegisterPage> {
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
+                padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 0.0),
                 alignment: Alignment.center,
                 child: SizedBox(
-                  width: double.infinity, // match_parent
+                  width: double.infinity,
                   child: RaisedButton(
                     color: Theme.of(context).primaryColor,
                     child: Text(

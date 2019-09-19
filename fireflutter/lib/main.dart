@@ -80,7 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseUser _user;
   Map<dynamic, dynamic> _metadata;
   bool _offline;
-  double _pxRatio;
 
   _MyHomePageState();
 
@@ -133,11 +132,11 @@ class _MyHomePageState extends State<MyHomePage> {
         return AlertDialog(
           title: Text(
             message['notification']['title'],
-            style: TextStyle(fontSize: 10.0 * _pxRatio)
+            style: TextStyle(fontSize: 16.0)
           ),
           content: Text(
             message['notification']['body'],
-            style: TextStyle(fontSize: 8.2 * _pxRatio, fontWeight: FontWeight.normal)
+            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.normal)
           ),
           actions: <Widget>[
             new FlatButton(
@@ -216,7 +215,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _user = Provider.of<Auth>(context).user;
     _metadata = Provider.of<Auth>(context).metadata;
     _offline = Provider.of<Shared>(context).offline;
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     List<Widget> drawerOptions = [];
 
@@ -236,10 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawerOptions.add(
         new ListTile(
           leading: new Icon(d.icon),
-          title: new Text(
-            d.title,
-            style: TextStyle(fontSize: 8.2 * _pxRatio, fontWeight: FontWeight.normal)
-          ),
+          title: new Text(d.title),
           selected: i == _currentFragmentIndex,
           onTap: () => _onSelectFragment(i),
         )
@@ -262,10 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawerOptions.add(
         new ListTile(
           leading: new Icon(d.icon),
-          title: new Text(
-            d.title,
-            style: TextStyle(fontSize: 8.2 * _pxRatio, fontWeight: FontWeight.normal)
-          ),
+          title: new Text(d.title),
           onTap: () => _onSelectScreen(i),
         )
       );
@@ -305,10 +297,10 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               new UserAccountsDrawerHeader(
                 accountName: new Text(
-                  _user != null ? (_user?.displayName != null ? _user.displayName : "Unknown") : "Guest", style: TextStyle(fontSize: 8.5 * _pxRatio)),
+                  _user != null ? (_user?.displayName != null ? _user.displayName : "Unknown") : "Guest", style: TextStyle(fontSize: 16.0)),
                 accountEmail: new Text(
                   _user != null ? _user.email : "Please sign in",
-                  style: TextStyle(fontSize:  8.0 * _pxRatio, fontWeight: FontWeight.normal)
+                  style: TextStyle(fontSize:  12.0, fontWeight: FontWeight.normal)
                 ),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.white,

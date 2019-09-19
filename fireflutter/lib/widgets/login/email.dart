@@ -20,12 +20,9 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _secure = true;
-  double _pxRatio;
 
   @override
   Widget build(BuildContext context) {
-
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Form(
       key: _formKey,
@@ -36,11 +33,9 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
             alignment: Alignment.center,
             child: TextFormField(
               controller: _emailController,
-              style: TextStyle(fontSize: 8.0 * _pxRatio,),
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.email, size: 10.0 * _pxRatio,),
+                prefixIcon: Icon(Icons.email),
                 labelText: 'Enter Email',
-                labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
                 contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
               ),
               validator: (String value) {
@@ -55,15 +50,13 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
             alignment: Alignment.center,
             child: TextFormField(
               controller: _passwordController,
-              style: TextStyle(fontSize: 8.0 * _pxRatio,),
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.vpn_key, size: 10.0 * _pxRatio,),
+                prefixIcon: Icon(Icons.vpn_key),
                 suffixIcon: GestureDetector(
-                  child: Icon(_secure ? Icons.visibility : Icons.visibility_off, size: 10.0 * _pxRatio,),
+                  child: Icon(_secure ? Icons.visibility : Icons.visibility_off),
                   onTap: _toggleSecure
                 ),
                 labelText: 'Enter Password',
-                labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
                 contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
               ),
               obscureText: _secure,
@@ -79,7 +72,7 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
             ),
           ),
           Container(
-            padding: EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
+            padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
             alignment: Alignment.center,
             child: SizedBox(
               width: double.infinity, // match_parent

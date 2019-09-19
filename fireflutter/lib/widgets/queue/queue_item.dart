@@ -35,12 +35,12 @@ class QueueItem extends StatelessWidget {
                   Icon(
                     queueData['status'] != 0 ? Icons.lock : Icons.lock_open,
                     color: queueData['status'] != 0 ? Colors.red : Colors.green,
-                    size: 8.5 * _pxRatio
+                    size: 13.0
                   ),
                   SizedBox(width: 2),
                   Expanded(child: Text(
                     queueData['topic'],
-                    style: TextStyle(fontSize: 8.5 * _pxRatio, fontWeight: FontWeight.normal),
+                    style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.normal),
                   )),
                 ]
               ),
@@ -62,18 +62,18 @@ class QueueItem extends StatelessWidget {
                               Icon(
                                 Icons.keyboard_arrow_left,
                                 color: Theme.of(context).primaryColor,
-                                size: 8.5 * _pxRatio,
+                                size: 13.0,
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Text(
                                     'Client',
-                                    style: TextStyle(fontSize: 6.5 * _pxRatio, fontWeight: FontWeight.normal),
+                                    style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.normal),
                                   ),
                                   Text(
                                     userMetadata['name'],
-                                    style: TextStyle(fontSize: 5.8 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey),
+                                    style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.normal, color: Colors.grey),
                                   ),
                                 ]
                               )
@@ -88,18 +88,18 @@ class QueueItem extends StatelessWidget {
                                 children: <Widget>[
                                   Text(
                                     'Supervisor',
-                                    style: TextStyle(fontSize: 6.5 * _pxRatio, fontWeight: FontWeight.normal),
+                                    style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.normal),
                                   ),
                                   Text(
                                     assignedUserMetadata['name'],
-                                    style: TextStyle(fontSize: 5.8 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey),
+                                    style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.normal, color: Colors.grey),
                                   ),
                                 ]
                               ) : SizedBox(width:0, height: 0),
                               queueData['assigned_user'] != false && queueData['assigned_user'] != currentUser.uid ? Icon(
                                 Icons.keyboard_arrow_right,
                                 color: Theme.of(context).primaryColor,
-                                size: 8.5 * _pxRatio,
+                                size: 13.0,
                               ) : SizedBox(width:0, height: 0),
                             ],
                           ),
@@ -111,8 +111,8 @@ class QueueItem extends StatelessWidget {
                     child: queueData['assigned_user'] == currentUser.uid || queueData['assigned_user'] == false
                     ? queueData['assigned_user'] == currentUser.uid
                       ? SizedBox(
-                          width: 26.5 * _pxRatio,
-                          height: 26.5 * _pxRatio,
+                          width: 26.0 * _pxRatio,
+                          height: 26.0 * _pxRatio,
                           child: Material(
                             elevation: 1.0,
                             shape: CircleBorder(),
@@ -130,8 +130,8 @@ class QueueItem extends StatelessWidget {
                         )
                       : (queueData['assigned_user'] == false
                         ? SizedBox(
-                          width: 26.5 * _pxRatio,
-                          height: 26.5 * _pxRatio,
+                          width: 26.0 * _pxRatio,
+                          height: 26.0 * _pxRatio,
                           child: Material(
                             elevation: 1.0,
                             shape: CircleBorder(),
@@ -161,11 +161,11 @@ class QueueItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Icon(Icons.calendar_today, color: Theme.of(context).primaryColor, size: 6.5 * _pxRatio),
+                        Icon(Icons.calendar_today, color: Theme.of(context).primaryColor, size: 9.0),
                         SizedBox(width: 5),
                         Text(
                           DateTime.fromMillisecondsSinceEpoch(queueData['timestamp']).toLocal().toString().substring(0, 19),
-                          style: TextStyle(fontSize: 6.5 * _pxRatio, fontWeight: FontWeight.normal, color: Colors.grey),
+                          style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.normal, color: Colors.grey),
                         ),
                       ]
                     ),

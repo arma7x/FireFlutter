@@ -19,12 +19,8 @@ class ResetPasswordState extends State<ResetPassword> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
 
-  double _pxRatio;
-
   @override
   Widget build(BuildContext context) {
-
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Scaffold(
       appBar: AppBar(
@@ -41,11 +37,9 @@ class ResetPasswordState extends State<ResetPassword> {
                 alignment: Alignment.center,
                 child: TextFormField(
                   controller: _emailController,
-                  style: TextStyle(fontSize: 8.0 * _pxRatio,),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email, size: 10.0 * _pxRatio,),
+                    prefixIcon: Icon(Icons.email),
                     labelText: 'Enter Email',
-                    labelStyle: TextStyle(fontSize: 8.0 * _pxRatio,),
                     contentPadding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 5.0),
                   ),
                   validator: (String value) {
@@ -58,10 +52,10 @@ class ResetPasswordState extends State<ResetPassword> {
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.fromLTRB(30.0, 15.0, 30.0, 0.0),
+                padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 0.0),
                 alignment: Alignment.center,
                 child: SizedBox(
-                  width: double.infinity, // match_parent
+                  width: double.infinity,
                   child: RaisedButton(
                     color: Theme.of(context).primaryColor,
                     child: Text(
