@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class DialogButton extends StatelessWidget {
+class ActionButton extends StatelessWidget {
 
   final String text;
   final IconData icon;
   final Function fn;
 
-  DialogButton({Key key, this.text, this.icon, this.fn});
+  ActionButton({Key key, this.text, this.icon, this.fn});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class DialogButton extends StatelessWidget {
             SizedBox(width: 10),
             Text(
               text,
-              style: TextStyle(color: Colors.black, fontSize: 14.0, fontWeight: FontWeight.normal)
+              style: TextStyle(color: Colors.grey, fontSize: 14.0, fontWeight: FontWeight.normal)
             ),
           ]
         )

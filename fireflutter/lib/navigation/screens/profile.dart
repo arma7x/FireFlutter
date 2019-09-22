@@ -28,6 +28,7 @@ class _ProfileState extends State<Profile> {
   Map<dynamic, dynamic> _metadata;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   double _pxRatio;
 
   void _onImageButtonPressed(ImageSource source) async {
@@ -44,6 +45,9 @@ class _ProfileState extends State<Profile> {
   Future<void> _uploadFile(File blob, String name) async {
     final StorageReference ref = storage.ref().child('/user/${_user.uid}/avatar').child(name);
     final StorageUploadTask uploadTask = ref.putFile(blob);
+    //StorageTaskSnapshot data2 = await uploadTask.onComplete;
+    //print(await data2.ref.getDownloadURL());
+    //String u = await data2.ref.getDownloadURL()..cast<String>();
     uploadTask.events.listen((StorageTaskEvent event) {
       if (event.type == StorageTaskEventType.progress) {
         Toast.show('Uploading', context, duration: 3);
@@ -76,32 +80,53 @@ class _ProfileState extends State<Profile> {
   }
 
   void _selectImageSourceDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: new Text(
-            "Select source:",
-            style: TextStyle(fontSize: 16.0),
+    FocusScope.of(context).requestFocus(new FocusNode());
+    scaffoldKey.currentState
+    .showBottomSheet((_) => Container(
+      height: (MediaQuery.of(context).size.height - 80),
+      child: new Column(
+        children: <Widget>[
+          Expanded(
+            child:GestureDetector(
+              child:  Container(
+                color: Color.fromRGBO(0, 0, 0, 0.3),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            )
           ),
-          content: Container(
-            height: 110,
-            child: new Column(
-            children: <Widget>[
-              DialogButton(text: "Open Gallery", icon: Icons.photo_library, fn: () {
-                _onImageButtonPressed(ImageSource.gallery);
-                Navigator.of(context).pop();
-              }),
-              SizedBox(height: 4),
-              DialogButton(text: "Lauch Camera", icon: Icons.camera_alt, fn: () {
-                _onImageButtonPressed(ImageSource.camera);
-                Navigator.of(context).pop();
-              }),
-            ]
-          )),
-        );
-      },
-    );
+          Container(
+            color: Colors.white,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 10),
+                Row(
+                  children: <Widget>[
+                    SizedBox(width: 16),
+                    Text(
+                      "Choose photo",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ]
+                ),
+                SizedBox(height: 8),
+                ActionButton(text: "Upload from gallery", icon: Icons.photo_library, fn: () {
+                  _onImageButtonPressed(ImageSource.gallery);
+                  Navigator.of(context).pop();
+                }),
+                ActionButton(text: "Take photo", icon: Icons.camera_alt, fn: () {
+                  _onImageButtonPressed(ImageSource.camera);
+                  Navigator.of(context).pop();
+                }),
+              ]
+            )
+          ),
+        ]
+      )
+    ), backgroundColor: Colors.transparent);
   }
 
   void _deleteAccount() async {
@@ -164,6 +189,7 @@ class _ProfileState extends State<Profile> {
     _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -186,13 +212,26 @@ class _ProfileState extends State<Profile> {
                             child: CircleAvatarIcon(url: _user?.photoUrl, radius: 28.0),
                           ),
                           Positioned(
-                            right: 6 * _pxRatio,
+                            right: 11 * _pxRatio,
                             bottom: 0.0,
-                            child: FloatingActionButton(
-                              mini: true,
-                              backgroundColor: Theme.of(context).primaryColor,
-                              onPressed: _selectImageSourceDialog,
-                              child: Icon(Icons.camera_alt, size: 8.0 * _pxRatio),
+                            child: SizedBox(
+                              width: 20.0 * _pxRatio,
+                              height: 20.0 * _pxRatio,
+                              child: Material(
+                                elevation: 1.0,
+                                shape: CircleBorder(),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular((20.0 * _pxRatio) / 2),
+                                  onTap: _selectImageSourceDialog,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Icon(Icons.camera_alt, size: 8.0 * _pxRatio, color: Colors.white),
+                                    ]
+                                  ),
+                                ),
+                                color: Theme.of(context).primaryColor,
+                              ),
                             )
                           ),
                         ]

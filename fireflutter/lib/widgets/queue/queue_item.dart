@@ -117,6 +117,7 @@ class QueueItem extends StatelessWidget {
                             elevation: 1.0,
                             shape: CircleBorder(),
                             child: InkWell(
+                              borderRadius: BorderRadius.circular((26.0 * _pxRatio) / 2),
                               onTap: () { joinChatCb(queueData['key']); },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -136,6 +137,7 @@ class QueueItem extends StatelessWidget {
                             elevation: 1.0,
                             shape: CircleBorder(),
                             child: InkWell(
+                              borderRadius: BorderRadius.circular((26.0 * _pxRatio) / 2),
                               onTap: () { handleChatCb(queueData['key']); },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
