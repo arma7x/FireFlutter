@@ -19,6 +19,9 @@
         "assigned_user": {
           ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
         },
+        "queue number": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
+        },
         "logs": {
           "$log_id": {
             ".validate": "(root.child('chats').child($uid).exists() && (newData.child('user').val() == auth.uid || root.child('users').child(auth.uid).child('role').val() == 1) && (newData.child('timestamp').val() == now) && (newData.child('message').child('mime').exists() && newData.child('message').child('data').exists() && newData.child('message').child('data').val().length > 0 && newData.child('message').child('caption').exists())) || root.child('users').child(auth.uid).child('role').val() == 1",
@@ -44,6 +47,9 @@
         },
         "assigned_user": {
           ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists() && root.child('chats').child($uid).child('assigned_user').val() == false"
+        },
+        "queue number": {
+          ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
         }
       }
     },
