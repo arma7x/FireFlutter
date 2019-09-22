@@ -101,6 +101,15 @@
         }
         q.sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1)
         this.queues = q
+        let index = 1
+        this.queues.forEach((value) => {
+          if (value.assigned_user === false) {
+            const update = { queue_number: index }
+            firebase.database().ref('chats/' + value.key).update(update)
+            firebase.database().ref('queues/' + value.key).update(update)
+            index++
+          }
+        })
       })
       db.ref('users_public')
       .on('value', (usersSnapshot) => {

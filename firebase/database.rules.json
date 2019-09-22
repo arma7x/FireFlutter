@@ -19,7 +19,7 @@
         "assigned_user": {
           ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
         },
-        "queue number": {
+        "queue_number": {
           ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
         },
         "logs": {
@@ -48,7 +48,7 @@
         "assigned_user": {
           ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists() && root.child('chats').child($uid).child('assigned_user').val() == false"
         },
-        "queue number": {
+        "queue_number": {
           ".write": "root.child('users').child(auth.uid).child('role').val() == 1 && root.child('chats').child($uid).exists()"
         }
       }
