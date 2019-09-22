@@ -171,6 +171,11 @@
                     </v-btn>
                   </v-layout>
                 </v-layout>
+                <v-layout class="mt-1" v-if="chat.assigned_user != false && assigned_user != null && assigned_user != undefined && chat.assigned_user != user.uid">
+                  <v-btn block class="py-2" color="success" @click="notifySupervisor">
+                    NOTIFY SUPERVISOR
+                  </v-btn>
+                </v-layout>
                 <v-layout class="mt-1" v-if="user.uid == uid && chat.status == 0">
                   <v-btn block class="py-2" color="error" @click="exitQueue">
                     EXIT QUEUE
@@ -334,6 +339,22 @@
             this.$store.commit('setError', error.response.data)
           })
         }
+      },
+      notifySupervisor () {
+        this.$store.commit('setLoading', true)
+        firebase.auth().currentUser.getIdToken(true)
+        .then((idToken) => {
+          return Api.notifySupervisor({ 'token': idToken })
+        })
+        .then((response) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('clearError')
+          this.hidden = false
+        })
+        .catch((error) => {
+          this.$store.commit('setLoading', false)
+          this.$store.commit('setError', error.response.data)
+        })
       },
       adminToggleStatus () {
         const status = { status: (this.chat.status === 0 ? 1 : 0) }

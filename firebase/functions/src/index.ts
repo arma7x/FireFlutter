@@ -146,12 +146,128 @@ export const exitQueue = functions.https.onRequest((request, response) => {
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Succesfully exited from queue list' });
+      response.status(200).json({ 'message': 'Successfully exited from queue list' });
     });
   })
   .catch((error) => {
     corsFn(request, response, () => {
       response.status(400).json(error);
+    });
+  });
+});
+
+export const notifySupervisor = functions.https.onRequest((request, response) => {
+  const corsFn = cors();
+  const token = request.query.token || 'string';
+  let uid:string;
+  admin.auth().verifyIdToken(token)
+  .then((decodedToken) => {
+    uid = decodedToken.uid;
+    const chatRef = admin.database().ref('/chats/' + uid);
+    return chatRef.once('value')
+  })
+  .then((snapshotChat) => {
+    if (!snapshotChat.exists()) {
+      return Promise.reject({ 'message': 'Queue does not exist' });
+    } 
+    if (snapshotChat.val().assigned_user === false) {
+      return Promise.reject({ 'message': 'There is no supervisor assigned to you yet' });
+    }
+    const adminRef = admin.database().ref('/users/' + snapshotChat.val().assigned_user)
+    return adminRef.once('value')
+  })
+  .then((snapshotAdmin) => {
+    console.log("SEND NOTIFICATION TO ADMIN");
+    const regFCMTokens = []
+    if (snapshotAdmin.val()['devices']) {
+      for (const i in snapshotAdmin.val()['devices']) {
+        regFCMTokens.push(snapshotAdmin.val()['devices'][i]['fcm'])
+      }
+    }
+    if (regFCMTokens.length > 0) {
+      const payload = {
+        notification: {
+          title: 'Chat',
+          body : 'Client is waiting for your'
+        }
+      };
+      console.log(regFCMTokens);
+      return admin.messaging().sendToDevice(regFCMTokens, payload)
+    } else {
+      console.log("NO ACTIVE CLIENT");
+      return Promise.reject({ 'message': 'Your supervisor does not have an active device' });
+    }
+  })
+  .then(() => {
+    corsFn(request, response, () => {
+      response.status(200).json({ 'message': 'Successfully send notification to your supervisor' });
+    });
+  })
+  .catch((error) => {
+    corsFn(request, response, () => {
+      response.status(400).json(error);
+    });
+  });
+});
+
+export const adminSuperviseQueue = functions.https.onRequest((request, response) => {
+  const corsFn = cors();
+  const queue = request.query.queue;
+  const token = request.query.token || 'string';
+  const user: { [assigned_user: string]: any; } = { assigned_user: false, status: 1 };
+  let uid:string;
+  if (queue === null || queue ===  undefined) {
+    corsFn(request, response, () => {
+      response.status(400).json({ 'message': 'Queue id is required' });
+    });
+  }
+  admin.auth().verifyIdToken(token)
+  .then((decodedToken) => {
+    uid = decodedToken.uid;
+    const adminRef = admin.database().ref('/users/' + uid).child('role');
+    return adminRef.once('value');
+  })
+  .then((snapshot) => {
+    if (snapshot.val() !== LEVEL.ADMIN) {
+      return Promise.reject({ 'message': 'Permission denied' });
+    }
+    user['assigned_user'] = uid;
+    const queueRef = admin.database().ref('/queues/' + queue);
+    return queueRef.once('value')
+  })
+  .then((snapshotQueue) => {
+    if (!snapshotQueue.exists()) {
+      return Promise.reject({ 'message': 'Queue does not exist' });
+    } else {
+      return admin.database().ref('/queues/' + queue).update(user);
+    }
+  })
+  .then(() => {
+    return admin.database().ref('/chats/' + queue).update(user);
+  })
+  .then(() => {
+    corsFn(request, response, () => {
+      response.status(200).json({ 'message': 'Successfully placed this queue under you' });
+    });
+  })
+  .catch((error) => {
+    user['assigned_user'] = false;
+    admin.database().ref('/queues/' + queue).update(user)
+    .then(() => {
+      console.log("ROLLBACK QUEUE");
+    })
+    .catch((errQ) => {
+      console.log(errQ);
+    });
+    admin.database().ref('/chats/' + queue).update(user)
+    .then(() => {
+      console.log("ROLLBACK CHAT");
+    })
+    .catch((errChat) => {
+      console.log(errChat);
+    });
+    corsFn(request, response, () => {
+      response.status(400).json({ 'message': 'Could not put this queue under you' });
     });
   });
 });
@@ -206,13 +322,13 @@ export const adminNotifyClient = functions.https.onRequest((request, response) =
       return admin.messaging().sendToDevice(regFCMTokens, payload)
     } else {
       console.log("NO ACTIVE CLIENT");
-      return Promise.reject({ 'message': 'Client does not logged-in in any device' });
+      return Promise.reject({ 'message': 'Client does not have an active device' });
     }
   })
   .then((success) => {
     console.log(success);
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Succesfully send notification to client' });
+      response.status(200).json({ 'message': 'Successfully send notification to client' });
     });
   })
   .catch((error) => {
@@ -260,7 +376,7 @@ export const adminDeleteQueue = functions.https.onRequest((request, response) =>
   })
   .then(() => {
     corsFn(request, response, () => {
-      response.status(200).json({ 'message': 'Succesfully removed from queue list' });
+      response.status(200).json({ 'message': 'Successfully removed from queue list' });
     });
   })
   .catch((error) => {

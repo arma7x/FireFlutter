@@ -6,6 +6,8 @@ export default class Api {
   static SELF_DESTRUCT_ACCOUNT = 'selfDestructAccount'
   static ENTER_QUEUE = 'enterQueue'
   static EXIT_QUEUE = 'exitQueue'
+  static NOTIFY_SUPERVISOR = 'notifySupervisor'
+  static ADMIN_SUPERVISE_QUEUE = 'adminSuperviseQueue'
   static ADMIN_DELETE_QUEUE = 'adminDeleteQueue'
   static ADMIN_NOTIFY_CLIENT = 'adminNotifyClient'
 
@@ -19,6 +21,14 @@ export default class Api {
 
   static exitQueue (params) {
     return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/${this.EXIT_QUEUE}`, { params: params })
+  }
+
+  static notifySupervisor (params) {
+    return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/${this.NOTIFY_SUPERVISOR}`, { params: params })
+  }
+
+  static adminSuperviseQueue (params) {
+    return axios.get(`https://us-central1-${Config.firebase.projectId}.cloudfunctions.net/${this.ADMIN_SUPERVISE_QUEUE}`, { params: params })
   }
 
   static adminDeleteQueue (params) {

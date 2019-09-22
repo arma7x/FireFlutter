@@ -113,20 +113,21 @@
       },
       handleChat (id) {
         if (confirm('Are sure to put this queue under your supervision ?')) {
-          const user = { assigned_user: this.user.uid, status: 1 }
-          firebase.database().ref('queues/' + id).update(user)
-          .then(() => {
-            return firebase.database().ref('chats/' + id).update(user)
+          this.$store.commit('setLoading', true)
+          let token
+          firebase.auth().currentUser.getIdToken(true)
+          .then((idToken) => {
+            token = idToken
+            return Api.adminSuperviseQueue({ 'token': idToken, 'queue': id })
           })
-          .then(() => {
-            firebase.auth().currentUser.getIdToken(true)
-            .then((idToken) => {
-              Api.adminNotifyClient({ 'token': idToken, 'queue': id })
-            })
-            this.joinChat(id)
+          .then((response) => {
+            this.$store.commit('setLoading', false)
+            this.$store.commit('clearError')
+            Api.adminNotifyClient({ 'token': token, 'queue': id })
           })
           .catch((error) => {
-            this.$store.commit('setError', error)
+            this.$store.commit('setLoading', false)
+            this.$store.commit('setError', error.response.data)
           })
         }
       } // ,
