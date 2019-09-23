@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fireflutter/state/provider_state.dart';
@@ -66,6 +67,19 @@ class _QueuePageState extends State<QueuePage> {
         setState(() {
           _queueWidgets = queueWidgets;
         });
+        int idx = 1;
+        for (var value in tempQueueData) {
+          if (value['assigned_user'] == false) {
+            try {
+              Map<String, dynamic> update = { 'queue_number': idx };
+              FirebaseDatabase.instance.reference().child('chats/' + value['key']).update(update);
+              FirebaseDatabase.instance.reference().child('queues/' + value['key']).update(update);
+              idx++;
+            } catch(e) {
+              print(e);
+            }
+          }
+        };
       }
     });
   }
@@ -73,14 +87,14 @@ class _QueuePageState extends State<QueuePage> {
   void _joinChat(String id) {
     Navigator.push(
       context,
-      CupertinoPageRoute(builder: (BuildContext context) => new ChatPage(title:"Chat", any: id, loadingCb: widget.loadingCb))
+      CupertinoPageRoute(builder: (BuildContext _) => new ChatPage(title:"Chat", any: id, loadingCb: widget.loadingCb))
     );
   }
 
   void _handleChat(String id) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext _) {
         return AlertDialog(
           title: new Text(
             "Are sure to put this queue under your supervision ?",
@@ -100,21 +114,29 @@ class _QueuePageState extends State<QueuePage> {
               ),
               onPressed: () async {
                 Navigator.of(context).pop();
-                try {
-                  widget.loadingCb(true);
-                  final Map<String, dynamic> updateData = { 'assigned_user': _user.uid, 'status': 1 };
-                  await FirebaseDatabase.instance.reference().child('/queues/' + id).update(updateData);
-                  await FirebaseDatabase.instance.reference().child('/chats/' + id).update(updateData);
-                  _auth.currentUser()
-                  .then((FirebaseUser u) => u.getIdToken(refresh: true))
-                  .then((String token) => Api.adminNotifyClient(<String, String>{'token': token, 'queue': id}))
-                  .then((request) => request.close());
+                widget.loadingCb(true);
+                String token;
+                _auth.currentUser()
+                .then((FirebaseUser u) => u.getIdToken(refresh: true))
+                .then((String idToken) {
+                  token = idToken;
+                  return Api.adminSuperviseQueue(<String, String>{ 'token': token, 'queue': id });
+                })
+                .then((request) => request.close())
+                .then((response) async {
                   widget.loadingCb(false);
+                  final responseBody = await response.cast<List<int>>().transform(utf8.decoder).join();
+                  final Map<String, dynamic> parsedBody = json.decode(responseBody);
+                  Toast.show(parsedBody['message'], context, duration: 5);
+                  Api.adminNotifyClient(<String, String>{'token': token, 'queue': id})
+                  .then((request) => request.close());
                   _joinChat(id);
-                } catch(e) {
+                })
+                .catchError((e) {
+                  print(e);
                   widget.loadingCb(false);
                   Toast.show(e.toString(), context, duration: 5);
-                }
+                });
               },
             ),
           ],

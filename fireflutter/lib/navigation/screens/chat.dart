@@ -291,6 +291,26 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  void _notifySupervisor() {
+    Navigator.of(context).pop();
+    widget.loadingCb(true);
+    _auth.currentUser()
+    .then((FirebaseUser u) => u.getIdToken(refresh: true))
+    .then((String token) => Api.notifySupervisor(<String, String>{ 'token': token }))
+    .then((request) => request.close())
+    .then((response) async {
+      widget.loadingCb(false);
+      final responseBody = await response.cast<List<int>>().transform(utf8.decoder).join();
+      final Map<String, dynamic> parsedBody = json.decode(responseBody);
+      Toast.show(parsedBody['message'], context, duration: 5);
+    })
+    .catchError((e) {
+      print(e);
+      widget.loadingCb(false);
+      Toast.show(e.toString(), context, duration: 5);
+    });
+  }
+
   Future<void> _adminToggleStatus(bool _) async {
     try {
       Map<String, dynamic> status = { 'status': (chat['status'] == 0 ? 1 : 0) };
@@ -558,12 +578,17 @@ class _ChatPageState extends State<ChatPage> {
                     subtitle: chat['timestamp'] == null ? "" : DateTime.fromMillisecondsSinceEpoch(chat['timestamp']).toLocal().toString().substring(0, 19),
                     margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                   ),
-                  _assignedUserMetadata != null ? ListViewWidget(
+                  ListViewChild(
+                    title: 'Queue No.',
+                    subtitle: chat['queue_number'] == null ? "TBA" : chat['queue_number'].toString(),
+                    margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                  ),
+                  ListViewWidget(
                     margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                     widget: Row(
                       children: <Widget>[
-                        CircleAvatarIcon(url: _assignedUserMetadata['photoUrl'], radius: 12),
-                        SizedBox(width: 10),
+                        _assignedUserMetadata != null ? CircleAvatarIcon(url: _assignedUserMetadata['photoUrl'], radius: 12) : SizedBox(width: 0),
+                        SizedBox(width: _assignedUserMetadata != null ? 10 : 0),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
@@ -573,14 +598,14 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             SizedBox(height: 3),
                             Text(
-                              _assignedUserMetadata['name'] == null ? "" : _assignedUserMetadata['name'],
+                              _assignedUserMetadata == null ? 'TBA' : (_assignedUserMetadata['name'] == null ? '' : _assignedUserMetadata['name']),
                               style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.normal, color: Colors.grey)
                             ),
                           ]
                         ),
                       ]
                     )
-                  ) : SizedBox(height: 0, width: 0),
+                  ),
                   _queueUserMetadata != null ? ListViewWidget(
                     margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                     widget: Row(
@@ -675,6 +700,18 @@ class _ChatPageState extends State<ChatPage> {
                       ]
                     )
                   ) : SizedBox(height: 0, width: 0), //admin
+                  _user.uid == _uid && _assignedUserMetadata != null
+                  ? ListViewWidget(
+                    margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0.0),
+                    widget: RaisedButton(
+                      onPressed: _notifySupervisor,
+                      color: Colors.green,
+                      child: Text(
+                        "Notify Supervisor",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ) : SizedBox(height: 0, width: 0), //client
                   _user.uid == _uid && chat['status'] == 0
                   ? ListViewWidget(
                     margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0.0),

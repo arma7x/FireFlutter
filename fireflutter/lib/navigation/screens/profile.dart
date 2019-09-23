@@ -45,9 +45,6 @@ class _ProfileState extends State<Profile> {
   Future<void> _uploadFile(File blob, String name) async {
     final StorageReference ref = storage.ref().child('/user/${_user.uid}/avatar').child(name);
     final StorageUploadTask uploadTask = ref.putFile(blob);
-    //StorageTaskSnapshot data2 = await uploadTask.onComplete;
-    //print(await data2.ref.getDownloadURL());
-    //String u = await data2.ref.getDownloadURL()..cast<String>();
     uploadTask.events.listen((StorageTaskEvent event) {
       if (event.type == StorageTaskEventType.progress) {
         Toast.show('Uploading', context, duration: 3);
@@ -89,7 +86,7 @@ class _ProfileState extends State<Profile> {
           Expanded(
             child:GestureDetector(
               child:  Container(
-                color: Color.fromRGBO(0, 0, 0, 0.3),
+                color: Colors.transparent,
               ),
               onTap: () {
                 Navigator.of(context).pop();
@@ -126,7 +123,7 @@ class _ProfileState extends State<Profile> {
           ),
         ]
       )
-    ), backgroundColor: Colors.transparent);
+    ), backgroundColor: Colors.transparent, elevation: 1);
   }
 
   void _deleteAccount() async {
@@ -145,7 +142,7 @@ class _ProfileState extends State<Profile> {
   void _confirmDeleteAccountDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext _) {
         return AlertDialog(
           title: new Text(
             "Confirm to delete your account ?",

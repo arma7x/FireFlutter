@@ -123,6 +123,12 @@
                   </v-list-tile-content>
                 </v-list-tile>
                 <v-list-tile class="mt-1">
+                  <v-list-tile-content>
+                    <v-list-tile-title class="body-2">Queue No.</v-list-tile-title>
+                    <v-list-tile-sub-title class="body-1">{{ chat.queue_number != null ? chat.queue_number : 'TBA' }}</v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+                <v-list-tile class="mt-1">
                   <v-list-tile-avatar size="40" color="grey" v-if="chat.assigned_user != false && assigned_user != null && assigned_user != undefined">
                     <img v-if="assigned_user.photoUrl != null" :src="assigned_user.photoUrl">
                     <v-icon v-if="assigned_user.photoUrl == null" size="50" color="white">account_circle</v-icon>
@@ -208,7 +214,7 @@
         counter: true,
         filled: false,
         flat: false,
-        hint: '',
+        hint: 'Please enter some text',
         label: '',
         loading: false,
         noResize: false,

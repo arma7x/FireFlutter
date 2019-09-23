@@ -61,8 +61,8 @@
                   </v-list-tile-content>
                 </v-list-tile>
               </v-list>
-              <v-btn block class="info" @click="updateUserName">Update Profile</v-btn>
-              <v-btn block class="error" @click="selfDestructAccount">self-Destruct Account</v-btn>
+              <v-btn block class="info" @click="updateUserName">UPDATE PROFILE</v-btn>
+              <v-btn block class="error" @click="selfDestructAccount">SELF-DESTRUCT ACCOUNT</v-btn>
             </v-card-text>
          </v-card>
         </v-flex>

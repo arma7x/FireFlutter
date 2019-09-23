@@ -24,7 +24,7 @@
                     </v-avatar>
                     <v-layout row class="px-2">
                       <v-layout>
-                        <v-layout row>
+                        <v-layout row v-if="users[chat.key]">
                           <v-layout column>
                           <span class="body-2">Client</span>
                           <span class="caption grey--text">{{ users[chat.key].name }}</span>

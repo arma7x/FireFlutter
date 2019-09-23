@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.of(context).pop(); // close drawer
       Navigator.push(
         context,
-        CupertinoPageRoute(builder: (BuildContext context) => widget.drawerScreens[index].body(_loadingDialog, uid: _user != null ? _user.uid : null))
+        CupertinoPageRoute(builder: (BuildContext _) => widget.drawerScreens[index].body(_loadingDialog, uid: _user != null ? _user.uid : null))
       );
     }
   }
@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
       showDialog(
         barrierDismissible: false,
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext _) {
           return AlertDialog(
             content: Container(
               child: new LinearProgressIndicator()
