@@ -1,7 +1,7 @@
 ### Installation
 
 #### Step 1
-- Download ``google-services.json`` [Firebase console](https://console.firebase.google.com) then copy to folder ``android/app``
+- Generate new private key [Firebase console](https://console.firebase.google.com), rename to ``service_account.json`` then copy to folder ``functions``
 
 #### Step 2
 - Update ``databaseURL`` in ``functions/lib/index.js``
