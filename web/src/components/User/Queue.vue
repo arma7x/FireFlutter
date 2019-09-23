@@ -133,6 +133,7 @@
             this.$store.commit('setLoading', false)
             this.$store.commit('clearError')
             Api.adminNotifyClient({ 'token': token, 'queue': id })
+            this.joinChat(id)
           })
           .catch((error) => {
             this.$store.commit('setLoading', false)

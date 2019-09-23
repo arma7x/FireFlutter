@@ -8,3 +8,9 @@
 
 [Demo Webapp](https://fireflutter-f1304.firebaseapp.com/)
 
+#### Demo Admin
+
+``` bash
+#Email: zeon_msi@yahoo.com
+#Password: 33557799
+```

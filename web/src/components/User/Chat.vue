@@ -308,7 +308,7 @@
       },
       sendMessage () {
         this.$store.commit('clearError')
-        if (this.message.length > 0) {
+        if (this.message.length > 0 && this.message.trim().length > 0) {
           const data = {
             'user': this.$store.getters.user.uid,
             'timestamp': firebase.database.ServerValue.TIMESTAMP,
