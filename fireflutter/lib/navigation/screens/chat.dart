@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fireflutter/api.dart';
 import 'package:toast/toast.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fireflutter/widgets/misc_widgets.dart';
 
 class ChatPage extends StatefulWidget {
@@ -28,8 +27,8 @@ class _ChatPageState extends State<ChatPage> {
   FirebaseUser _user;
   Map<dynamic, dynamic> _metadata;
   String _uid;
-  List<Widget> chat_log;
-  Map<dynamic, dynamic> chat;
+  List<Widget> _chatLog;
+  Map<dynamic, dynamic> _chat;
   Map<dynamic, dynamic> _assignedUserMetadata;
   Map<dynamic, dynamic> _queueUserMetadata;
   Map<dynamic, dynamic> _queueUserMetadataPrivate;
@@ -77,7 +76,7 @@ class _ChatPageState extends State<ChatPage> {
     _chatRef.onValue.listen((Event event) async {
       if (event.snapshot.value != null) {
         var c = new Map<dynamic, dynamic>.from(event.snapshot.value);
-        setState(() { chat = c; });
+        setState(() { _chat = c; });
         if (event.snapshot.value['assigned_user'] != false && _assignedUserMetadata == null) {
           FirebaseDatabase.instance.reference().child('users_public/' + event.snapshot.value['assigned_user'])
           .onValue.listen((Event event) {
@@ -104,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
           for (var i in tempLogData) {
             List<Widget> dataWidget = List();
             var data = new Map<dynamic, dynamic>.from(i);
-            if (data['user'] != _user.uid && data['user'] == chat['assigned_user']) {
+            if (data['user'] != _user.uid && data['user'] == _chat['assigned_user']) {
               dataWidget.add(CircleAvatarIcon(url: _assignedUserMetadata == null ? null : _assignedUserMetadata['photoUrl'], radius: 13.0));
             }
             if (data['user'] != _user.uid && data['user'] == _uid) {
@@ -155,14 +154,14 @@ class _ChatPageState extends State<ChatPage> {
             );
           }
           setState(() {
-            chat_log = tempLogWidget;
+            _chatLog = tempLogWidget;
           });
           Timer(Duration(milliseconds: 500), () {
             _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
           });
         }
       } else {
-        setState(() { chat = null; });
+        setState(() { _chat = null; });
         FirebaseUser u = await _auth.currentUser();
         if (u.uid != _uid) {
           Navigator.of(context).pop();
@@ -219,7 +218,7 @@ class _ChatPageState extends State<ChatPage> {
                   widget.loadingCb(true);
                   _auth.currentUser()
                   .then((FirebaseUser u) => u.getIdToken(refresh: true))
-                  .then((String token) => Api.enterQueue(<String, String>{ 'token': token, 'topic': _topicController.text }))
+                  .then((IdTokenResult idToken) => Api.enterQueue(<String, String>{ 'token': idToken.token, 'topic': _topicController.text }))
                   .then((request) => request.close())
                   .then((response) async {
                     widget.loadingCb(false);
@@ -270,7 +269,7 @@ class _ChatPageState extends State<ChatPage> {
                 widget.loadingCb(true);
                 _auth.currentUser()
                 .then((FirebaseUser u) => u.getIdToken(refresh: true))
-                .then((String token) => Api.exitQueue(<String, String>{ 'token': token }))
+                .then((IdTokenResult idToken) => Api.exitQueue(<String, String>{ 'token': idToken.token }))
                 .then((request) => request.close())
                 .then((response) async {
                   widget.loadingCb(false);
@@ -296,7 +295,7 @@ class _ChatPageState extends State<ChatPage> {
     widget.loadingCb(true);
     _auth.currentUser()
     .then((FirebaseUser u) => u.getIdToken(refresh: true))
-    .then((String token) => Api.notifySupervisor(<String, String>{ 'token': token }))
+    .then((IdTokenResult idToken) => Api.notifySupervisor(<String, String>{ 'token': idToken.token }))
     .then((request) => request.close())
     .then((response) async {
       widget.loadingCb(false);
@@ -313,7 +312,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _adminToggleStatus(bool _) async {
     try {
-      Map<String, dynamic> status = { 'status': (chat['status'] == 0 ? 1 : 0) };
+      Map<String, dynamic> status = { 'status': (_chat['status'] == 0 ? 1 : 0) };
       await _chatRef.update(status);
       await FirebaseDatabase.instance.reference().child('queues/' + _uid).update(status);
     } catch(e) {
@@ -326,7 +325,7 @@ class _ChatPageState extends State<ChatPage> {
     widget.loadingCb(true);
     _auth.currentUser()
     .then((FirebaseUser u) => u.getIdToken(refresh: true))
-    .then((String token) => Api.adminNotifyClient(<String, String>{ 'token': token, 'queue': _uid }))
+    .then((IdTokenResult idToken) => Api.adminNotifyClient(<String, String>{ 'token': idToken.token, 'queue': _uid }))
     .then((request) => request.close())
     .then((response) async {
       widget.loadingCb(false);
@@ -368,7 +367,7 @@ class _ChatPageState extends State<ChatPage> {
                 widget.loadingCb(true);
                 _auth.currentUser()
                 .then((FirebaseUser u) => u.getIdToken(refresh: true))
-                .then((String token) => Api.adminDeleteQueue(<String, String>{ 'token': token, 'queue': _uid }))
+                .then((IdTokenResult idToken) => Api.adminDeleteQueue(<String, String>{ 'token': idToken.token, 'queue': _uid }))
                 .then((request) => request.close())
                 .then((response) async {
                   widget.loadingCb(false);
@@ -412,7 +411,7 @@ class _ChatPageState extends State<ChatPage> {
           const Text(''),
         ],
       ),
-      body: chat == null
+      body: _chat == null
       ? Center(
           child: Form(
             key: _topicFormKey,
@@ -464,11 +463,11 @@ class _ChatPageState extends State<ChatPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            chat_log != null
+            _chatLog != null
             ? Expanded(
               child: ListView(
                 controller: _scrollController,
-                children: chat_log,
+                children: _chatLog,
               ),
             ) : Expanded(
               child: Column(
@@ -559,7 +558,7 @@ class _ChatPageState extends State<ChatPage> {
           ]
         ),
       ),
-      endDrawer: chat != null ? new SizedBox(
+      endDrawer: _chat != null ? new SizedBox(
         width: MediaQuery.of(context).size.width * 0.80,
         child: new Drawer(
           child: new Container(
@@ -570,17 +569,17 @@ class _ChatPageState extends State<ChatPage> {
                 children: <Widget>[
                   ListViewChild(
                     title: 'Topic',
-                    subtitle: chat['topic'] == null ? "" : chat['topic'],
+                    subtitle: _chat['topic'] == null ? "" : _chat['topic'],
                     margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                   ),
                   ListViewChild(
                     title: 'Timestamp',
-                    subtitle: chat['timestamp'] == null ? "" : DateTime.fromMillisecondsSinceEpoch(chat['timestamp']).toLocal().toString().substring(0, 19),
+                    subtitle: _chat['timestamp'] == null ? "" : DateTime.fromMillisecondsSinceEpoch(_chat['timestamp']).toLocal().toString().substring(0, 19),
                     margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                   ),
                   ListViewChild(
                     title: 'Queue No.',
-                    subtitle: chat['queue_number'] == null ? "TBA" : chat['queue_number'].toString(),
+                    subtitle: _chat['queue_number'] == null ? "TBA" : _chat['queue_number'].toString(),
                     margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
                   ),
                   ListViewWidget(
@@ -655,22 +654,22 @@ class _ChatPageState extends State<ChatPage> {
                                       ),
                                       SizedBox(width: 5),
                                       Icon(
-                                        chat['status'] != 0 ? Icons.lock : Icons.lock_open,
-                                        color: chat['status'] != 0 ? Colors.red : Colors.green,
+                                        _chat['status'] != 0 ? Icons.lock : Icons.lock_open,
+                                        color: _chat['status'] != 0 ? Colors.red : Colors.green,
                                         size: 13.0,
                                       ),
                                     ]
                                   ),
                                   SizedBox(height: 0),
                                   Switch(
-                                    value: (chat['status'] == 0 ? false : true),
+                                    value: (_chat['status'] == 0 ? false : true),
                                     activeColor: Theme.of(context).primaryColor,
                                     activeTrackColor: Colors.blue[100],
                                     onChanged: _adminToggleStatus
                                   ),
                                 ]
                               ),
-                              chat['status'] == 0
+                              _chat['status'] == 0
                               ? Container(
                                 margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                                 child: RaisedButton(
@@ -712,7 +711,7 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     )
                   ) : SizedBox(height: 0, width: 0), //client
-                  _user.uid == _uid && chat['status'] == 0
+                  _user.uid == _uid && _chat['status'] == 0
                   ? ListViewWidget(
                     margin: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0.0),
                     widget: RaisedButton(

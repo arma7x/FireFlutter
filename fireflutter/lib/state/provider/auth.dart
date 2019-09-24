@@ -46,8 +46,8 @@ class Auth with ChangeNotifier {
   Future<Map<String, dynamic>> selfDestructAccount() async {
     FirebaseUser user = await _auth.currentUser();
     try {
-      final String token = await user.getIdToken(refresh: true);
-      final request = await Api.selfDestructAccount(<String, String>{'token': token});
+      final IdTokenResult idToken = await user.getIdToken(refresh: true);
+      final request = await Api.selfDestructAccount(<String, String>{'token': idToken.token});
       final response = await request.close(); 
       if (response.statusCode == 200) {
         final responseBody = await response.cast<List<int>>().transform(utf8.decoder).join();
@@ -69,16 +69,16 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<FirebaseUser> signUserUp(String email, String password) {
-    Future<FirebaseUser> user = _auth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<FirebaseUser> signUserUp(String email, String password) async {
+    AuthResult user = await _auth.createUserWithEmailAndPassword(email: email, password: password);
     notifyListeners();
-    return user;
+    return user.user;
   }
 
-  Future<FirebaseUser> signUserIn(String email, String password) {
-    Future<FirebaseUser> user = _auth.signInWithEmailAndPassword(email: email, password: password);
+  Future<FirebaseUser> signUserIn(String email, String password) async {
+    AuthResult user = await _auth.signInWithEmailAndPassword(email: email, password: password);
     notifyListeners();
-    return user;
+    return user.user;
   }
 
   Future<FirebaseUser> signUserInGoogle() async {
@@ -88,9 +88,9 @@ class Auth with ChangeNotifier {
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
-    Future<FirebaseUser> user = _auth.signInWithCredential(credential);
+    AuthResult user = await _auth.signInWithCredential(credential);
     notifyListeners();
-    return user;
+    return user.user;
   }
 
   void goOnline() {

@@ -63,7 +63,7 @@ class _QueuePageState extends State<QueuePage> {
           var queueData = new Map<dynamic, dynamic>.from(i);
           dynamic assignedUserMetadata = queueData['assigned_user'] != false ? _usersMetadata[queueData['assigned_user']] : null;
           queueWidgets.add(QueueItem(currentUser: _user, userMetadata: _usersMetadata[queueData['key']], assignedUserMetadata: assignedUserMetadata, queueData: queueData, joinChatCb: _joinChat, handleChatCb: _handleChat));
-        };
+        }
         setState(() {
           _queueWidgets = queueWidgets;
         });
@@ -79,7 +79,7 @@ class _QueuePageState extends State<QueuePage> {
               print(e);
             }
           }
-        };
+        }
       }
     });
   }
@@ -118,8 +118,8 @@ class _QueuePageState extends State<QueuePage> {
                 String token;
                 _auth.currentUser()
                 .then((FirebaseUser u) => u.getIdToken(refresh: true))
-                .then((String idToken) {
-                  token = idToken;
+                .then((IdTokenResult idToken) {
+                  token = idToken.token;
                   return Api.adminSuperviseQueue(<String, String>{ 'token': token, 'queue': id });
                 })
                 .then((request) => request.close())

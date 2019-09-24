@@ -5,14 +5,13 @@ class CircleAvatarIcon extends StatelessWidget {
 
   final String url;
   final double radius;
-  double _pxRatio;
 
   CircleAvatarIcon({Key key, this.url, @required this.radius});
 
   @override
   Widget build(BuildContext context) {
 
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
+    double _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return CircleAvatar(
       radius: radius * _pxRatio,

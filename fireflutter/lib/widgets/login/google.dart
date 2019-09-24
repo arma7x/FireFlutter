@@ -15,12 +15,8 @@ class GoogleSignInSection extends StatefulWidget {
 
 class GoogleSignInSectionState extends State<GoogleSignInSection> {
 
-  double _pxRatio;
-
   @override
   Widget build(BuildContext context) {
-
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Column(
       children: <Widget>[

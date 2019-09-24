@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fireflutter/widgets/misc_widgets.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class QueueItem extends StatelessWidget {
 
@@ -11,14 +10,13 @@ class QueueItem extends StatelessWidget {
   final dynamic queueData;
   final Function joinChatCb;
   final Function handleChatCb;
-  double _pxRatio;
 
   QueueItem({Key key, this.currentUser, this.userMetadata, this.assignedUserMetadata, this.queueData, this.joinChatCb, this.handleChatCb});
 
   @override
   Widget build(BuildContext context) {
 
-    _pxRatio = MediaQuery.of(context).devicePixelRatio;
+    double _pxRatio = MediaQuery.of(context).devicePixelRatio;
 
     return new Container(
       width: double.infinity,
