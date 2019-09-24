@@ -76,7 +76,9 @@ export const enterQueue = functions.https.onRequest((request, response) => {
       for (const k in snapshots.val()) {
         if (snapshots.val()[k]['devices']) {
           for (const i in snapshots.val()[k]['devices']) {
-            regFCMTokens.push(snapshots.val()[k]['devices'][i]['fcm'])
+            if (snapshots.val()[k]['devices'][i]['fcm']) {
+              regFCMTokens.push(snapshots.val()[k]['devices'][i]['fcm'])
+            }
           }
         }
       }
@@ -181,7 +183,9 @@ export const notifySupervisor = functions.https.onRequest((request, response) =>
     const regFCMTokens = []
     if (snapshotAdmin.val()['devices']) {
       for (const i in snapshotAdmin.val()['devices']) {
-        regFCMTokens.push(snapshotAdmin.val()['devices'][i]['fcm'])
+        if (snapshotAdmin.val()['devices'][i]['fcm']) {
+          regFCMTokens.push(snapshotAdmin.val()['devices'][i]['fcm'])
+        }
       }
     }
     if (regFCMTokens.length > 0) {
@@ -308,7 +312,9 @@ export const adminNotifyClient = functions.https.onRequest((request, response) =
     const regFCMTokens = []
     if (snapshotClient.val()['devices']) {
       for (const i in snapshotClient.val()['devices']) {
-        regFCMTokens.push(snapshotClient.val()['devices'][i]['fcm'])
+        if (snapshotClient.val()['devices'][i]['fcm']) {
+          regFCMTokens.push(snapshotClient.val()['devices'][i]['fcm'])
+        }
       }
     }
     if (regFCMTokens.length > 0) {
