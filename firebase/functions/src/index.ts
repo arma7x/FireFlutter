@@ -218,7 +218,7 @@ export const adminSuperviseQueue = functions.https.onRequest((request, response)
   const corsFn = cors();
   const queue = request.query.queue;
   const token = request.query.token || 'string';
-  const user: { [assigned_user: string]: any; } = { assigned_user: false, status: 1 };
+  const user: { [assigned_user: string]: any; } = { assigned_user: false, status: 0 };
   let uid:string;
   if (queue === null || queue ===  undefined) {
     corsFn(request, response, () => {
