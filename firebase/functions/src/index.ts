@@ -242,6 +242,8 @@ export const adminSuperviseQueue = functions.https.onRequest((request, response)
   .then((snapshotQueue) => {
     if (!snapshotQueue.exists()) {
       return Promise.reject({ 'message': 'Queue does not exist' });
+    } else if (snapshotQueue.val()['assigned_user'] !== false) {
+      return Promise.reject({ 'message': 'This queue is unavailable' });
     } else {
       return admin.database().ref('/queues/' + queue).update(user);
     }
