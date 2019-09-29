@@ -112,11 +112,9 @@
                   </v-list-tile-content>
                 </v-list-tile>
                 <v-list-tile style="margin-top:-15px;">
-                  <v-list-tile-content>
-                    <v-list-tile-sub-title style="white-space: normal!important;"><p class="body-1 mt-1">{{ chat.topic }}</p></v-list-tile-sub-title>
-                  </v-list-tile-content>
+                  <p class="body-1" style="color:rgba(0,0,0,0.54)">{{ chat.topic }}</p>
                 </v-list-tile>
-                <v-list-tile class="mt-1">
+                <v-list-tile>
                   <v-list-tile-content>
                     <v-list-tile-title class="body-2">Timestamp</v-list-tile-title>
                     <v-list-tile-sub-title class="body-1">{{ new Date(chat.timestamp).toLocaleString() }}</v-list-tile-sub-title>
@@ -235,7 +233,9 @@
         assigned_user: null,
         queue_user: null,
         queue_user_private: null,
-        hidden: false
+        hidden: false,
+        ref_users: null,
+        ref_chats: null
       }
     },
     computed: {
@@ -259,11 +259,12 @@
           this.queue_user = userSnapshot.val()
         })
       }
-      db.ref('users/' + this.uid)
-      .on('value', (userSnapshot) => {
+      this.ref_users = db.ref('users/' + this.uid)
+      this.ref_users.on('value', (userSnapshot) => {
         this.queue_user_private = userSnapshot.val()
       })
-      db.ref('chats/' + this.uid).on('value', (dataSnapshot) => {
+      this.ref_chats = db.ref('chats/' + this.uid)
+      this.ref_chats.on('value', (dataSnapshot) => {
         if (dataSnapshot.val()) {
           this.chat = dataSnapshot.val()
           if (dataSnapshot.val().assigned_user && this.assigned_user == null) {
@@ -279,6 +280,14 @@
           }
         }
       })
+    },
+    destroyed () {
+      if (this.ref_users !== null) {
+        this.ref_users.off('value')
+      }
+      if (this.ref_chats !== null) {
+        this.ref_chats.off('value')
+      }
     },
     updated () {
       if (this.$refs.chat_scroller) {

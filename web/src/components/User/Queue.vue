@@ -27,16 +27,16 @@
                         <v-layout row v-if="users[chat.key]">
                           <v-layout column>
                           <span class="body-2">Client</span>
-                          <span class="caption grey--text">{{ users[chat.key].name }}</span>
+                          <span v-if="users[chat.key].name != null" class="caption grey--text">{{ users[chat.key].name }}</span>
                           </v-layout>
                         </v-layout>
                       </v-layout>
                       <v-spacer v-if="chat.assigned_user != false && chat.assigned_user != user.uid"></v-spacer>
                       <v-layout v-if="chat.assigned_user != false && chat.assigned_user != user.uid">
-                        <v-layout row>
+                        <v-layout row v-if="users[chat.assigned_user]">
                           <v-layout column align-end>
                           <span class="body-2">Supervisor</span>
-                          <span class="caption grey--text">{{ users[chat.assigned_user].name }}</span>
+                          <span v-if="users[chat.assigned_user].name != null" class="caption grey--text">{{ users[chat.assigned_user].name }}</span>
                           </v-layout>
                         </v-layout>
                       </v-layout>
@@ -78,7 +78,9 @@
     data () {
       return {
         users: {},
-        queues: null
+        queues: null,
+        ref_queues: null,
+        ref_users_public: null
       }
     },
     computed: {
@@ -91,8 +93,8 @@
     },
     mounted () {
       const db = firebase.database()
-      const ref = db.ref('queues')
-      ref.orderByChild('timestamp').on('value', (dataSnapshot) => {
+      this.ref_queues = db.ref('queues')
+      this.ref_queues.orderByChild('timestamp').on('value', (dataSnapshot) => {
         let q = []
         for (let k in dataSnapshot.val()) {
           const obj = dataSnapshot.val()[k]
@@ -111,10 +113,18 @@
           }
         })
       })
-      db.ref('users_public')
-      .on('value', (usersSnapshot) => {
+      this.ref_users_public = db.ref('users_public')
+      this.ref_users_public.on('value', (usersSnapshot) => {
         this.users = usersSnapshot.val()
       })
+    },
+    destroyed () {
+      if (this.ref_queues !== null) {
+        this.ref_queues.off('value')
+      }
+      if (this.ref_users_public !== null) {
+        this.ref_users_public.off('value')
+      }
     },
     methods: {
       joinChat (id) {

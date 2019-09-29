@@ -4,7 +4,8 @@ import Api from '../../api'
 export default {
   state: {
     user: null,
-    metadata: null
+    metadata: null,
+    ref_metadata: null
   },
   mutations: {
     setUser (state, payload) {
@@ -249,14 +250,17 @@ export default {
       const lastOnlineRef = firebase.database().ref('/users/' + state.user.uid + '/last_online')
       lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
       lastOnlineRef.set(firebase.database.ServerValue.TIMESTAMP)
-      firebase.database().ref('/users/' + state.user.uid)
-      .on('value', (dataSnapshot) => {
+      state.ref_metadata = firebase.database().ref('/users/' + state.user.uid)
+      state.ref_metadata.on('value', (dataSnapshot) => {
         dispatch('updateMetadata', dataSnapshot.val())
       })
     },
     async goOffline ({state}) {
       await firebase.database().ref('/users/' + state.user.uid + '/online').set(false)
       await firebase.database().ref('/users/' + state.user.uid + '/last_online').set(firebase.database.ServerValue.TIMESTAMP)
+      if (state.ref_metadata !== null) {
+        state.ref_metadata.off('value')
+      }
     },
     logout ({commit, dispatch, state}) {
       dispatch('removeActiveDevice', {uid: state.user.uid})
