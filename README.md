@@ -7,6 +7,7 @@
 - Follow each folder README guide
 
 [Demo Webapp](https://fireflutter-f1304.firebaseapp.com/)
+[Demo APK Playstore](https://play.google.com/store/apps/details?id=com.arma7x.fireflutter/)
 
 #### Demo Admin
 
