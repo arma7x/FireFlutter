@@ -77,52 +77,35 @@ class _ProfileState extends State<Profile> {
 
   void _selectImageSourceDialog() {
     FocusScope.of(context).requestFocus(new FocusNode());
-    scaffoldKey.currentState
-    .showBottomSheet((_) => Container(
-      height: (MediaQuery.of(context).size.height - 80),
-      child: new Column(
+    showModalBottomSheet(context: context, builder: (BuildContext _) => Container(
+      color: Colors.white,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child:GestureDetector(
-              child:  Container(
-                color: Colors.transparent,
+          SizedBox(height: 10),
+          Row(
+            children: <Widget>[
+              SizedBox(width: 16),
+              Text(
+                "Choose photo",
+                style: TextStyle(fontSize: 16.0),
               ),
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-            )
+            ]
           ),
-          Container(
-            color: Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(height: 10),
-                Row(
-                  children: <Widget>[
-                    SizedBox(width: 16),
-                    Text(
-                      "Choose photo",
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                  ]
-                ),
-                SizedBox(height: 8),
-                ActionButton(text: "Upload from gallery", icon: Icons.photo_library, fn: () {
-                  _onImageButtonPressed(ImageSource.gallery);
-                  Navigator.of(context).pop();
-                }),
-                ActionButton(text: "Take photo", icon: Icons.camera_alt, fn: () {
-                  _onImageButtonPressed(ImageSource.camera);
-                  Navigator.of(context).pop();
-                }),
-              ]
-            )
-          ),
+          SizedBox(height: 8),
+          ActionButton(text: "Upload from gallery", icon: Icons.photo_library, fn: () {
+            _onImageButtonPressed(ImageSource.gallery);
+            Navigator.of(context).pop();
+          }),
+          ActionButton(text: "Take photo", icon: Icons.camera_alt, fn: () {
+            _onImageButtonPressed(ImageSource.camera);
+            Navigator.of(context).pop();
+          }),
         ]
       )
-    ), backgroundColor: Colors.transparent, elevation: 1);
+    ), backgroundColor: Colors.transparent, isScrollControlled: false);
   }
 
   void _deleteAccount() async {
